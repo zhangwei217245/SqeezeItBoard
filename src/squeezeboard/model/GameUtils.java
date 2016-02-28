@@ -8,12 +8,17 @@ package squeezeboard.model;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.effect.Bloom;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
+import squeezeboard.controller.CellEventListner;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import squeezeboard.model.PlayerColor;
+import squeezeboard.view.GridPaneView;
 
 /**
  *
@@ -64,5 +69,48 @@ public class GameUtils {
         return result;
     }
     
+    public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, int dimension, GridPaneView gridController) {
+        ImageView imgView;
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                CellData cell = boardConfiguration.getBoard()[i][j];
+                if (gridController != null) {
+                    imgView = new ImageView();
+                    imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new CellEventListner(gridController));
+                    gridView.add(imgView, j, i);
+                } else {
+                    imgView = (ImageView) getNodeByRowColumnIndex(i, j, gridView);
+                }
+                imgView.setUserData(cell);
+                setPictureToImageView(cell, imgView);
+            }
+        }
+    }
+    
+    private static void setPictureToImageView(CellData cell, ImageView imgView) {
+        char cellChar = cell.getCellChar();
+        switch (cellChar) {
+            case 'P':
+                imgView.setEffect(new Bloom(0.1));
+                break;
+            case 'E':
+                imgView.setImage(GameUtils.img_empty);
+                imgView.setEffect(null);
+                break;
+            case 'O':
+                imgView.setImage(GameUtils.img_orange);
+                imgView.setEffect(null);
+                break;
+            case 'B':
+                imgView.setImage(GameUtils.img_blue);
+                imgView.setEffect(null);
+                break;
+            default:
+                ;
+        }
+        if (cell.equals(GameUtils.pickedCell)) {
+            imgView.setEffect(new Bloom(0.1));
+        }
+    }
             
 }

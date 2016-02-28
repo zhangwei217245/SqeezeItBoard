@@ -6,10 +6,6 @@
 package squeezeboard.view;
 
 import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
-import javafx.scene.Group;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 
 import javafx.scene.layout.GridPane;
 import squeezeboard.controller.CellEventListner;
@@ -36,18 +32,7 @@ public class GridPaneView {
     }
 
     public void update(BoardConfiguration currentConfig, CellEventListner eventListner) {
-        int d = currentConfig.getDimension();
-        ImageView imgView;
-        
-        for (int i = 0; i < d; i++) {
-            for (int j = 0; j < d; j++) {
-                CellData cell = currentConfig.getBoard()[i][j];
-                currentConfig.printMatrix();
-                imgView = (ImageView)GameUtils.getNodeByRowColumnIndex(i, j, gridPane);
-                imgView.setImage(cell.getImg());
-                imgView.setUserData(cell);
-            }
-        }
+        GameUtils.renderGridView(currentConfig, gridPane, currentConfig.getDimension()
+                , this);
     }
-
 }

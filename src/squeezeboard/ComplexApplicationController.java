@@ -57,41 +57,19 @@ public class ComplexApplicationController implements Initializable {
     @FXML
     private Label rightStatus;
     
+    @FXML
+    private Label label_currPlayer;
+    
     private final ToggleGroup radioGroup = new ToggleGroup();
     
     private BoardConfiguration currentBoard;
     
-    private GridPaneView gridController;
+    private GridPaneView gridViewController;
     
     private int gridDimension = 8;
     
     private int maximumMoves = 50;
     
-    @FXML
-    private void handleStart(ActionEvent event) {
-        Object source = event.getSource();
-        if (source instanceof ToggleButton) {
-            ToggleButton tg_btn = (ToggleButton)source;
-            System.out.println(tg_btn.isSelected());
-            if (tg_btn.isSelected()) {
-                tg_btn.setText("End");
-                startGame();
-            } else {
-                tg_btn.setText("Start");
-                endGame();
-            }
-        }
-    }
-    
-    @FXML
-    private void handleReset(ActionEvent event){
-        Object source = event.getSource();
-        if (source instanceof Button) {
-            resetBoard();
-            resetMemory();
-            resetStatus();
-        }
-    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -119,20 +97,11 @@ public class ComplexApplicationController implements Initializable {
     }
     
     private void initiateBoard(){
-        gridController = new GridPaneView(grid_view);
+        gridViewController = new GridPaneView(grid_view);
         currentBoard = new BoardConfiguration(this.gridDimension);
         GameUtils.existingMoves = new BoardConfiguration[maximumMoves];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = currentBoard;
-        ImageView imgView;
-        for (int i = 0; i < this.gridDimension; i++) {
-            for (int j = 0; j < this.gridDimension; j++) {
-                CellData cell = currentBoard.getBoard()[i][j];
-                imgView = new ImageView(cell.getImg());
-                imgView.setUserData(cell);
-                imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new CellEventListner(gridController));
-                grid_view.add(imgView, j, i);
-            }
-        }
+        GameUtils.renderGridView(currentBoard, grid_view, this.gridDimension, gridViewController);
         currentBoard.printMatrix();
         GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
         GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
@@ -141,8 +110,22 @@ public class ComplexApplicationController implements Initializable {
         grid_view.setVisible(false);
     }
     
+    @FXML
+    private void handleStart(ActionEvent event) {
+        Object source = event.getSource();
+        if (source instanceof ToggleButton) {
+            ToggleButton tg_btn = (ToggleButton)source;
+            System.out.println(tg_btn.isSelected());
+            if (tg_btn.isSelected()) {
+                tg_btn.setText("End");
+                startGame();
+            } else {
+                tg_btn.setText("Start");
+                endGame();
+            }
+        }
+    }
     
-
     private void startGame() {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(true));
         grid_view.setDisable(false);
@@ -152,10 +135,20 @@ public class ComplexApplicationController implements Initializable {
 
     private void endGame() {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(false));
-        grid_view.setDisable(true);
+        //grid_view.setDisable(true);
         System.out.println("end game");
     }
-
+    
+    @FXML
+    private void handleReset(ActionEvent event){
+        Object source = event.getSource();
+        if (source instanceof Button) {
+            resetBoard();
+            resetMemory();
+            resetStatus();
+        }
+    }
+    
     private void resetBoard() {
         endGame();
         initiateBoard();

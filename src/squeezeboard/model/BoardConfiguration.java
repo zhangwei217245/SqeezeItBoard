@@ -5,7 +5,6 @@
  */
 package squeezeboard.model;
 
-import squeezeboard.model.PlayerColor;
 import javafx.scene.image.Image;
 
 /**
@@ -33,17 +32,15 @@ public class BoardConfiguration {
             for (int j = 0; j < 8; j++) {
                 switch (i) {
                     case 0:
-                        img= GameUtils.img_blue;
                         cellChar = 'B';
                         break;
                     case 7:
-                        img= GameUtils.img_orange;
                         cellChar  = 'O';
                         break;
                     default:
-                        img= GameUtils.img_empty; cellChar = 'E';
+                        cellChar = 'E';
                 }
-                board[i][j] = new CellData(j, i, cellChar, img);
+                board[i][j] = new CellData(j, i, cellChar);
             }
         }
     }

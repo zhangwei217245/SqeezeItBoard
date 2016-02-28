@@ -12,13 +12,11 @@ public class CellData {
     private int rowCord;
     private int colCord;
     private char cellChar; // O, B, P, E
-    private Image img;
 
-    public CellData(int colCord, int rowCord, char cellChar, Image img) {
+    public CellData(int colCord, int rowCord, char cellChar) {
         this.rowCord = rowCord;
         this.colCord = colCord;
         this.cellChar = cellChar;
-        this.img = img;
     }
 
     public int getRowCord() {
@@ -45,17 +43,9 @@ public class CellData {
         this.cellChar = cellChar;
     }
 
-    public Image getImg() {
-        return img;
-    }
-
-    public void setImg(Image img) {
-        this.img = img;
-    }
-
     @Override
     public String toString() {
-        return "CellData{" + "rowCord=" + rowCord + ", colCord=" + colCord + ", cellChar=" + cellChar + ", img=" + img + '}';
+        return "CellData{" + "rowCord=" + rowCord + ", colCord=" + colCord + ", cellChar=" + cellChar + '}';
     }
     
     
@@ -66,7 +56,6 @@ public class CellData {
         hash = 19 * hash + this.rowCord;
         hash = 19 * hash + this.colCord;
         hash = 19 * hash + this.cellChar;
-        hash = 19 * hash + Objects.hashCode(this.img);
         return hash;
     }
 
@@ -89,9 +78,6 @@ public class CellData {
             return false;
         }
         if (this.cellChar != other.cellChar) {
-            return false;
-        }
-        if (!Objects.equals(this.img, other.img)) {
             return false;
         }
         return true;

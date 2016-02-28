@@ -5,12 +5,12 @@ import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.model.GameUtils;
+import squeezeboard.model.PlayerColor;
 
 /**
  *
@@ -18,7 +18,7 @@ import squeezeboard.model.GameUtils;
  */
 public class CellEventListner implements EventHandler<MouseEvent>{
 
-    private final GridPaneView gridController;
+    private final GridPaneView gridPaneView;
     
     @Override
     public void handle(MouseEvent event) {
@@ -76,22 +76,21 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         // Checking the current column where the picked cell exists.
         checkAndHighlight(cell, grid, 1, 0);
         
-        gridController.update(currentConfig, this);
+        gridPaneView.update(currentConfig, this);
     }
     
     private void dropOnPath(CellData cell) {
         removeHighlight(cell);
-        cell.setImg(GameUtils.pickedCell.getImg());
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
-        GameUtils.pickedCell.setImg(GameUtils.img_empty);
         GameUtils.pickedCell.setCellChar('E');
         refreshGrid();
         GameUtils.pickedCell = null;
+        GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
     }
     
     private void refreshGrid(){
         BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
-        gridController.update(currentConfig, this);
+        gridPaneView.update(currentConfig, this);
     }
    
     
@@ -106,7 +105,6 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         while (true) {
             if (newcol <= 7 && newrow <=7 
                     && newcol >= 0 && newrow >= 0 && grid[newrow][newcol].getCellChar()=='E') {
-                grid[newrow][newcol].setImg(GameUtils.img_possMove);
                 grid[newrow][newcol].setCellChar('P');
                 newcol = newcol + ic;
                 newrow = newrow + ir;
@@ -135,7 +133,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
 
     public CellEventListner(GridPaneView gridController) {
-        this.gridController = gridController;
+        this.gridPaneView = gridController;
     }
 
     private void removeHighlight(CellData cell) {
@@ -146,7 +144,6 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             for (int j = 0; j< d; j++) {
                 if(grid[i][j].getCellChar() =='P'){
                     grid[i][j].setCellChar('E');
-                    grid[i][j].setImg(GameUtils.img_empty);
                 }
             }
         }
