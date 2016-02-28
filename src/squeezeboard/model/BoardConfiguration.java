@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
  *
  * @author zhangwei
  */
-public class BoardConfiguration {
+public final class BoardConfiguration {
     
     private CellData[][] board;
     

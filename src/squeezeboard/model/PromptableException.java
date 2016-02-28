@@ -48,10 +48,12 @@ public class PromptableException extends Exception {
     
         PIECE_ON_PIECE("You cannot drop a piece onto opponent's piece!", Alert.AlertType.WARNING),
         INVALID_MOVE("You cannot make an invalid move!!", Alert.AlertType.WARNING),
-        PICKED_UP_DATA_MESS("PickedUp data is already messed-up!!!", Alert.AlertType.ERROR);
+        PICKED_UP_DATA_MESS("PickedUp data is already messed-up!!!", Alert.AlertType.ERROR),
+        NOT_YOUR_TURN("It's Not Your Turn!!!", Alert.AlertType.ERROR);
 
         private String msg;
         private Alert.AlertType alertType;
+       
 
         private ExceptFactor(String msg, Alert.AlertType alertType) {
             this.msg = msg;

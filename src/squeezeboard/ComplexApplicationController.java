@@ -26,6 +26,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.view.GridPaneView;
+import squeezeboard.view.StatusBarView;
 
 /**
  *
@@ -61,11 +62,11 @@ public class ComplexApplicationController implements Initializable {
     
     private GridPaneView gridViewController;
     
+    private StatusBarView statusBarController;
+    
     private int gridDimension = 8;
     
     private int maximumMoves = 50;
-    
-    private int round = 0;
     
     private boolean isGridInitialized = false;
     
@@ -76,6 +77,25 @@ public class ComplexApplicationController implements Initializable {
         initiateBoard();
         initRadioGroup();
         refreshStatusBar();
+    }
+    
+    private void initiateBoard(){
+        
+        gridViewController = new GridPaneView(grid_view);
+        statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer);
+        
+        GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
+        GameUtils.existingMoves[GameUtils.currentCursor.get()] = new BoardConfiguration(this.gridDimension);
+        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()], 
+                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController)
+        , (isGridInitialized ? null : statusBarController));
+        
+        isGridInitialized = true;
+        GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
+        GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
+        refreshStatusBar();
+        grid_view.setDisable(true);
+        grid_view.setVisible(false);
     }
     
     private void initRadioGroup() {
@@ -98,21 +118,6 @@ public class ComplexApplicationController implements Initializable {
         
     }
     
-    private void initiateBoard(){
-        
-        gridViewController = new GridPaneView(grid_view);
-        GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
-        GameUtils.existingMoves[GameUtils.currentCursor.get()] = new BoardConfiguration(this.gridDimension);
-        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()], 
-                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController));
-        isGridInitialized = true;
-        GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
-        GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
-        refreshStatusBar();
-        grid_view.setDisable(true);
-        grid_view.setVisible(false);
-    }
-    
     @FXML
     private void handleStart(ActionEvent event) {
         if (btn_start.getText().equals("Start")) {
@@ -126,9 +131,10 @@ public class ComplexApplicationController implements Initializable {
     }
     
     private void startGame() {
-        round++;
+        GameUtils.round.incrementAndGet();
         initiateBoard();
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(true));
+        GameUtils.game_started.compareAndSet(false, true);
         grid_view.setDisable(false);
         grid_view.setVisible(true);
         System.out.println("start GAme");
@@ -170,6 +176,9 @@ public class ComplexApplicationController implements Initializable {
 
     private void resetMemory() {
         GameUtils.pickedCell = null;
+        for (int i = 0; i < GameUtils.existingMoves.length; i++) {
+            GameUtils.existingMoves[i] = null;
+        }
         GameUtils.existingMoves = null;
         GameUtils.computerRole = PlayerColor.blue;
         GameUtils.currentCursor.set(0);
@@ -185,29 +194,7 @@ public class ComplexApplicationController implements Initializable {
     }
 
     private void refreshStatusBar() {
-        int computerLeft = GameUtils.blueLeft.get();
-        int playLeft = GameUtils.orangeLeft.get();
-        String leftMessage = String.format("Computer left: %s", computerLeft);
-        String rightMessage = String.format("Player left: %s", playLeft);
-        if (GameUtils.computerRole.equals(PlayerColor.orange)) {
-            playLeft = GameUtils.blueLeft.get();
-            computerLeft = GameUtils.orangeLeft.get();
-            leftMessage = String.format("Player left: %s", playLeft);
-            rightMessage = String.format("Computer left: %s", computerLeft);
-        }
-        leftStatus.setText(leftMessage);
-        leftStatus.setTextFill(PlayerColor.blue.getColor());
-        rightStatus.setText(rightMessage);
-        rightStatus.setTextFill(PlayerColor.orange.getColor());
-        
-        String playerName = "Player";
-        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
-            playerName = "Computer";
-        }
-        label_currPlayer.setText(String.format(btn_start.isSelected()?"Current Player : %s | Round : %s | Move : %s" : "%s Will Firstly Serve.| Round : %s | Move : %s"
-                , playerName, this.round, GameUtils.currentCursor.get()));
-        label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
-        
+        statusBarController.update();
     }
     
 }

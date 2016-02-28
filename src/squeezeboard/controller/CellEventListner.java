@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
+import squeezeboard.view.StatusBarView;
 
 /**
  *
@@ -20,14 +21,20 @@ public class CellEventListner implements EventHandler<MouseEvent>{
 
     private final GridPaneView gridPaneView;
     
+    private final StatusBarView statusBarView;
+    
     @Override
     public void handle(MouseEvent event) {
-        System.out.println("Event hit");
         ImageView img_view = ((ImageView)event.getSource());
         CellData cell = (CellData) img_view.getUserData();
+        
         switch (cell.getCellChar()) {
             case 'B':
             case 'O':
+                if (GameUtils.currentColor.CHAR() != cell.getCellChar()){
+                    exceptionMessage(cell, ExceptFactor.NOT_YOUR_TURN);
+                    return;
+                }
                 if(GameUtils.pickedCell!=null){
                     // if try to pick up the same color
                     if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
@@ -86,6 +93,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.pickedCell = null;
         refreshGrid();
         GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
+        refreshStatus();
     }
     
     private void refreshGrid(){
@@ -132,10 +140,11 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         
     }
 
-    public CellEventListner(GridPaneView gridController) {
+    public CellEventListner(GridPaneView gridController, StatusBarView statusBarView) {
         this.gridPaneView = gridController;
+        this.statusBarView = statusBarView;
     }
-
+    
     private void removeHighlight(CellData cell) {
         BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
         CellData[][] grid = currentConfig.getBoard();
@@ -148,6 +157,10 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             }
         }
         refreshGrid();
+    }
+
+    private void refreshStatus() {
+        statusBarView.update();
     }
     
     

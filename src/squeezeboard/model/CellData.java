@@ -1,8 +1,5 @@
 package squeezeboard.model;
 
-import java.util.Objects;
-import javafx.scene.image.Image;
-
 /**
  *
  * @author zhangwei

@@ -5,6 +5,7 @@
  */
 package squeezeboard.model;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -20,6 +21,7 @@ import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import squeezeboard.model.PlayerColor;
 import squeezeboard.view.GridPaneView;
+import squeezeboard.view.StatusBarView;
 
 /**
  *
@@ -40,6 +42,10 @@ public class GameUtils {
     public static double bloomThreshold = 0.6;
     
     private static Effect bloom = new Bloom(bloomThreshold);
+    
+    public static final AtomicInteger round = new AtomicInteger(0);
+    
+    public static final AtomicBoolean game_started = new AtomicBoolean(false);
     
     /**
      * computer is blue originally
@@ -74,7 +80,8 @@ public class GameUtils {
         return result;
     }
     
-    public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, int dimension, GridPaneView gridController) {
+    public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, 
+            int dimension, GridPaneView gridController, StatusBarView statusBarView) {
         ImageView imgView;
         boardConfiguration.printMatrix();
         for (int i = 0; i < dimension; i++) {
@@ -82,7 +89,7 @@ public class GameUtils {
                 CellData cell = boardConfiguration.getBoard()[i][j];
                 if (gridController != null) {
                     imgView = new ImageView();
-                    imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new CellEventListner(gridController));
+                    imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new CellEventListner(gridController, statusBarView));
                     gridView.add(imgView, j, i);
                 } else {
                     imgView = (ImageView) getNodeByRowColumnIndex(i, j, gridView);
