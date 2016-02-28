@@ -77,7 +77,7 @@ public class BoardConfiguration {
             }
             System.out.println("");
         }
-        System.out.println("==============");
+        System.out.println("================");
     }
     
 }

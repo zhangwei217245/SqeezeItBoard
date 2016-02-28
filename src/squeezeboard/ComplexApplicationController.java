@@ -137,35 +137,43 @@ public class ComplexApplicationController implements Initializable {
         GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
         GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
         refreshStatusBar();
+        grid_view.setDisable(true);
+        grid_view.setVisible(false);
     }
     
     
 
     private void startGame() {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(true));
+        grid_view.setDisable(false);
+        grid_view.setVisible(true);
         System.out.println("start GAme");
     }
 
     private void endGame() {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(false));
+        grid_view.setDisable(true);
         System.out.println("end game");
     }
 
     private void resetBoard() {
-        System.out.println("reset board");
+        endGame();
+        initiateBoard();
+        grid_view.setVisible(false);
     }
 
     private void resetMemory() {
         GameUtils.pickedCell = null;
         GameUtils.existingMoves = null;
         GameUtils.computerRole = PlayerColor.blue;
+        GameUtils.currentCursor.set(0);
+        GameUtils.currentColor = PlayerColor.orange;
     }
 
     private void resetStatus() {
         btn_start.setSelected(false);
         btn_start.setText("Start");
-        initiateBoard();
-        endGame();
+        
     }
 
     private void refreshStatusBar() {

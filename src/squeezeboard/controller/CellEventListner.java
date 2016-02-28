@@ -4,9 +4,12 @@ import squeezeboard.view.GridPaneView;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import squeezeboard.model.ExeptFactor;
+import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.model.GameUtils;
 
 /**
@@ -15,47 +18,55 @@ import squeezeboard.model.GameUtils;
  */
 public class CellEventListner implements EventHandler<MouseEvent>{
 
-    private GridPaneView gridController;
+    private final GridPaneView gridController;
     
+    @Override
     public void handle(MouseEvent event) {
         System.out.println("Event hit");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ImageView img_view = ((ImageView)event.getSource());
-                CellData cell = (CellData) img_view.getUserData();
-                if (cell.getCellChar()=='B'||cell.getCellChar()=='O'){
-
-                    if(GameUtils.pickedCell!=null){
-                        if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
+        ImageView img_view = ((ImageView)event.getSource());
+        CellData cell = (CellData) img_view.getUserData();
+        switch (cell.getCellChar()) {
+            case 'B':
+            case 'O':
+                if(GameUtils.pickedCell!=null){
+                    // if try to pick up the same color
+                    if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
+                        // either it is the original piece. Just remove the highlight.
+                        if (cell.equals(GameUtils.pickedCell)){
                             removeHighlight(cell);
-                            pickUpPiece(cell);
+                            GameUtils.pickedCell = null;
+                        } else {
+                            //or, pick up another.
+                            pickUpAnother(cell);
                         }
-                        exceptionMessage(cell, ExeptFactor.PieceOnPiece);
-                    }else{
-                        pickUpPiece(cell);
-                    }
-                } else if (cell.getCellChar()=='P'){
-                    if (GameUtils.pickedCell!=null){
-                        dropOnPath(cell);
                     } else {
-                        exceptionMessage(cell, ExeptFactor.PickedUpDataMess);
+                        exceptionMessage(cell, ExceptFactor.PIECE_ON_PIECE);
                     }
-                } else if (cell.getCellChar() == 'E') {
-                    if (GameUtils.pickedCell != null) {
-                        exceptionMessage(cell, ExeptFactor.InvalidMove);
-                    } else {
-                        //Nothing to do so far
-                    }
-                }
-            }
-        }).start();
-        
-
-//        ((ImageView)event.getSource()).setImage(GameUtils.img_possMove);
-//        System.out.println(((ImageView)event.getSource()).getUserData());
+                }else{
+                    pickUpPiece(cell);
+                }   break;
+            case 'P':
+                if (GameUtils.pickedCell!=null){
+                    dropOnPath(cell);
+                } else {
+                    exceptionMessage(cell, ExceptFactor.PICKED_UP_DATA_MESS);
+                }   break;
+            case 'E':
+                if (GameUtils.pickedCell != null) {
+                    exceptionMessage(cell, ExceptFactor.INVALID_MOVE);
+                } else {
+                    //Nothing to do so far
+                }   break;
+            default:
+                break;
+        }
     }
-
+    
+    private void pickUpAnother(CellData cell) {
+        removeHighlight(cell);
+        pickUpPiece(cell);
+    }
+    
     private void pickUpPiece(CellData cell) {
         GameUtils.pickedCell = cell;
         BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
@@ -65,6 +76,21 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         // Checking the current column where the picked cell exists.
         checkAndHighlight(cell, grid, 1, 0);
         
+        gridController.update(currentConfig, this);
+    }
+    
+    private void dropOnPath(CellData cell) {
+        removeHighlight(cell);
+        cell.setImg(GameUtils.pickedCell.getImg());
+        cell.setCellChar(GameUtils.pickedCell.getCellChar());
+        GameUtils.pickedCell.setImg(GameUtils.img_empty);
+        GameUtils.pickedCell.setCellChar('E');
+        refreshGrid();
+        GameUtils.pickedCell = null;
+    }
+    
+    private void refreshGrid(){
+        BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
         gridController.update(currentConfig, this);
     }
    
@@ -97,19 +123,15 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         }
     }
 
-    private void dropOnPath(CellData cell) {
-        removeHighlight(cell);
-        cell.setImg(GameUtils.pickedCell.getImg());
-        cell.setCellChar(GameUtils.pickedCell.getCellChar());
-        GameUtils.pickedCell.setImg(GameUtils.img_empty);
-        GameUtils.pickedCell.setCellChar('E');
-        BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
-        gridController.update(currentConfig, this);
-        GameUtils.pickedCell = null;
+    private void exceptionMessage(CellData cell, ExceptFactor exceptFactor) {
+        Alert alert = new Alert(exceptFactor.getAlertType(), exceptFactor.getMsg());
+        alert.showAndWait()
+        .filter(response -> response == ButtonType.OK)
+        .ifPresent(response -> postActionForException(cell, exceptFactor));
     }
-
-    private void exceptionMessage(CellData cell, ExeptFactor PickedUpDataMess) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    private void postActionForException(CellData cell, ExceptFactor exceptFactor) {
+        
     }
 
     public CellEventListner(GridPaneView gridController) {
@@ -128,6 +150,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                 }
             }
         }
+        refreshGrid();
     }
     
     
