@@ -1,23 +1,32 @@
 package squeezeboard.model;
 
+import javafx.scene.paint.Color;
+
 /**
  *
  * @author zhangwei
  */
 public enum PlayerColor {
     
-    orange('O'),
+    orange('O', Color.web("0xff9900")),
     
-    blue('B');
+    blue('B', Color.web("0x0099ff"));
    
     private char CHAR;
+    
+    private Color color;
 
-    private PlayerColor(char CHAR) {
+    private PlayerColor(char CHAR, Color color) {
         this.CHAR = CHAR;
+        this.color = color;
     }
     
     public char CHAR(){
         return this.CHAR;
+    }
+
+    public Color getColor() {
+        return color;
     }
     
     public static PlayerColor getColorByCursor(int cursor) {

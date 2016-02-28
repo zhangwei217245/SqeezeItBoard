@@ -12,22 +12,19 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
-import squeezeboard.controller.CellEventListner;
 import squeezeboard.view.GridPaneView;
 
 /**
@@ -59,16 +56,18 @@ public class ComplexApplicationController implements Initializable {
     
     @FXML
     private Label label_currPlayer;
-    
+      
     private final ToggleGroup radioGroup = new ToggleGroup();
-    
-    private BoardConfiguration currentBoard;
     
     private GridPaneView gridViewController;
     
     private int gridDimension = 8;
     
     private int maximumMoves = 50;
+    
+    private int round = 0;
+    
+    private boolean isGridInitialized = false;
     
     
     @Override
@@ -93,16 +92,20 @@ public class ComplexApplicationController implements Initializable {
                     GameUtils.computerRole = PlayerColor.orange;
                 }
             }
+            GameUtils.currentColor = PlayerColor.orange;
+            refreshStatusBar();
         });
+        
     }
     
     private void initiateBoard(){
+        
         gridViewController = new GridPaneView(grid_view);
-        currentBoard = new BoardConfiguration(this.gridDimension);
-        GameUtils.existingMoves = new BoardConfiguration[maximumMoves];
-        GameUtils.existingMoves[GameUtils.currentCursor.get()] = currentBoard;
-        GameUtils.renderGridView(currentBoard, grid_view, this.gridDimension, gridViewController);
-        currentBoard.printMatrix();
+        GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
+        GameUtils.existingMoves[GameUtils.currentCursor.get()] = new BoardConfiguration(this.gridDimension);
+        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()], 
+                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController));
+        isGridInitialized = true;
         GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
         GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
         refreshStatusBar();
@@ -112,21 +115,19 @@ public class ComplexApplicationController implements Initializable {
     
     @FXML
     private void handleStart(ActionEvent event) {
-        Object source = event.getSource();
-        if (source instanceof ToggleButton) {
-            ToggleButton tg_btn = (ToggleButton)source;
-            System.out.println(tg_btn.isSelected());
-            if (tg_btn.isSelected()) {
-                tg_btn.setText("End");
-                startGame();
-            } else {
-                tg_btn.setText("Start");
-                endGame();
-            }
+        if (btn_start.getText().equals("Start")) {
+            btn_start.setText("End");
+            btn_start.setSelected(true);
+            startGame();
+        } else if (btn_start.getText().equals("End")){
+            btn_start.setText("Start");
+            endGame();
         }
     }
     
     private void startGame() {
+        round++;
+        initiateBoard();
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(true));
         grid_view.setDisable(false);
         grid_view.setVisible(true);
@@ -135,23 +136,35 @@ public class ComplexApplicationController implements Initializable {
 
     private void endGame() {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(false));
-        //grid_view.setDisable(true);
+        grid_view.setDisable(true);
         System.out.println("end game");
     }
     
     @FXML
     private void handleReset(ActionEvent event){
-        Object source = event.getSource();
-        if (source instanceof Button) {
-            resetBoard();
-            resetMemory();
-            resetStatus();
-        }
+        resetMemory();
+        resetStatus();
+        resetBoard();
+    }
+    
+    @FXML
+    private void handleQuit(ActionEvent event) {
+        System.exit(0);
+    }
+    
+    @FXML
+    private void handleAbout(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Author\n  Wei Zhang (x-spirit.zhang@ttu.edu)\n"
+                + "  Ahmad Aseeri(aseeri.ahmad@ttu.edu)\n TTU 2016 All rights reserved.\n");
+        alert.setTitle("About SqueezeIt v1.0");
+        alert.setHeaderText("About SqueezeIt v1.0");
+        alert.showAndWait()
+        .filter(response -> response == ButtonType.OK)
+        .ifPresent(response -> System.out.println(""));
     }
     
     private void resetBoard() {
         endGame();
-        initiateBoard();
         grid_view.setVisible(false);
     }
 
@@ -161,23 +174,40 @@ public class ComplexApplicationController implements Initializable {
         GameUtils.computerRole = PlayerColor.blue;
         GameUtils.currentCursor.set(0);
         GameUtils.currentColor = PlayerColor.orange;
+        GameUtils.blueLeft.set(this.gridDimension);
+        GameUtils.orangeLeft.set(this.gridDimension);
     }
 
     private void resetStatus() {
         btn_start.setSelected(false);
         btn_start.setText("Start");
-        
+        refreshStatusBar();
     }
 
     private void refreshStatusBar() {
         int computerLeft = GameUtils.blueLeft.get();
         int playLeft = GameUtils.orangeLeft.get();
+        String leftMessage = String.format("Computer left: %s", computerLeft);
+        String rightMessage = String.format("Player left: %s", playLeft);
         if (GameUtils.computerRole.equals(PlayerColor.orange)) {
             playLeft = GameUtils.blueLeft.get();
             computerLeft = GameUtils.orangeLeft.get();
+            leftMessage = String.format("Player left: %s", playLeft);
+            rightMessage = String.format("Computer left: %s", computerLeft);
         }
-        leftStatus.setText("Player left: " + playLeft);
-        rightStatus.setText("Computer left: " + computerLeft);
+        leftStatus.setText(leftMessage);
+        leftStatus.setTextFill(PlayerColor.blue.getColor());
+        rightStatus.setText(rightMessage);
+        rightStatus.setTextFill(PlayerColor.orange.getColor());
+        
+        String playerName = "Player";
+        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
+            playerName = "Computer";
+        }
+        label_currPlayer.setText(String.format(btn_start.isSelected()?"Current Player : %s | Round : %s | Move : %s" : "%s Will Firstly Serve.| Round : %s | Move : %s"
+                , playerName, this.round, GameUtils.currentCursor.get()));
+        label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
+        
     }
     
 }

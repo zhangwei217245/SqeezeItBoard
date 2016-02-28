@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.effect.Bloom;
+import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -35,6 +36,11 @@ public class GameUtils {
     public static final Image img_orange = new Image(SqueezeBoard.class.getResourceAsStream(file_orange));
     public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue));
     public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove));
+    
+    public static double bloomThreshold = 0.6;
+    
+    private static Effect bloom = new Bloom(bloomThreshold);
+    
     /**
      * computer is blue originally
      */
@@ -54,7 +60,6 @@ public class GameUtils {
     
     public static final AtomicInteger currentCursor = new AtomicInteger(0);
     
-    
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;
         Integer r = new Integer(row);
@@ -71,6 +76,7 @@ public class GameUtils {
     
     public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, int dimension, GridPaneView gridController) {
         ImageView imgView;
+        boardConfiguration.printMatrix();
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 CellData cell = boardConfiguration.getBoard()[i][j];
@@ -91,7 +97,8 @@ public class GameUtils {
         char cellChar = cell.getCellChar();
         switch (cellChar) {
             case 'P':
-                imgView.setEffect(new Bloom(0.1));
+                imgView.setEffect(bloom);
+                imgView.setImage(GameUtils.img_possMove);
                 break;
             case 'E':
                 imgView.setImage(GameUtils.img_empty);
@@ -109,7 +116,7 @@ public class GameUtils {
                 ;
         }
         if (cell.equals(GameUtils.pickedCell)) {
-            imgView.setEffect(new Bloom(0.1));
+            imgView.setEffect(bloom);
         }
     }
             

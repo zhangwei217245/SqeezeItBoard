@@ -33,6 +33,6 @@ public class GridPaneView {
 
     public void update(BoardConfiguration currentConfig, CellEventListner eventListner) {
         GameUtils.renderGridView(currentConfig, gridPane, currentConfig.getDimension()
-                , this);
+                , null);
     }
 }

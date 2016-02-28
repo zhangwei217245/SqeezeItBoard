@@ -83,8 +83,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         removeHighlight(cell);
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.pickedCell.setCellChar('E');
-        refreshGrid();
         GameUtils.pickedCell = null;
+        refreshGrid();
         GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
     }
     
