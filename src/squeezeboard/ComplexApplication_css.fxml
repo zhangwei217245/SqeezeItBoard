@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
 <?import java.lang.*?>
 <?import java.net.*?>
 <?import java.util.*?>
@@ -124,6 +125,11 @@
                         </Label>
                         <RadioButton fx:id="radio_orange" mnemonicParsing="false" prefWidth="100.0" text="Orange" />
                         <RadioButton fx:id="radio_blue" mnemonicParsing="false" prefWidth="100.0" text="Blue" />
+                        <Label fx:id="label_currPlayer" prefHeight="17.0" prefWidth="215.0" text="CurrentPlayer :">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font>
+                        </Label>
                      </children>
                   </TilePane>
           </children>

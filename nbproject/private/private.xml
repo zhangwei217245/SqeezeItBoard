@@ -3,10 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/ComplexApplication_css.fxml</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/SqueezeBoard.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/BoardConfiguration.java</file>
             <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/ComplexApplicationController.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/BoardConfiguration.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/GridPaneController.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/CellData.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/GameUtils.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/PlayerColor.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/CellEventListner.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/logic/ExeptFactor.java</file>
         </group>
     </open-files>
 </project-private>

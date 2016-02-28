@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package squeezeboard.logic;
+package squeezeboard.model;
 
+import squeezeboard.model.PlayerColor;
 import javafx.scene.image.Image;
 
 /**

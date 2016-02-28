@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package squeezeboard.logic;
+package squeezeboard.model;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.collections.ObservableList;
@@ -11,9 +11,9 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
-import squeezeboard.logic.BoardConfiguration;
-import squeezeboard.logic.CellData;
-import squeezeboard.logic.PlayerColor;
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
+import squeezeboard.model.PlayerColor;
 
 /**
  *

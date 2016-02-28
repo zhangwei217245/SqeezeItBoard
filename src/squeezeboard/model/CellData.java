@@ -1,4 +1,4 @@
-package squeezeboard.logic;
+package squeezeboard.model;
 
 import javafx.scene.image.Image;
 

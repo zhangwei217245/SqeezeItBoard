@@ -5,8 +5,8 @@
  */
 package squeezeboard;
 
-import squeezeboard.logic.GameUtils;
-import squeezeboard.logic.PlayerColor;
+import squeezeboard.model.GameUtils;
+import squeezeboard.model.PlayerColor;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,10 +25,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import squeezeboard.logic.BoardConfiguration;
-import squeezeboard.logic.CellData;
-import squeezeboard.logic.CellEventListner;
-import squeezeboard.logic.GridPaneController;
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
+import squeezeboard.controller.CellEventListner;
+import squeezeboard.view.GridPaneView;
 
 /**
  *
@@ -61,7 +61,7 @@ public class ComplexApplicationController implements Initializable {
     
     private BoardConfiguration currentBoard;
     
-    private GridPaneController gridController;
+    private GridPaneView gridController;
     
     private int gridDimension = 8;
     
@@ -119,7 +119,7 @@ public class ComplexApplicationController implements Initializable {
     }
     
     private void initiateBoard(){
-        gridController = new GridPaneController(grid_view);
+        gridController = new GridPaneView(grid_view);
         currentBoard = new BoardConfiguration(this.gridDimension);
         GameUtils.existingMoves = new BoardConfiguration[maximumMoves];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = currentBoard;

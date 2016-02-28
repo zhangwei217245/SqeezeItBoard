@@ -1,8 +1,13 @@
-package squeezeboard.logic;
+package squeezeboard.controller;
 
+import squeezeboard.view.GridPaneView;
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import squeezeboard.model.ExeptFactor;
+import squeezeboard.model.GameUtils;
 
 /**
  *
@@ -10,7 +15,7 @@ import javafx.scene.input.MouseEvent;
  */
 public class CellEventListner implements EventHandler<MouseEvent>{
 
-    private GridPaneController gridController;
+    private GridPaneView gridController;
     
     public void handle(MouseEvent event) {
         System.out.println("Event hit");
@@ -60,7 +65,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         // Checking the current column where the picked cell exists.
         checkAndHighlight(cell, grid, 1, 0);
         
-        gridController.updateView(currentConfig, this);
+        gridController.update(currentConfig, this);
     }
    
     
@@ -99,7 +104,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.pickedCell.setImg(GameUtils.img_empty);
         GameUtils.pickedCell.setCellChar('E');
         BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
-        gridController.updateView(currentConfig, this);
+        gridController.update(currentConfig, this);
         GameUtils.pickedCell = null;
     }
 
@@ -107,7 +112,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public CellEventListner(GridPaneController gridController) {
+    public CellEventListner(GridPaneView gridController) {
         this.gridController = gridController;
     }
 

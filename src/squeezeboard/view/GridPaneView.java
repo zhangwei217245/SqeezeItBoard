@@ -3,23 +3,27 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package squeezeboard.logic;
+package squeezeboard.view;
 
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
 import javafx.scene.Group;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 
 import javafx.scene.layout.GridPane;
+import squeezeboard.controller.CellEventListner;
+import squeezeboard.model.GameUtils;
 
 /**
  *
  * @author zhangwei
  */
-public class GridPaneController {
+public class GridPaneView {
     
     private GridPane gridPane;
 
-    public GridPaneController(GridPane gridPane) {
+    public GridPaneView(GridPane gridPane) {
         this.gridPane = gridPane;
     }
     
@@ -31,7 +35,7 @@ public class GridPaneController {
         this.gridPane = gridPane;
     }
 
-    public void updateView(BoardConfiguration currentConfig, CellEventListner eventListner) {
+    public void update(BoardConfiguration currentConfig, CellEventListner eventListner) {
         int d = currentConfig.getDimension();
         ImageView imgView;
         
