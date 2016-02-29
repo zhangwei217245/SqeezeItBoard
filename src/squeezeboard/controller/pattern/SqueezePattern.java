@@ -9,11 +9,11 @@ import squeezeboard.model.PlayerColor;
  */
 public class SqueezePattern {
     
-    private CellData[] pattern;
+    private final CellData[] pattern;
     
-    private SqueezePatternType patternType;
+    private final SqueezePatternType patternType;
     
-    private PlayerColor patternCreator;
+    private final PlayerColor patternCreator;
 
     public SqueezePattern(CellData[] pattern, SqueezePatternType patternType, PlayerColor patternCreator) {
         this.pattern = pattern;
@@ -32,4 +32,6 @@ public class SqueezePattern {
     public PlayerColor getPatternCreator() {
         return patternCreator;
     }
+    
+    
 }
