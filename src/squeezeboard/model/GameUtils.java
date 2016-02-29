@@ -16,6 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Effect;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -45,9 +46,9 @@ public class GameUtils {
     public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue));
     public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove));
     
-    public static double bloomThreshold = 0.6;
+    public static double effecthreshold = 0.6d;
     
-    private static Effect bloom = new Bloom(bloomThreshold);
+    private static Effect bloom = new Bloom(effecthreshold);
     
     public static final AtomicInteger round = new AtomicInteger(0);
     
@@ -107,37 +108,35 @@ public class GameUtils {
     }
     
     private static void setPictureToImageView(CellData cell, ImageView imgView) {
-        
         char cellChar = cell.getCellChar();
         Effect effect = null;
         Image img = imgView.getImage();
-        KeyFrame frame1 = new KeyFrame(Duration.ZERO, new KeyValue(imgView.imageProperty(), img));
         switch (cellChar) {
             case 'P':
-                imgView.setEffect(bloom);
+                effect = bloom;
                 img = GameUtils.img_possMove;
                 break;
             case 'E':
                 img = GameUtils.img_empty;
-                imgView.setEffect(null);
+                effect = null;
                 break;
             case 'O':
                 img = GameUtils.img_orange;
-                imgView.setEffect(null);
+                effect = null;
                 break;
             case 'B':
                 img = GameUtils.img_blue;
-                imgView.setEffect(null);
+                effect = null;
                 break;
             default:
                 ;
         }
+        
+        imgView.setImage(img);
+        imgView.setEffect(effect);
         if (cell.equals(GameUtils.pickedCell)) {
             imgView.setEffect(bloom);
         }
-        KeyFrame frame2 = new KeyFrame(Duration.seconds(1), new KeyValue(imgView.imageProperty(), img));
-        Timeline timeline = new Timeline(frame1,frame2);
-        timeline.play();
     }
     
     
