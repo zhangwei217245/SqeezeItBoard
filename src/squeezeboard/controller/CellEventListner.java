@@ -32,7 +32,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             case 'B':
             case 'O':
                 if (GameUtils.currentColor.CHAR() != cell.getCellChar()){
-                    exceptionMessage(cell, ExceptFactor.NOT_YOUR_TURN);
+                    GameUtils.exceptionMessage(ExceptFactor.NOT_YOUR_TURN);
                     return;
                 }
                 if(GameUtils.pickedCell!=null){
@@ -47,7 +47,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                             pickUpAnother(cell);
                         }
                     } else {
-                        exceptionMessage(cell, ExceptFactor.PIECE_ON_PIECE);
+                        GameUtils.exceptionMessage(ExceptFactor.PIECE_ON_PIECE);
                     }
                 }else{
                     pickUpPiece(cell);
@@ -56,11 +56,11 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                 if (GameUtils.pickedCell!=null){
                     dropOnPath(cell);
                 } else {
-                    exceptionMessage(cell, ExceptFactor.PICKED_UP_DATA_MESS);
+                    GameUtils.exceptionMessage(ExceptFactor.PICKED_UP_DATA_MESS);
                 }   break;
             case 'E':
                 if (GameUtils.pickedCell != null) {
-                    exceptionMessage(cell, ExceptFactor.INVALID_MOVE);
+                    GameUtils.exceptionMessage(ExceptFactor.INVALID_MOVE);
                 } else {
                     //Nothing to do so far
                 }   break;
@@ -71,20 +71,28 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     
     private void pickUpAnother(CellData cell) {
         removeHighlight(cell);
+        GameUtils.undoConfiguration();
         pickUpPiece(cell);
     }
     
     private void pickUpPiece(CellData cell) {
-        GameUtils.pickedCell = cell;
-        BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
+        // Copy the configuration.
+        BoardConfiguration currentConfig = GameUtils.copyCurrentConfiguration();
         CellData[][] grid = currentConfig.getBoard();
+        GameUtils.pickedCell = grid[cell.getRowCord()][cell.getColCord()];
+        // If it is the computer, do some heuristic search for optimal solutions
+        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
+            findHeuristicSolutions(grid);
+        }
         // Checking the current row where the picked cell exists.
-        checkAndHighlight(cell, grid, 0, 1);
+        checkAndHighlight(GameUtils.pickedCell, grid, 0, 1);
         // Checking the current column where the picked cell exists.
-        checkAndHighlight(cell, grid, 1, 0);
+        checkAndHighlight(GameUtils.pickedCell, grid, 1, 0);
         
-        gridPaneView.update(currentConfig, this);
+        gridPaneView.update(currentConfig);
     }
+    
+    
     
     private void dropOnPath(CellData cell) {
         removeHighlight(cell);
@@ -92,13 +100,13 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
         refreshGrid();
-        GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
+        GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentCursor.get());
         refreshStatus();
     }
     
     private void refreshGrid(){
         BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
-        gridPaneView.update(currentConfig, this);
+        gridPaneView.update(currentConfig);
     }
    
     
@@ -129,16 +137,6 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         }
     }
 
-    private void exceptionMessage(CellData cell, ExceptFactor exceptFactor) {
-        Alert alert = new Alert(exceptFactor.getAlertType(), exceptFactor.getMsg());
-        alert.showAndWait()
-        .filter(response -> response == ButtonType.OK)
-        .ifPresent(response -> postActionForException(cell, exceptFactor));
-    }
-    
-    private void postActionForException(CellData cell, ExceptFactor exceptFactor) {
-        
-    }
 
     public CellEventListner(GridPaneView gridController, StatusBarView statusBarView) {
         this.gridPaneView = gridController;
@@ -161,6 +159,10 @@ public class CellEventListner implements EventHandler<MouseEvent>{
 
     private void refreshStatus() {
         statusBarView.update();
+    }
+
+    private void findHeuristicSolutions(CellData[][] grid) {
+        //TODO: START HEURISTIC SEARCH HERE;
     }
     
     

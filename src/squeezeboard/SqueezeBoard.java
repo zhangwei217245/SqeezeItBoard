@@ -24,6 +24,8 @@ public class SqueezeBoard extends Application {
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
+        stage.setTitle("SqueezeIt!");
+        stage.setResizable(false);
         stage.show();
     }
 

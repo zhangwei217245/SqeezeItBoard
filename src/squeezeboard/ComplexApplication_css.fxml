@@ -32,8 +32,8 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
           <items>
-            <MenuItem fx:id="menu_undo" mnemonicParsing="false" text="Undo" />
-            <MenuItem fx:id="menu_redo" mnemonicParsing="false" text="Redo" />
+            <MenuItem fx:id="menu_undo" disable="true" mnemonicParsing="false" text="Undo" onAction="#handleUndo" />
+            <MenuItem fx:id="menu_redo" disable="true" mnemonicParsing="false" text="Redo" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem disable="true" mnemonicParsing="false" text="Cut" />
             <MenuItem disable="true" mnemonicParsing="false" text="Copy" />

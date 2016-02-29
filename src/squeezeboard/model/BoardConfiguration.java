@@ -5,6 +5,8 @@
  */
 package squeezeboard.model;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 
 /**
@@ -23,6 +25,11 @@ public final class BoardConfiguration {
         this.dimension = dimension;
         board = new CellData[this.dimension][this.dimension];
         initializeBoard();
+    }
+    
+    public BoardConfiguration(CellData[][] board){
+        this.board = board;
+        this.dimension = this.board.length;
     }
     
     public void initializeBoard(){
@@ -65,6 +72,26 @@ public final class BoardConfiguration {
         this.moveMaker = moveMaker;
     }
     
+    public void destroy(){
+        for (int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board.length; j++) {
+                board[i][j] = null;
+            }
+            board[i] = null;
+        } 
+    }
+    
+    @Override
+    public BoardConfiguration clone(){
+        CellData[][] board = new CellData[dimension][dimension];
+        for (int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board.length; j++) {
+                board[i][j] = (CellData) this.board[i][j].clone();
+            }
+        }
+        BoardConfiguration result = new BoardConfiguration(board);
+        return result;
+    }
     
     
     public void printMatrix() {

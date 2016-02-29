@@ -7,14 +7,20 @@ package squeezeboard.model;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
 import squeezeboard.model.BoardConfiguration;
@@ -101,22 +107,26 @@ public class GameUtils {
     }
     
     private static void setPictureToImageView(CellData cell, ImageView imgView) {
+        
         char cellChar = cell.getCellChar();
+        Effect effect = null;
+        Image img = imgView.getImage();
+        KeyFrame frame1 = new KeyFrame(Duration.ZERO, new KeyValue(imgView.imageProperty(), img));
         switch (cellChar) {
             case 'P':
                 imgView.setEffect(bloom);
-                imgView.setImage(GameUtils.img_possMove);
+                img = GameUtils.img_possMove;
                 break;
             case 'E':
-                imgView.setImage(GameUtils.img_empty);
+                img = GameUtils.img_empty;
                 imgView.setEffect(null);
                 break;
             case 'O':
-                imgView.setImage(GameUtils.img_orange);
+                img = GameUtils.img_orange;
                 imgView.setEffect(null);
                 break;
             case 'B':
-                imgView.setImage(GameUtils.img_blue);
+                img = GameUtils.img_blue;
                 imgView.setEffect(null);
                 break;
             default:
@@ -125,6 +135,37 @@ public class GameUtils {
         if (cell.equals(GameUtils.pickedCell)) {
             imgView.setEffect(bloom);
         }
+        KeyFrame frame2 = new KeyFrame(Duration.seconds(1), new KeyValue(imgView.imageProperty(), img));
+        Timeline timeline = new Timeline(frame1,frame2);
+        timeline.play();
     }
-            
+    
+    
+    public static BoardConfiguration copyCurrentConfiguration() {
+        BoardConfiguration currentConfig = existingMoves[currentCursor.get()];
+        currentConfig = currentConfig.clone();
+        existingMoves[currentCursor.incrementAndGet()] = currentConfig;
+        currentConfig.setMoveMaker(PlayerColor.getColorByCursor(currentColor.ordinal()+1));
+        return currentConfig;
+    }
+    
+    public static BoardConfiguration undoConfiguration() {
+        BoardConfiguration currentConfig = existingMoves[currentCursor.get()];
+        if (currentCursor.get() > 0) {
+            currentConfig.destroy();
+            currentConfig = existingMoves[currentCursor.decrementAndGet()];
+        }
+        currentColor = currentConfig.getMoveMaker();
+        return currentConfig;
+    }
+    
+    
+    public static void exceptionMessage(PromptableException.ExceptFactor exceptFactor) {
+        Alert alert = new Alert(exceptFactor.getAlertType(), exceptFactor.getMsg());
+        alert.setTitle(exceptFactor.getTitleText());
+        alert.setHeaderText(exceptFactor.getHeaderText());
+        alert.showAndWait()
+        .filter(response -> response == ButtonType.OK)
+        .ifPresent(response -> System.out.println(response.getButtonData()));
+    }
 }

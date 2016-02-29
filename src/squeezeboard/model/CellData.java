@@ -79,6 +79,12 @@ public class CellData {
         }
         return true;
     }
+
+    @Override
+    protected Object clone() {
+        return new CellData(colCord, rowCord, cellChar);
+    }
+    
     
     
 }

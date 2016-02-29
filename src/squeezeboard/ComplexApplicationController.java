@@ -10,6 +10,9 @@ import squeezeboard.model.PlayerColor;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +28,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
 
@@ -33,44 +37,46 @@ import squeezeboard.view.StatusBarView;
  * @author zhangwei
  */
 public class ComplexApplicationController implements Initializable {
-    
+
     @FXML
     private ToggleButton btn_start;
-    
+
     @FXML
     private Button btn_reset;
-    
+
     @FXML
     private GridPane grid_view;
-    
+
     @FXML
     private RadioButton radio_orange;
-    
+
     @FXML
     private RadioButton radio_blue;
-    
+
     @FXML
     private Label leftStatus;
-    
+
     @FXML
     private Label rightStatus;
-    
+
     @FXML
     private Label label_currPlayer;
-      
+
+    @FXML
+    private MenuItem menu_undo;
+
     private final ToggleGroup radioGroup = new ToggleGroup();
-    
+
     private GridPaneView gridViewController;
-    
+
     private StatusBarView statusBarController;
-    
+
     private int gridDimension = 8;
-    
+
     private int maximumMoves = 50;
-    
+
     private boolean isGridInitialized = false;
-    
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
@@ -78,18 +84,19 @@ public class ComplexApplicationController implements Initializable {
         initRadioGroup();
         refreshStatusBar();
     }
-    
-    private void initiateBoard(){
-        
+
+    private void initiateBoard() {
+
         gridViewController = new GridPaneView(grid_view);
         statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer);
-        
+        GameUtils.currentCursor.set(0);
+        BoardConfiguration initialBoard = new BoardConfiguration(this.gridDimension);
+        initialBoard.setMoveMaker(GameUtils.currentColor);
         GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
-        GameUtils.existingMoves[GameUtils.currentCursor.get()] = new BoardConfiguration(this.gridDimension);
-        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()], 
-                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController)
-        , (isGridInitialized ? null : statusBarController));
-        
+        GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
+        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()],
+                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController), (isGridInitialized ? null : statusBarController));
+
         isGridInitialized = true;
         GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
         GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
@@ -97,16 +104,16 @@ public class ComplexApplicationController implements Initializable {
         grid_view.setDisable(true);
         grid_view.setVisible(false);
     }
-    
+
     private void initRadioGroup() {
-        
+
         radio_blue.setToggleGroup(radioGroup);
         radio_orange.setToggleGroup(radioGroup);
         radio_blue.setSelected(true);
-        radioGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov, Toggle old_toggle, 
-        Toggle new_toggle) -> {
+        radioGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov, Toggle old_toggle,
+                Toggle new_toggle) -> {
             if (radioGroup.getSelectedToggle() != null) {
-                if (radioGroup.getSelectedToggle().equals(radio_blue)){
+                if (radioGroup.getSelectedToggle().equals(radio_blue)) {
                     GameUtils.computerRole = PlayerColor.blue;
                 } else if (radioGroup.getSelectedToggle().equals(radio_orange)) {
                     GameUtils.computerRole = PlayerColor.orange;
@@ -115,49 +122,69 @@ public class ComplexApplicationController implements Initializable {
             GameUtils.currentColor = PlayerColor.orange;
             refreshStatusBar();
         });
-        
+
     }
-    
+
     @FXML
     private void handleStart(ActionEvent event) {
         if (btn_start.getText().equals("Start")) {
             btn_start.setText("End");
             btn_start.setSelected(true);
             startGame();
-        } else if (btn_start.getText().equals("End")){
+        } else if (btn_start.getText().equals("End")) {
             btn_start.setText("Start");
             endGame();
         }
     }
-    
+
     private void startGame() {
         GameUtils.round.incrementAndGet();
         initiateBoard();
-        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(true));
+        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(true));
         GameUtils.game_started.compareAndSet(false, true);
         grid_view.setDisable(false);
+        menu_undo.setDisable(false);
         grid_view.setVisible(true);
         System.out.println("start GAme");
     }
 
     private void endGame() {
-        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton)radio).setDisable(false));
+        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         grid_view.setDisable(true);
+        menu_undo.setDisable(true);
         System.out.println("end game");
     }
-    
+
     @FXML
-    private void handleReset(ActionEvent event){
+    private void handleReset(ActionEvent event) {
         resetMemory();
         resetStatus();
         resetBoard();
     }
-    
+
     @FXML
     private void handleQuit(ActionEvent event) {
         System.exit(0);
     }
-    
+
+    @FXML
+    private void handleUndo(ActionEvent event) {
+        if (GameUtils.currentCursor.get() == 0) {
+            GameUtils.exceptionMessage(ExceptFactor.NO_MOVES_TO_BE_UNDONE);
+            return;
+        }
+        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
+            GameUtils.exceptionMessage(ExceptFactor.WAIT_FOR_COMPUTER);
+            return;
+        }
+        Platform.runLater(() -> {
+            this.gridViewController.update(GameUtils.undoConfiguration());
+            refreshStatusBar();
+            this.gridViewController.update(GameUtils.undoConfiguration());
+            refreshStatusBar();
+        });
+    }
+
     @FXML
     private void handleAbout(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Author\n  Wei Zhang (x-spirit.zhang@ttu.edu)\n"
@@ -165,10 +192,10 @@ public class ComplexApplicationController implements Initializable {
         alert.setTitle("About SqueezeIt v1.0");
         alert.setHeaderText("About SqueezeIt v1.0");
         alert.showAndWait()
-        .filter(response -> response == ButtonType.OK)
-        .ifPresent(response -> System.out.println(""));
+                .filter(response -> response == ButtonType.OK)
+                .ifPresent(response -> System.out.println(response.getButtonData()));
     }
-    
+
     private void resetBoard() {
         endGame();
         grid_view.setVisible(false);
@@ -196,5 +223,5 @@ public class ComplexApplicationController implements Initializable {
     private void refreshStatusBar() {
         statusBarController.update();
     }
-    
+
 }
