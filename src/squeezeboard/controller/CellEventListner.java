@@ -80,10 +80,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         BoardConfiguration currentConfig = GameUtils.copyCurrentConfiguration();
         CellData[][] grid = currentConfig.getBoard();
         GameUtils.pickedCell = grid[cell.getRowCord()][cell.getColCord()];
-        // If it is the computer, do some heuristic search for optimal solutions
-        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
-            findHeuristicSolutions(grid);
-        }
+        
         // Checking the current row where the picked cell exists.
         checkAndHighlight(GameUtils.pickedCell, grid, 0, 1);
         // Checking the current column where the picked cell exists.
@@ -99,7 +96,10 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
+        //try to remove pattern here
+        tryRemovePattern(cell);
         refreshGrid();
+        //currentColor do not change until now, a piece is dropped on board.
         GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentCursor.get());
         refreshStatus();
     }
@@ -161,8 +161,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         statusBarView.update();
     }
 
-    private void findHeuristicSolutions(CellData[][] grid) {
-        //TODO: START HEURISTIC SEARCH HERE;
+    private void tryRemovePattern(CellData cell) {
+        
     }
     
     

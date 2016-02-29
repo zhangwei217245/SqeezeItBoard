@@ -1,5 +1,6 @@
 package squeezeboard.model;
 
+import java.util.regex.Pattern;
 import javafx.scene.paint.Color;
 
 /**
@@ -8,17 +9,23 @@ import javafx.scene.paint.Color;
  */
 public enum PlayerColor {
     
-    orange('O', Color.web("0xff9900")),
+    orange('O', Color.web("0xff9900"),Pattern.compile("O[EB]+O"),Pattern.compile("[O]+")),
     
-    blue('B', Color.web("0x0099ff"));
+    blue('B', Color.web("0x0099ff"), Pattern.compile("B[EO]+B"),Pattern.compile("[B]+"));
    
     private char CHAR;
     
     private Color color;
+    
+    private Pattern gapPattern;
+    
+    private Pattern consecutivePattern;
 
-    private PlayerColor(char CHAR, Color color) {
+    private PlayerColor(char CHAR, Color color, Pattern gapPattern, Pattern consecutivePattern) {
         this.CHAR = CHAR;
         this.color = color;
+        this.gapPattern = gapPattern;
+        this.consecutivePattern = consecutivePattern;
     }
     
     public char CHAR(){
@@ -28,6 +35,24 @@ public enum PlayerColor {
     public Color getColor() {
         return color;
     }
+
+    public Pattern getGapPattern() {
+        return gapPattern;
+    }
+
+    public Pattern getConsecutivePattern() {
+        return consecutivePattern;
+    }
+    
+    public static PlayerColor getColorByChar(char colorChar) {
+        for (PlayerColor color : values()) {
+            if (color.CHAR() == colorChar) {
+                return color;
+            }
+        }
+        return null;
+    }
+    
     
     public static PlayerColor getColorByCursor(int cursor) {
         int idx = cursor % 2;
