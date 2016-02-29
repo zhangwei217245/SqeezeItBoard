@@ -13,49 +13,49 @@ import squeezeboard.model.Move;
  */
 public enum SqueezePatternType {
     CONSECUTIVE {
-
         @Override
-        public int size(Move move) {
+        public int size(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public double score(Move move) {
+        public double score(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public boolean isEliminatable(Move move) {
+        public boolean isEliminatable(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public boolean tryEliminate(Move move) {
+        public boolean tryEliminate(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
+        
     },
     
     GAP {
-
         @Override
-        public int size(Move move) {
+        public int size(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public double score(Move move) {
+        public double score(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public boolean isEliminatable(Move move) {
+        public boolean isEliminatable(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         @Override
-        public boolean tryEliminate(Move move) {
+        public boolean tryEliminate(SqueezePattern pattern) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
+        
     };
     
    /**
@@ -64,23 +64,23 @@ public enum SqueezePatternType {
     private final int MAX_GAP_PIECES = 2;
             
             
-    public double eliminating_2(Move move){
+    public double eliminating_2(SqueezePattern pattern){
         return 0.0d;
     }
     
-    public double eliminating_consecutive(Move move){
+    public double eliminating_consecutive(SqueezePattern pattern){
         return 0.0d;
     }
     
-    public double adjacent_score(Move move){
+    public double adjacent_score(SqueezePattern pattern){
         return 0.0d;
     }
     
-    public abstract int size(Move move);
+    public abstract int size(SqueezePattern pattern);
     
-    public abstract double score(Move move);
+    public abstract double score(SqueezePattern pattern);
     
-    public abstract boolean isEliminatable(Move move);
+    public abstract boolean isEliminatable(SqueezePattern pattern);
     
-    public abstract boolean tryEliminate(Move move);
+    public abstract boolean tryEliminate(SqueezePattern pattern);
 }
