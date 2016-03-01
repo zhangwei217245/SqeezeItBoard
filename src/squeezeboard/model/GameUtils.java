@@ -24,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
+import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import squeezeboard.model.PlayerColor;
@@ -173,5 +174,14 @@ public class GameUtils {
         alert.showAndWait()
         .filter(response -> response == ButtonType.OK)
         .ifPresent(response -> System.out.println(response.getButtonData()));
+    }
+    
+    
+    public static String getPatternString(SqueezePattern pattern){
+        StringBuilder sb = new StringBuilder();
+        for (CellData cell : pattern.getPattern()) {
+            sb.append(cell.getCellChar());
+        }
+        return sb.toString();
     }
 }

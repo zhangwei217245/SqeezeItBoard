@@ -31,6 +31,7 @@ public class SqueezePatternFinder {
                 piece.getRowCord():piece.getColCord();
         CellData[] group = new CellData[dimension];
         StringBuilder sb = new StringBuilder();
+        
         for (int i = 0; i < dimension; i++) {
             if (i == currentPos) {
                 sb.append(currentColor);

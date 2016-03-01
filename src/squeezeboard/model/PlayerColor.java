@@ -9,9 +9,11 @@ import javafx.scene.paint.Color;
  */
 public enum PlayerColor {
     
-    orange('O', Color.web("0xff9900"),Pattern.compile("O[EB]+O"),Pattern.compile("[O]+")),
+    orange('O', Color.web("0xff9900"),Pattern.compile("O[EB]+O"),
+            Pattern.compile("O[B]+O"), Pattern.compile("[O]+")),
     
-    blue('B', Color.web("0x0099ff"), Pattern.compile("B[EO]+B"),Pattern.compile("[B]+"));
+    blue('B', Color.web("0x0099ff"), Pattern.compile("B[EO]+B"),
+            Pattern.compile("B[O]+B"), Pattern.compile("[B]+"));
    
     private char CHAR;
     
@@ -19,12 +21,17 @@ public enum PlayerColor {
     
     private Pattern gapPattern;
     
+    private Pattern fullGapPattern;
+    
     private Pattern consecutivePattern;
 
-    private PlayerColor(char CHAR, Color color, Pattern gapPattern, Pattern consecutivePattern) {
+    private PlayerColor(char CHAR, Color color, Pattern gapPattern, 
+            Pattern fullGapPattern,
+            Pattern consecutivePattern) {
         this.CHAR = CHAR;
         this.color = color;
         this.gapPattern = gapPattern;
+        this.fullGapPattern = fullGapPattern;
         this.consecutivePattern = consecutivePattern;
     }
     
@@ -40,6 +47,10 @@ public enum PlayerColor {
         return gapPattern;
     }
 
+    public Pattern getFullGapPattern() {
+        return fullGapPattern;
+    }
+    
     public Pattern getConsecutivePattern() {
         return consecutivePattern;
     }

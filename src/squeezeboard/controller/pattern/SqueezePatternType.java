@@ -121,18 +121,47 @@ public enum SqueezePatternType {
 
         @Override
         public int tryEliminate(SqueezePattern pattern) {
-            
-            return 0;
+            String patternString = GameUtils.getPatternString(pattern);
+            int eliminated = 0;
+            for (PlayerColor color : PlayerColor.values()) {
+                if (color.equals(pattern.getPatternCreator())) {
+                    if (color.getFullGapPattern().matcher(patternString).find()){
+                        for (int i = 1; i < pattern.getPattern().length-1; i++) {
+                            pattern.getPattern()[i].setCellChar('E');
+                            eliminated++;
+                        }
+                    }
+                }
+            }
+            return eliminated;
         }
 
         @Override
         public double eliminating_2(SqueezePattern pattern) {
-            return 0.0d;
+            int emptys = 0;
+            for (CellData cell : pattern.getPattern()) {
+                if (cell.getCellChar()=='E'||cell.getCellChar()=='P'){
+                    emptys++;
+                }
+            }
+            int gapSize = pattern.getPattern().length - 2;
+            
+            return ((double)(gapSize-emptys)/(double)gapSize) * 2.0d;
         }
 
         @Override
         public double eliminating_consecutive(SqueezePattern pattern) {
-            return 0.0d;
+            String patternString = GameUtils.getPatternString(pattern);
+            PlayerColor opponentColor = PlayerColor
+                    .getColorByCursor(pattern.getPatternCreator().ordinal() + 1);
+            int opponentConsecutive_size = 0;
+            char opponentChar = opponentColor.CHAR();
+            for (char c : patternString.toCharArray()) {
+                if (c == opponentChar) {
+                    opponentConsecutive_size ++;
+                }
+            }
+            return (double)opponentConsecutive_size;
         }
 
     };
