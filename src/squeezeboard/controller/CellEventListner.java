@@ -1,13 +1,20 @@
 package squeezeboard.controller;
 
+import com.sun.javafx.scene.control.skin.VirtualFlow;
+import java.util.ArrayList;
+import java.util.List;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import squeezeboard.controller.pattern.SqueezePattern;
+import squeezeboard.controller.pattern.SqueezePatternFinder;
+import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.model.GameUtils;
+import squeezeboard.model.PatternDirection;
 import squeezeboard.model.PlayerColor;
 import squeezeboard.view.StatusBarView;
 
@@ -160,6 +167,35 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
 
     private void tryRemovePattern(CellData cell) {
+        List<SqueezePattern> allPatterns = new ArrayList<>();
+        allPatterns.addAll(SqueezePatternFinder.findPattern(cell, 
+                GameUtils.currentColor.CHAR(),
+                PatternDirection.VERTICAL));
+        allPatterns.addAll(SqueezePatternFinder.findPattern(cell, 
+                GameUtils.currentColor.CHAR(),
+                PatternDirection.HORIZONTAL));
+        
+        SqueezePattern maxGapPattern = null;
+        SqueezePattern maxConPattern = null;
+        
+        for (SqueezePattern pattern : allPatterns) {
+            if (SqueezePatternType.CONSECUTIVE.equals(pattern.getPatternType())){
+                if (maxConPattern == null) {
+                    maxConPattern = pattern;
+                } else if (maxConPattern.getPattern().length < pattern.getPattern().length){
+                    maxConPattern = pattern;
+                }
+            }
+            
+            if (SqueezePatternType.GAP.equals(pattern.getPatternType())){
+                if (maxGapPattern == null) {
+                    maxGapPattern = pattern;
+                } else if (maxGapPattern.getPattern().length < pattern.getPattern().length){
+                    maxGapPattern = pattern;
+                }
+            }
+        }
+        //compare the size and priority.
         
     }
     

@@ -16,14 +16,14 @@ import squeezeboard.model.PlayerColor;
  */
 public class SqueezePatternFinder {
 
-    public List<SqueezePattern> findPattern(CellData piece, char currentColor, PatternDirection direction) {
+    public static List<SqueezePattern> findPattern(CellData piece, char currentColor, PatternDirection direction) {
         CellData[][] board = GameUtils.getCurrentBoard();
         int dimension = GameUtils.getCurrentBoardConfiguration().getDimension();
         // extracting string from current board.
         return getAllPatterns(board, piece, dimension, currentColor, direction);
     }
     
-    private List<SqueezePattern> getAllPatterns(CellData[][] board, CellData piece, int dimension, 
+    private static List<SqueezePattern> getAllPatterns(CellData[][] board, CellData piece, int dimension, 
             char currentColor, PatternDirection direction){
         int groupIndex = PatternDirection.VERTICAL.equals(direction)?
                 piece.getColCord():piece.getRowCord();
@@ -60,7 +60,7 @@ public class SqueezePatternFinder {
         return patterns;
     }
     
-    private List<SqueezePattern> getPatterns(String patternStr, PlayerColor patternColor, 
+    private static List<SqueezePattern> getPatterns(String patternStr, PlayerColor patternColor, 
             CellData[] group, SqueezePatternType patternType, PatternDirection direction){
         List<SqueezePattern> listPatterns = new ArrayList<>();
         Pattern pattern = patternColor.getGapPattern();
