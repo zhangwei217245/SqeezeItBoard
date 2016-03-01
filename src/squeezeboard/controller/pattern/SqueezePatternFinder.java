@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PatternDirection;
