@@ -139,6 +139,13 @@ public class GameUtils {
         }
     }
     
+    public static BoardConfiguration getCurrentBoardConfiguration() {
+        return existingMoves[currentCursor.get()];
+    }
+    
+    public static CellData[][] getCurrentBoard(){
+        return getCurrentBoardConfiguration().getBoard();
+    }
     
     public static BoardConfiguration copyCurrentConfiguration() {
         BoardConfiguration currentConfig = existingMoves[currentCursor.get()];

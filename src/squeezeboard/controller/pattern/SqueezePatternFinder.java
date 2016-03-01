@@ -18,8 +18,8 @@ import squeezeboard.model.PlayerColor;
 public class SqueezePatternFinder {
 
     public List<SqueezePattern> findPattern(CellData piece, char currentColor, PatternDirection direction) {
-        CellData[][] board = getCurrentBoard().getBoard();
-        int dimension = getCurrentBoard().getDimension();
+        CellData[][] board = GameUtils.getCurrentBoard();
+        int dimension = GameUtils.getCurrentBoardConfiguration().getDimension();
         // extracting string from current board.
         return getAllPatterns(board, piece, dimension, currentColor, direction);
     }
@@ -52,16 +52,16 @@ public class SqueezePatternFinder {
         List<SqueezePattern> patterns = new ArrayList<>();
         // Getting Gap Pattern
         patterns.addAll(getPatterns(patternStr, patternColor, 
-                group, SqueezePatternType.GAP));
+                group, SqueezePatternType.GAP, direction));
         // Getting Consecutive Pattern
         patterns.addAll(getPatterns(patternStr, patternColor, 
-                group, SqueezePatternType.CONSECUTIVE));
+                group, SqueezePatternType.CONSECUTIVE, direction));
         
         return patterns;
     }
     
     private List<SqueezePattern> getPatterns(String patternStr, PlayerColor patternColor, 
-            CellData[] group, SqueezePatternType patternType){
+            CellData[] group, SqueezePatternType patternType, PatternDirection direction){
         List<SqueezePattern> listPatterns = new ArrayList<>();
         Pattern pattern = patternColor.getGapPattern();
         if (SqueezePatternType.CONSECUTIVE.equals(patternType)) {
@@ -75,16 +75,10 @@ public class SqueezePatternFinder {
             end = matcher.toMatchResult().end();
             CellData[] patternBlocks = Arrays.copyOfRange(group, start, end);
             listPatterns.add(new SqueezePattern(patternBlocks, 
-                    patternType, patternColor));
+                    patternType, patternColor, direction));
             start = end;
         }
         return listPatterns;
-    }
-    
-    
-    private BoardConfiguration getCurrentBoard(){
-        BoardConfiguration currBoardConfiguration = GameUtils.existingMoves[GameUtils.currentCursor.get()];
-        return currBoardConfiguration;
     }
 
     public static void main(String[] args) {

@@ -1,6 +1,7 @@
 package squeezeboard.controller.pattern;
 
 import squeezeboard.model.CellData;
+import squeezeboard.model.PatternDirection;
 import squeezeboard.model.PlayerColor;
 
 /**
@@ -14,11 +15,15 @@ public class SqueezePattern {
     private final SqueezePatternType patternType;
     
     private final PlayerColor patternCreator;
+    
+    private final PatternDirection patternDirection;
 
-    public SqueezePattern(CellData[] pattern, SqueezePatternType patternType, PlayerColor patternCreator) {
+    public SqueezePattern(CellData[] pattern, SqueezePatternType patternType, 
+            PlayerColor patternCreator, PatternDirection patternDirection) {
         this.pattern = pattern;
         this.patternType = patternType;
         this.patternCreator = patternCreator;
+        this.patternDirection = patternDirection;
     }
 
     public CellData[] getPattern() {
@@ -32,6 +37,9 @@ public class SqueezePattern {
     public PlayerColor getPatternCreator() {
         return patternCreator;
     }
-    
+
+    public PatternDirection getPatternDirection() {
+        return patternDirection;
+    }
     
 }

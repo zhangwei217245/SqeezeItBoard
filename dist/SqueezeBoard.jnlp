@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="SqueezeBoard.jar" size="47191" download="eager" />
+    <jar href="SqueezeBoard.jar" size="47173" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="SqueezeBoard" >
     <param name="requiredFXVersion" value="8.0+"/>

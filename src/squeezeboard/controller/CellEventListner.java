@@ -4,8 +4,6 @@ import squeezeboard.view.GridPaneView;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import squeezeboard.model.PromptableException.ExceptFactor;
@@ -105,7 +103,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
     
     private void refreshGrid(){
-        BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
+        BoardConfiguration currentConfig = GameUtils.getCurrentBoardConfiguration();
         gridPaneView.update(currentConfig);
     }
    
@@ -144,7 +142,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
     
     private void removeHighlight(CellData cell) {
-        BoardConfiguration currentConfig = GameUtils.existingMoves[GameUtils.currentCursor.get()];
+        BoardConfiguration currentConfig = GameUtils.getCurrentBoardConfiguration();
         CellData[][] grid = currentConfig.getBoard();
         int d = currentConfig.getDimension();
         for (int i = 0; i < d ; i++) {

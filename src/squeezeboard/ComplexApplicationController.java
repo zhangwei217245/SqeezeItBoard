@@ -10,8 +10,6 @@ import squeezeboard.model.PlayerColor;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -94,7 +92,7 @@ public class ComplexApplicationController implements Initializable {
         initialBoard.setMoveMaker(GameUtils.currentColor);
         GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
-        GameUtils.renderGridView(GameUtils.existingMoves[GameUtils.currentCursor.get()],
+        GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
                 grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController), (isGridInitialized ? null : statusBarController));
 
         isGridInitialized = true;
