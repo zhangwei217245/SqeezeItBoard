@@ -5,29 +5,28 @@
  */
 package squeezeboard.model;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.Interpolator;
+import javafx.animation.Transition;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Effect;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
 import squeezeboard.controller.pattern.SqueezePattern;
-import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
-import squeezeboard.model.PlayerColor;
+import squeezeboard.model.Animation.AnimatedGif;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
 
@@ -41,11 +40,16 @@ public class GameUtils {
     public static final String file_orange="/squeezeboard/orangeButton.png";
     public static final String file_blue="/squeezeboard/blueButton.png";
     public static final String file_possMove="/squeezeboard/possMove.png";
+    public static final String file_you_win="/squeezeboard/Fireworks.jpg";
+    public static final String file_computer_win="/squeezeboard/oops.gif";
+    
     
     public static final Image img_empty = new Image(SqueezeBoard.class.getResourceAsStream(file_empty));
     public static final Image img_orange = new Image(SqueezeBoard.class.getResourceAsStream(file_orange));
     public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue));
     public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove));
+    public static final Image img_you_win = new Image(SqueezeBoard.class.getResourceAsStream(file_you_win));
+    //public static final Image img_computer_win = new Image(SqueezeBoard.class.getResourceAsStream(file_computer_win));
     
     public static double effecthreshold = 0.6d;
     
@@ -167,10 +171,22 @@ public class GameUtils {
     }
     
     
-    public static void exceptionMessage(PromptableException.ExceptFactor exceptFactor) {
-        Alert alert = new Alert(exceptFactor.getAlertType(), exceptFactor.getMsg());
+    public static void showAlertBox(PromptableException.ExceptFactor exceptFactor) {
+        Alert alert = new Alert(exceptFactor.getAlertType().equals(Alert.AlertType.NONE)?
+                Alert.AlertType.INFORMATION:exceptFactor.getAlertType(), exceptFactor.getMsg());
         alert.setTitle(exceptFactor.getTitleText());
         alert.setHeaderText(exceptFactor.getHeaderText());
+        if(exceptFactor.getAlertType().equals(Alert.AlertType.NONE)){
+            if (exceptFactor.equals(PromptableException.ExceptFactor.YOU_WIN)) {
+                alert.setGraphic(new ImageView(img_you_win));
+            } else if (exceptFactor.equals(PromptableException.ExceptFactor.COMPUTER_WIN)){
+                AnimatedGif img_computer_win = new AnimatedGif(
+                        SqueezeBoard.class.getResource(file_computer_win).toExternalForm(), 2200);
+                img_computer_win.setCycleCount(5);
+                img_computer_win.play();
+                alert.setGraphic(img_computer_win.getView());
+            }
+        }
         alert.showAndWait()
         .filter(response -> response == ButtonType.OK)
         .ifPresent(response -> System.out.println(response.getButtonData()));
@@ -184,4 +200,8 @@ public class GameUtils {
         }
         return sb.toString();
     }
+    
+    
+
+    
 }

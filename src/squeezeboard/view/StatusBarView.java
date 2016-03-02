@@ -4,6 +4,7 @@ import javafx.scene.control.Label;
 import squeezeboard.ComplexApplicationController;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
+import squeezeboard.model.PromptableException;
 
 /**
  *
@@ -56,9 +57,11 @@ public class StatusBarView {
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
         } else if (computerLeft <= 1) {
             label_currPlayer.setText(String.format("Computer Lose! You Win!!!"));
+            GameUtils.showAlertBox(PromptableException.ExceptFactor.YOU_WIN);
             mainController.endGame();
         } else if (playLeft <= 1) {
             label_currPlayer.setText(String.format("You Lose! Computer Win!!!"));
+            GameUtils.showAlertBox(PromptableException.ExceptFactor.COMPUTER_WIN);
             mainController.endGame();
         }
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());

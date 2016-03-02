@@ -37,7 +37,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             case 'B':
             case 'O':
                 if (GameUtils.currentColor.CHAR() != cell.getCellChar()){
-                    GameUtils.exceptionMessage(ExceptFactor.NOT_YOUR_TURN);
+                    GameUtils.showAlertBox(ExceptFactor.NOT_YOUR_TURN);
                     return;
                 }
                 if(GameUtils.pickedCell!=null){
@@ -52,7 +52,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                             pickUpAnother(cell);
                         }
                     } else {
-                        GameUtils.exceptionMessage(ExceptFactor.PIECE_ON_PIECE);
+                        GameUtils.showAlertBox(ExceptFactor.PIECE_ON_PIECE);
                     }
                 }else{
                     pickUpPiece(cell);
@@ -61,11 +61,11 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                 if (GameUtils.pickedCell!=null){
                     dropOnPath(cell);
                 } else {
-                    GameUtils.exceptionMessage(ExceptFactor.PICKED_UP_DATA_MESS);
+                    GameUtils.showAlertBox(ExceptFactor.PICKED_UP_DATA_MESS);
                 }   break;
             case 'E':
                 if (GameUtils.pickedCell != null) {
-                    GameUtils.exceptionMessage(ExceptFactor.INVALID_MOVE);
+                    GameUtils.showAlertBox(ExceptFactor.INVALID_MOVE);
                 } else {
                     //Nothing to do so far
                 }   break;

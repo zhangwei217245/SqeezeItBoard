@@ -147,6 +147,7 @@ public class ComplexApplicationController implements Initializable {
 
     public void endGame() {
         btn_start.setText("Start");
+        btn_start.setSelected(false);
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         grid_view.setDisable(true);
         menu_undo.setDisable(true);
@@ -168,11 +169,11 @@ public class ComplexApplicationController implements Initializable {
     @FXML
     private void handleUndo(ActionEvent event) {
         if (GameUtils.currentCursor.get() == 0) {
-            GameUtils.exceptionMessage(ExceptFactor.NO_MOVES_TO_BE_UNDONE);
+            GameUtils.showAlertBox(ExceptFactor.NO_MOVES_TO_BE_UNDONE);
             return;
         }
         if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
-            GameUtils.exceptionMessage(ExceptFactor.WAIT_FOR_COMPUTER);
+            GameUtils.showAlertBox(ExceptFactor.WAIT_FOR_COMPUTER);
             return;
         }
         Platform.runLater(() -> {
