@@ -29,6 +29,7 @@ public enum SqueezePatternType {
          */
         @Override
         public int tryEliminate(SqueezePattern pattern) {
+            
             CellData[] patternBlocks = pattern.getPattern();
             PatternDirection direction = pattern.getPatternDirection();
             CellData[][] currentBoard = GameUtils.getCurrentBoard();
@@ -36,20 +37,28 @@ public enum SqueezePatternType {
                     .ordinal() + 1).CHAR();
             CellData leftBound = null;
             CellData rightBound = null; 
-            if (PatternDirection.HORIZONTAL.equals(direction)) {
-                leftBound = currentBoard[patternBlocks[0].getRowCord()][patternBlocks[0].getColCord() + 1];
-                rightBound = currentBoard[patternBlocks[patternBlocks.length - 1]
-                        .getRowCord()][patternBlocks[patternBlocks.length - 1].getColCord() + 1];
-            } else if (PatternDirection.VERTICAL.equals(direction)) {
-                leftBound = currentBoard[patternBlocks[0].getColCord()][patternBlocks[0].getRowCord() + 1];
-                rightBound = currentBoard[patternBlocks[patternBlocks.length - 1]
-                        .getColCord()][patternBlocks[patternBlocks.length - 1].getRowCord() + 1];
+            Gap opponent_gap = findingOpponentSurroundingGap(pattern);
+            if (opponent_gap.left_pos >= 0 && opponent_gap.right_pos >= 0) {//GAP FOUND
+                int opponent_gap_size = Math.abs(opponent_gap.right_pos
+                        - opponent_gap.left_pos);
+                if (opponent_gap_size == this.size(pattern)) {
+                    int rowIdx = patternBlocks[0].getRowCord();
+                    if (PatternDirection.HORIZONTAL.equals(direction)) {
+                        leftBound = currentBoard[rowIdx][opponent_gap.left_pos];
+                        rightBound = currentBoard[rowIdx][opponent_gap.right_pos];
+                    } else if (PatternDirection.VERTICAL.equals(direction)) {
+                        int colIdx = patternBlocks[0].getColCord();
+                        leftBound = currentBoard[opponent_gap.left_pos][colIdx];
+                        rightBound = currentBoard[opponent_gap.right_pos][colIdx];
+                    }
+                    if (opponentChar == leftBound.getCellChar() && opponentChar == rightBound.getCellChar()) {
+                        leftBound.setCellChar('E');
+                        rightBound.setCellChar('E');
+                        return 2;
+                    }
+                }
             }
-            if (opponentChar == leftBound.getCellChar() && opponentChar == rightBound.getCellChar()) {
-                leftBound.setCellChar('E');
-                rightBound.setCellChar('E');
-                return 2;
-            }
+            
             return 0;
         }
 
@@ -243,7 +252,7 @@ public enum SqueezePatternType {
                     opponent_gap_left_pos = i;
                 }
             }
-            if (j <= currentBoardConfiguration.getDimension() && (!gap_right_found)) {
+            if (j < currentBoardConfiguration.getDimension() && (!gap_right_found)) {
                 if (PatternDirection.HORIZONTAL.equals(pattern.getPatternDirection())) {
                     r = currentBoardConfiguration
                             .getBoard()[groupIndex][j].getCellChar();

@@ -35,6 +35,7 @@ public class SqueezePatternFinder {
         for (int i = 0; i < dimension; i++) {
             if (i == currentPos) {
                 sb.append(currentColor);
+                group[i] = piece;
                 continue;
             }
             if (PatternDirection.VERTICAL.equals(direction)) {

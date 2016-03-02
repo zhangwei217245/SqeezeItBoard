@@ -86,7 +86,7 @@ public class ComplexApplicationController implements Initializable {
     private void initiateBoard() {
 
         gridViewController = new GridPaneView(grid_view);
-        statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer);
+        statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer, this);
         GameUtils.currentCursor.set(0);
         BoardConfiguration initialBoard = new BoardConfiguration(this.gridDimension);
         initialBoard.setMoveMaker(GameUtils.currentColor);
@@ -126,16 +126,15 @@ public class ComplexApplicationController implements Initializable {
     @FXML
     private void handleStart(ActionEvent event) {
         if (btn_start.getText().equals("Start")) {
-            btn_start.setText("End");
-            btn_start.setSelected(true);
             startGame();
         } else if (btn_start.getText().equals("End")) {
-            btn_start.setText("Start");
             endGame();
         }
     }
 
     private void startGame() {
+        btn_start.setText("End");
+        btn_start.setSelected(true);
         GameUtils.round.incrementAndGet();
         initiateBoard();
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(true));
@@ -146,7 +145,8 @@ public class ComplexApplicationController implements Initializable {
         System.out.println("start GAme");
     }
 
-    private void endGame() {
+    public void endGame() {
+        btn_start.setText("Start");
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         grid_view.setDisable(true);
         menu_undo.setDisable(true);
@@ -201,8 +201,10 @@ public class ComplexApplicationController implements Initializable {
 
     private void resetMemory() {
         GameUtils.pickedCell = null;
-        for (int i = 0; i < GameUtils.existingMoves.length; i++) {
-            GameUtils.existingMoves[i] = null;
+        if (GameUtils.existingMoves != null) {
+            for (int i = 0; i < GameUtils.existingMoves.length; i++) {
+                GameUtils.existingMoves[i] = null;
+            }
         }
         GameUtils.existingMoves = null;
         GameUtils.computerRole = PlayerColor.blue;

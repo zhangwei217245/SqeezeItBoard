@@ -1,6 +1,7 @@
 package squeezeboard.view;
 
 import javafx.scene.control.Label;
+import squeezeboard.ComplexApplicationController;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
 
@@ -16,16 +17,21 @@ public class StatusBarView {
     private Label rightStatus;
     
     private Label label_currPlayer;
+    
+    private ComplexApplicationController mainController;
 
-    public StatusBarView(Label leftStatus, Label rightStatus, Label label_currPlayer) {
+    public StatusBarView(Label leftStatus, Label rightStatus, Label label_currPlayer,
+            ComplexApplicationController mainController) {
         this.leftStatus = leftStatus;
         this.rightStatus = rightStatus;
         this.label_currPlayer = label_currPlayer;
+        this.mainController = mainController;
     }
     
     public void update(){
         int computerLeft = GameUtils.blueLeft.get();
         int playLeft = GameUtils.orangeLeft.get();
+        
         String leftMessage = String.format("Computer left: %s", computerLeft);
         String rightMessage = String.format("Player left: %s", playLeft);
         if (GameUtils.computerRole.equals(PlayerColor.orange)) {
@@ -43,10 +49,18 @@ public class StatusBarView {
         if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
             playerName = "Computer";
         }
-        label_currPlayer.setText(String.format(GameUtils.game_started.get()?
+        if (computerLeft > 1 && playLeft > 1) {
+            label_currPlayer.setText(String.format(GameUtils.game_started.get()?
                 "Current Player : %s | Round : %s | Move : %s" 
                 : "%s Will Firstly Serve.| Round : %s | Move : %s"
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
+        } else if (computerLeft <= 1) {
+            label_currPlayer.setText(String.format("Computer Lose! You Win!!!"));
+            mainController.endGame();
+        } else if (playLeft <= 1) {
+            label_currPlayer.setText(String.format("You Lose! Computer Win!!!"));
+            mainController.endGame();
+        }
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
     }
  
@@ -72,6 +86,14 @@ public class StatusBarView {
 
     public void setLabel_currPlayer(Label label_currPlayer) {
         this.label_currPlayer = label_currPlayer;
+    }
+
+    public ComplexApplicationController getMainController() {
+        return mainController;
+    }
+
+    public void setMainController(ComplexApplicationController mainController) {
+        this.mainController = mainController;
     }
     
     

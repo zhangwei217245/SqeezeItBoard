@@ -3,6 +3,7 @@ package squeezeboard.controller;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
@@ -195,8 +196,25 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                 }
             }
         }
+        int eliminated = 0;
         //compare the size and priority.
-        
+        SqueezePattern patternToBeEliminated = null;
+        if (maxConPattern != null && maxGapPattern != null) {
+            patternToBeEliminated = maxGapPattern.score() > maxConPattern.score()?
+                    maxGapPattern : maxConPattern;
+        } else {
+            patternToBeEliminated = maxGapPattern != null ? maxGapPattern : maxConPattern;
+        }
+        if (patternToBeEliminated != null) {
+            eliminated = patternToBeEliminated.tryEliminate();
+        }
+        if (eliminated > 0) {
+            AtomicInteger counterToBeDecreased = 
+            PlayerColor.blue.equals(patternToBeEliminated.getPatternCreator())?
+                    GameUtils.blueLeft : GameUtils.orangeLeft;
+            int originalCounter = counterToBeDecreased.get();
+            counterToBeDecreased.compareAndSet(originalCounter, originalCounter - eliminated);
+        }
     }
     
     
