@@ -5,19 +5,13 @@
         <group>
             <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/pattern/SqueezePatternFinder.java</file>
             <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/ComplexApplicationController.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/BoardConfiguration.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/PlayerColor.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/pattern/SqueezePatternType.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/CellEventListner.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/view/GridPaneView.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/GameUtils.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/SqueezeBoard.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/CellData.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/PromptableException.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/Animation.java</file>
             <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/view/StatusBarView.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/PatternDirection.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/ai/ScoreEvaluator.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/GifDecoder.java</file>
             <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/pattern/SqueezePattern.java</file>
-            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/Move.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/controller/CellEventListner.java</file>
+            <file>file:/Users/zhangwei/NetBeansProjects/SqueezeBoard/src/squeezeboard/model/GameUtils.java</file>
         </group>
     </open-files>
 </project-private>
