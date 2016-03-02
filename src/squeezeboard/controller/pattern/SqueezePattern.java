@@ -42,4 +42,12 @@ public class SqueezePattern {
         return patternDirection;
     }
     
+    public double score(){
+        return this.patternType.score(this);
+    }
+    
+    public int tryEliminate(){
+        return this.patternType.tryEliminate(this);
+    }
+    
 }
