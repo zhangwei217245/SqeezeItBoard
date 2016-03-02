@@ -199,7 +199,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         //compare the size and priority.
         SqueezePattern patternToBeEliminated = null;
         if (maxConPattern != null && maxGapPattern != null) {
-            patternToBeEliminated = maxGapPattern.score() > maxConPattern.score()?
+            patternToBeEliminated = maxGapPattern.eliminating_consecutives()> 
+                    maxConPattern.eliminating_2()?
                     maxGapPattern : maxConPattern;
         } else {
             patternToBeEliminated = maxGapPattern != null ? maxGapPattern : maxConPattern;

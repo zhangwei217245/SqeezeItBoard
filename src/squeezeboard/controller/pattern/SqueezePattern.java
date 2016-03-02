@@ -46,6 +46,14 @@ public class SqueezePattern {
         return this.patternType.score(this);
     }
     
+    public double eliminating_2(){
+        return this.patternType.eliminating_2(this);
+    }
+    
+    public double eliminating_consecutives() {
+        return this.patternType.eliminating_consecutive(this);
+    }
+    
     public int tryEliminate(){
         return this.patternType.tryEliminate(this);
     }
