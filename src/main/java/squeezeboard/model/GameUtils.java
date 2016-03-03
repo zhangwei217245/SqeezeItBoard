@@ -5,8 +5,6 @@
  */
 package squeezeboard.model;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -24,6 +22,9 @@ import squeezeboard.model.Animation.AnimatedGif;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author zhangwei
@@ -36,6 +37,7 @@ public class GameUtils {
     public static final String file_possMove="/images/possMove.png";
     public static final String file_you_win="/images/Fireworks.jpg";
     public static final String file_computer_win="/images/oops.gif";
+    public static final String file_draw_game="/images/draw.jpeg";
     
     
     public static final Image img_empty = new Image(SqueezeBoard.class.getResourceAsStream(file_empty));
@@ -43,6 +45,7 @@ public class GameUtils {
     public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue));
     public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove));
     public static final Image img_you_win = new Image(SqueezeBoard.class.getResourceAsStream(file_you_win));
+    public static final Image img_draw = new Image(SqueezeBoard.class.getResourceAsStream(file_draw_game));
     //public static final Image img_computer_win = new Image(SqueezeBoard.class.getResourceAsStream(file_computer_win));
     
     public static double effecthreshold = 0.6d;
@@ -65,7 +68,10 @@ public class GameUtils {
     
     
     public static CellData pickedCell = null;
-    
+
+    public static final int GRID_DIMENSION = 8;
+
+    public static final int MAXIMUM_MOVES = 50;
     
     
     public static BoardConfiguration[] existingMoves;
@@ -179,6 +185,8 @@ public class GameUtils {
                 img_computer_win.setCycleCount(5);
                 img_computer_win.play();
                 alert.setGraphic(img_computer_win.getView());
+            } else if (exceptFactor.equals(PromptableException.ExceptFactor.DRAW_GAME)) {
+                alert.setGraphic(new ImageView(img_draw));
             }
         }
         alert.showAndWait()

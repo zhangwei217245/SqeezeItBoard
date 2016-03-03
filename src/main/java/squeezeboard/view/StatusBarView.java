@@ -31,14 +31,14 @@ public class StatusBarView {
     
     public void update(){
         int computerLeft = GameUtils.blueLeft.get();
-        int playLeft = GameUtils.orangeLeft.get();
+        int playerLeft = GameUtils.orangeLeft.get();
         
         String leftMessage = String.format("Computer left: %s", computerLeft);
-        String rightMessage = String.format("Player left: %s", playLeft);
+        String rightMessage = String.format("Player left: %s", playerLeft);
         if (GameUtils.computerRole.equals(PlayerColor.orange)) {
-            playLeft = GameUtils.blueLeft.get();
+            playerLeft = GameUtils.blueLeft.get();
             computerLeft = GameUtils.orangeLeft.get();
-            leftMessage = String.format("Player left: %s", playLeft);
+            leftMessage = String.format("Player left: %s", playerLeft);
             rightMessage = String.format("Computer left: %s", computerLeft);
         }
         leftStatus.setText(leftMessage);
@@ -50,21 +50,36 @@ public class StatusBarView {
         if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
             playerName = "Computer";
         }
-        if (computerLeft > 1 && playLeft > 1) {
-            label_currPlayer.setText(String.format(GameUtils.game_started.get()?
-                "Current Player : %s | Round : %s | Move : %s" 
-                : "%s Will Firstly Serve.| Round : %s | Move : %s"
+
+        label_currPlayer.setText(String.format(GameUtils.game_started.get()?
+                        "Current Player : %s | Round : %s | Move : %s"
+                        : "%s Will Firstly Serve.| Round : %s | Move : %s"
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
-        } else if (computerLeft <= 1) {
-            label_currPlayer.setText(String.format("Computer Lose! You Win!!!"));
-            GameUtils.showAlertBox(PromptableException.ExceptFactor.YOU_WIN);
-            mainController.endGame();
-        } else if (playLeft <= 1) {
-            label_currPlayer.setText(String.format("You Lose! Computer Win!!!"));
-            GameUtils.showAlertBox(PromptableException.ExceptFactor.COMPUTER_WIN);
-            mainController.endGame();
-        }
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
+        determineGameResult(computerLeft,playerLeft);
+
+    }
+
+    public void determineGameResult(int computerLeft, int playerLeft){
+        if (GameUtils.currentCursor.get() >= GameUtils.MAXIMUM_MOVES) {
+            // GAME MUST COME TO AN END HERE, which one has the most pieces on the board will win
+            showDifferentGameResult(computerLeft,playerLeft);
+        } else {
+            // if anyone has only one piece left on the board, he will lost.
+            if (computerLeft <= 1 || playerLeft <= 1) {
+                showDifferentGameResult(computerLeft,playerLeft);
+            }
+        }
+    }
+    private void showDifferentGameResult(int computerLeft, int playerLeft){
+        if (computerLeft > playerLeft) {
+            GameUtils.showAlertBox(PromptableException.ExceptFactor.COMPUTER_WIN);
+        } else if (playerLeft > computerLeft) {
+            GameUtils.showAlertBox(PromptableException.ExceptFactor.YOU_WIN);
+        } else if (computerLeft == playerLeft) {
+            GameUtils.showAlertBox(PromptableException.ExceptFactor.DRAW_GAME);
+        }
+        mainController.endGame();
     }
  
     public Label getLeftStatus() {

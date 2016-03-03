@@ -13,5 +13,6 @@ public enum PatternDirection {
     
     VERTICAL,
     HORIZONTAL;
-    
+
+
 }

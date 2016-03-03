@@ -39,7 +39,7 @@ public class PromptableException extends Exception {
      * Constructs an instance of <code>PromptableException</code> with the
      * specified detail message.
      *
-     * @param msg the detail message.
+     * @param factor
      */
     public PromptableException(ExceptFactor factor) {
         this.factor = factor;
@@ -50,6 +50,7 @@ public class PromptableException extends Exception {
     
         YOU_WIN("Congratulations!!! You Win!!!", null,"\"Baby, you're a firework!\nCome on, let your colours burst!\"", Alert.AlertType.NONE),
         COMPUTER_WIN("Oops! I win~~", null,"\"Oops, I did it again~~ \nI played with you heart, got lost in the game~~\"", Alert.AlertType.NONE),
+        DRAW_GAME("You've done a good job.", null, "\"Just as good as what I did!\"", Alert.AlertType.NONE),
         PIECE_ON_PIECE("Invalid Piece Drop!", null,"You cannot drop a piece onto opponent's piece!", Alert.AlertType.WARNING),
         INVALID_MOVE("Invalid Piece Drop!", null, "You cannot make an invalid move!!", Alert.AlertType.WARNING),
         PICKED_UP_DATA_MESS("Internal Data Error", null, "PickedUp data is already messed-up!!!", Alert.AlertType.ERROR),

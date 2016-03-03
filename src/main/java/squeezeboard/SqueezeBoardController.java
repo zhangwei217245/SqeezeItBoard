@@ -5,30 +5,24 @@
  */
 package squeezeboard;
 
-import squeezeboard.model.GameUtils;
-import squeezeboard.model.PlayerColor;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.GameUtils;
+import squeezeboard.model.PlayerColor;
+import squeezeboard.model.PromptableException;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -69,10 +63,6 @@ public class SqueezeBoardController implements Initializable {
 
     private StatusBarView statusBarController;
 
-    private int gridDimension = 8;
-
-    private int maximumMoves = 50;
-
     private boolean isGridInitialized = false;
 
     @Override
@@ -88,16 +78,16 @@ public class SqueezeBoardController implements Initializable {
         gridViewController = new GridPaneView(grid_view);
         statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer, this);
         GameUtils.currentCursor.set(0);
-        BoardConfiguration initialBoard = new BoardConfiguration(this.gridDimension);
+        BoardConfiguration initialBoard = new BoardConfiguration(GameUtils.GRID_DIMENSION);
         initialBoard.setMoveMaker(GameUtils.currentColor);
-        GameUtils.existingMoves = new BoardConfiguration[maximumMoves * 2];
+        GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
         GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
-                grid_view, this.gridDimension, (isGridInitialized ? null : gridViewController), (isGridInitialized ? null : statusBarController));
+                grid_view, GameUtils.GRID_DIMENSION, (isGridInitialized ? null : gridViewController), (isGridInitialized ? null : statusBarController));
 
         isGridInitialized = true;
-        GameUtils.orangeLeft = new AtomicInteger(this.gridDimension);
-        GameUtils.blueLeft = new AtomicInteger(this.gridDimension);
+        GameUtils.orangeLeft = new AtomicInteger(GameUtils.GRID_DIMENSION);
+        GameUtils.blueLeft = new AtomicInteger(GameUtils.GRID_DIMENSION);
         refreshStatusBar();
         grid_view.setDisable(true);
         grid_view.setVisible(false);
@@ -211,8 +201,8 @@ public class SqueezeBoardController implements Initializable {
         GameUtils.computerRole = PlayerColor.blue;
         GameUtils.currentCursor.set(0);
         GameUtils.currentColor = PlayerColor.orange;
-        GameUtils.blueLeft.set(this.gridDimension);
-        GameUtils.orangeLeft.set(this.gridDimension);
+        GameUtils.blueLeft.set(GameUtils.GRID_DIMENSION);
+        GameUtils.orangeLeft.set(GameUtils.GRID_DIMENSION);
     }
 
     private void resetStatus() {
@@ -224,5 +214,7 @@ public class SqueezeBoardController implements Initializable {
     private void refreshStatusBar() {
         statusBarController.update();
     }
+
+
 
 }
