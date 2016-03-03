@@ -1,22 +1,19 @@
 package squeezeboard.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import squeezeboard.view.GridPaneView;
-import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
+import squeezeboard.model.*;
 import squeezeboard.model.PromptableException.ExceptFactor;
-import squeezeboard.model.GameUtils;
-import squeezeboard.model.PatternDirection;
-import squeezeboard.model.PlayerColor;
+import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *

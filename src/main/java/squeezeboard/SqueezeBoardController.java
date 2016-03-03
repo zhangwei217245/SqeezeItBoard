@@ -15,7 +15,6 @@ import javafx.scene.layout.GridPane;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
-import squeezeboard.model.PromptableException;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;

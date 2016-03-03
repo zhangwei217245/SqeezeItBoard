@@ -5,10 +5,8 @@
  */
 package squeezeboard.view;
 
-import squeezeboard.model.BoardConfiguration;
-
 import javafx.scene.layout.GridPane;
-import squeezeboard.controller.CellEventListner;
+import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.GameUtils;
 
 /**

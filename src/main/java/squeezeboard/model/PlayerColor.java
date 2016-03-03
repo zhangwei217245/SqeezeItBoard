@@ -1,7 +1,8 @@
 package squeezeboard.model;
 
-import java.util.regex.Pattern;
 import javafx.scene.paint.Color;
+
+import java.util.regex.Pattern;
 
 /**
  *

@@ -1,10 +1,6 @@
 package squeezeboard.controller.pattern;
 
-import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
-import squeezeboard.model.GameUtils;
-import squeezeboard.model.PatternDirection;
-import squeezeboard.model.PlayerColor;
+import squeezeboard.model.*;
 
 /**
  *

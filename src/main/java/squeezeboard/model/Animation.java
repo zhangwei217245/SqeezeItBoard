@@ -5,7 +5,6 @@
  */
 package squeezeboard.model;
 
-import java.awt.image.BufferedImage;
 import javafx.animation.Interpolator;
 import javafx.animation.Transition;
 import javafx.embed.swing.SwingFXUtils;
@@ -13,6 +12,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.util.Duration;
+
+import java.awt.image.BufferedImage;
 
 /**
  *
