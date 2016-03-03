@@ -34,7 +34,7 @@ import squeezeboard.view.StatusBarView;
  *
  * @author zhangwei
  */
-public class ComplexApplicationController implements Initializable {
+public class SqueezeBoardController implements Initializable {
 
     @FXML
     private ToggleButton btn_start;

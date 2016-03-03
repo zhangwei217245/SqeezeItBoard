@@ -1,7 +1,7 @@
 package squeezeboard.view;
 
 import javafx.scene.control.Label;
-import squeezeboard.ComplexApplicationController;
+import squeezeboard.SqueezeBoardController;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
 import squeezeboard.model.PromptableException;
@@ -19,10 +19,10 @@ public class StatusBarView {
     
     private Label label_currPlayer;
     
-    private ComplexApplicationController mainController;
+    private SqueezeBoardController mainController;
 
     public StatusBarView(Label leftStatus, Label rightStatus, Label label_currPlayer,
-            ComplexApplicationController mainController) {
+            SqueezeBoardController mainController) {
         this.leftStatus = leftStatus;
         this.rightStatus = rightStatus;
         this.label_currPlayer = label_currPlayer;
@@ -91,11 +91,11 @@ public class StatusBarView {
         this.label_currPlayer = label_currPlayer;
     }
 
-    public ComplexApplicationController getMainController() {
+    public SqueezeBoardController getMainController() {
         return mainController;
     }
 
-    public void setMainController(ComplexApplicationController mainController) {
+    public void setMainController(SqueezeBoardController mainController) {
         this.mainController = mainController;
     }
     

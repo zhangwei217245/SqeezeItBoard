@@ -14,7 +14,7 @@ public class SqueezeBoard extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/ComplexApplication_css.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/SqueezeBoard.fxml"));
         
         Scene scene = new Scene(root);
         
