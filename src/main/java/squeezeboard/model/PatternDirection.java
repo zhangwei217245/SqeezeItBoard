@@ -11,8 +11,33 @@ package squeezeboard.model;
  */
 public enum PatternDirection {
     
-    VERTICAL,
-    HORIZONTAL;
+    VERTICAL {
+        @Override
+        public CellData getCellInAGroup(int idxInGroup, CellData piece, CellData[][] board) {
+            return board[idxInGroup][piece.getColCord()];
+        }
+
+        @Override
+        public int getIndexInAGroup(CellData cell) {
+            return cell.getRowCord();
+        }
+    },
+    HORIZONTAL {
+        @Override
+        public CellData getCellInAGroup(int idxInGroup, CellData piece, CellData[][] board) {
+            return board[piece.getRowCord()][idxInGroup];
+        }
+
+        @Override
+        public int getIndexInAGroup(CellData cell) {
+            return cell.getColCord();
+        }
+    };
+
+
+    public abstract CellData getCellInAGroup(int idxInGroup, CellData piece, CellData[][] board);
+
+    public abstract int getIndexInAGroup(CellData cell);
 
 
 }

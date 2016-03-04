@@ -1,15 +1,12 @@
 package squeezeboard.controller.pattern;
 
-import squeezeboard.model.CellData;
-import squeezeboard.model.GameUtils;
-import squeezeboard.model.PatternDirection;
-import squeezeboard.model.PlayerColor;
+import squeezeboard.model.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -17,70 +14,66 @@ import java.util.regex.Pattern;
  */
 public class SqueezePatternFinder {
 
-    public static List<SqueezePattern> findPattern(CellData piece, char currentColor, PatternDirection direction) {
-        CellData[][] board = GameUtils.getCurrentBoard();
-        int dimension = GameUtils.getCurrentBoardConfiguration().getDimension();
+    /**
+     * API for you to find the pattern in the specified boardConfiguration based on the cell
+     * to which you want to move the piece of currentColor.
+     * @param boardConfiguration
+     * @param piece
+     * @param currentColor
+     * @param direction
+     * @return
+     */
+    public static Map<SqueezePatternType, List<SqueezePattern>> findPattern(BoardConfiguration boardConfiguration, CellData piece, PlayerColor currentColor,
+                                                        PatternDirection direction) {
+        Map<SqueezePatternType, List<SqueezePattern>> result = new HashMap<>();
+        CellData[][] board = boardConfiguration.getBoard();
+        int dimension = boardConfiguration.getDimension();
         // extracting string from current board.
-        return getAllPatterns(board, piece, dimension, currentColor, direction);
+        for (SqueezePatternType patternType : SqueezePatternType.values()) {
+            List<SqueezePattern> patternsInType = getSqueezePatterns(patternType, currentColor,
+                    piece, board, dimension, direction);
+            result.put(patternType, patternsInType);
+
+        }
+        return result;
     }
     
-    private static List<SqueezePattern> getAllPatterns(CellData[][] board, CellData piece, int dimension, 
-            char currentColor, PatternDirection direction){
-        int groupIndex = PatternDirection.VERTICAL.equals(direction)?
-                piece.getColCord():piece.getRowCord();
-        int currentPos = PatternDirection.VERTICAL.equals(direction)?
-                piece.getRowCord():piece.getColCord();
-        CellData[] group = new CellData[dimension];
-        StringBuilder sb = new StringBuilder();
-        
-        for (int i = 0; i < dimension; i++) {
-            if (i == currentPos) {
-                sb.append(currentColor);
-                group[i] = piece;
-                continue;
-            }
-            if (PatternDirection.VERTICAL.equals(direction)) {
-                group[i] = board[i][groupIndex];
-                
-            } else if (PatternDirection.HORIZONTAL.equals(direction)) {
-                group[i] = board[groupIndex][i];
-            }
-            sb.append(group[i].getCellChar());
-        }
-        String patternStr = sb.toString();
-        
-        PlayerColor patternColor = PlayerColor.getColorByChar(currentColor);
-        
-        List<SqueezePattern> patterns = new ArrayList<>();
-        // Getting Gap Pattern
-        patterns.addAll(getPatterns(patternStr, patternColor, 
-                group, SqueezePatternType.GAP, direction));
-        // Getting Consecutive Pattern
-        patterns.addAll(getPatterns(patternStr, patternColor, 
-                group, SqueezePatternType.CONSECUTIVE, direction));
-        
-        return patterns;
-    }
-    
-    private static List<SqueezePattern> getPatterns(String patternStr, PlayerColor patternColor, 
-            CellData[] group, SqueezePatternType patternType, PatternDirection direction){
-        List<SqueezePattern> listPatterns = new ArrayList<>();
-        Pattern pattern = patternColor.getGapPattern();
-        if (SqueezePatternType.CONSECUTIVE.equals(patternType)) {
-            pattern = patternColor.getConsecutivePattern();
-        }
-        Matcher matcher = pattern.matcher(patternStr);
+    public static List<SqueezePattern> getSqueezePatterns(SqueezePatternType patternType, PlayerColor patternColor, CellData piece,
+                                                           CellData[][] board, int dimension, PatternDirection direction) {
+        List<SqueezePattern> squeezePatterns = new ArrayList<>();
+        Matcher matcher = patternType.getPattern(patternColor).matcher(getGroupStr(piece, board, dimension, direction));
         int start = 0;
         int end = 0;
         while (matcher.find(start)) {
             start = matcher.toMatchResult().start();
             end = matcher.toMatchResult().end();
-            CellData[] patternBlocks = Arrays.copyOfRange(group, start, end);
-            listPatterns.add(new SqueezePattern(patternBlocks, 
-                    patternType, patternColor, direction));
+            CellData startCell = direction.getCellInAGroup(start, piece, board);
+            CellData endCell = direction.getCellInAGroup(end, piece, board);
+            Pair<CellData, CellData> bothEnds = new Pair<>(startCell, endCell);
+            String patternStr = getPatternStr(bothEnds, board, direction);
+            SqueezePattern squeezePattern = new SqueezePattern(bothEnds, patternStr, patternType, patternColor,
+                    direction);
+            squeezePatterns.add(squeezePattern);
             start = end;
         }
-        return listPatterns;
+        return squeezePatterns;
+    }
+    private static String getPatternStr(Pair<CellData, CellData> bothEnds, CellData[][] board, PatternDirection direction) {
+        StringBuilder sb = new StringBuilder();
+        int start = direction.getIndexInAGroup(bothEnds.getFirst());
+        int end = direction.getIndexInAGroup(bothEnds.getSecond());
+        for (int i = start; i <= end; i++) {
+            sb.append(direction.getCellInAGroup(i, bothEnds.getFirst(), board).getCellChar());
+        }
+        return sb.toString();
+    }
+    private static String getGroupStr (CellData piece, CellData[][] board, int dimension, PatternDirection direction){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < dimension; i++) {
+            CellData cell = direction.getCellInAGroup(i,piece,board);
+            sb.append(cell.getCellChar());
+        }
+        return sb.toString();
     }
 
     public static void main(String[] args) {
@@ -105,7 +98,7 @@ public class SqueezePatternFinder {
             start = end;
         }
         
-        Matcher consecB = PlayerColor.blue.getConsecutivePattern().matcher("BEBBOBB");
+        Matcher consecB = PlayerColor.blue.getIncompleteGapPattern().matcher("BEBBOBB");
         start = 0;
         end = 0;
         while (consecB.find(start)) {
@@ -116,7 +109,7 @@ public class SqueezePatternFinder {
         }
         
         
-        Matcher consecO = PlayerColor.orange.getConsecutivePattern().matcher("BEBBOBB");
+        Matcher consecO = PlayerColor.orange.getIncompleteGapPattern().matcher("BEBBOBB");
         start = 0;
         end = 0;
         while (consecO.find(start)) {

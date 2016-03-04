@@ -3,17 +3,13 @@ package squeezeboard.controller;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import squeezeboard.controller.pattern.SqueezePattern;
-import squeezeboard.controller.pattern.SqueezePatternFinder;
-import squeezeboard.controller.pattern.SqueezePatternType;
-import squeezeboard.model.*;
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
+import squeezeboard.model.GameUtils;
+import squeezeboard.model.PlayerColor;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -167,54 +163,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
 
     private void tryRemovePattern(CellData cell) {
-        List<SqueezePattern> allPatterns = new ArrayList<>();
-        allPatterns.addAll(SqueezePatternFinder.findPattern(cell, 
-                GameUtils.currentColor.CHAR(),
-                PatternDirection.VERTICAL));
-        allPatterns.addAll(SqueezePatternFinder.findPattern(cell, 
-                GameUtils.currentColor.CHAR(),
-                PatternDirection.HORIZONTAL));
-        
-        SqueezePattern maxGapPattern = null;
-        SqueezePattern maxConPattern = null;
-        
-        for (SqueezePattern pattern : allPatterns) {
-            if (SqueezePatternType.CONSECUTIVE.equals(pattern.getPatternType())){
-                if (maxConPattern == null) {
-                    maxConPattern = pattern;
-                } else if (maxConPattern.getPattern().length < pattern.getPattern().length){
-                    maxConPattern = pattern;
-                }
-            }
-            
-            if (SqueezePatternType.GAP.equals(pattern.getPatternType())){
-                if (maxGapPattern == null) {
-                    maxGapPattern = pattern;
-                } else if (maxGapPattern.getPattern().length < pattern.getPattern().length){
-                    maxGapPattern = pattern;
-                }
-            }
-        }
-        int eliminated = 0;
-        //compare the size and priority.
-        SqueezePattern patternToBeEliminated = null;
-        if (maxConPattern != null && maxGapPattern != null) {
-            patternToBeEliminated = maxGapPattern.eliminating_consecutives()> 
-                    maxConPattern.eliminating_2()?
-                    maxGapPattern : maxConPattern;
-        } else {
-            patternToBeEliminated = maxGapPattern != null ? maxGapPattern : maxConPattern;
-        }
-        if (patternToBeEliminated != null) {
-            eliminated = patternToBeEliminated.tryEliminate();
-        }
-        if (eliminated > 0) {
-            AtomicInteger counterToBeDecreased = 
-            PlayerColor.blue.equals(patternToBeEliminated.getPatternCreator())?
-                    GameUtils.blueLeft : GameUtils.orangeLeft;
-            int originalCounter = counterToBeDecreased.get();
-            counterToBeDecreased.compareAndSet(originalCounter, originalCounter - eliminated);
-        }
+
     }
     
     
