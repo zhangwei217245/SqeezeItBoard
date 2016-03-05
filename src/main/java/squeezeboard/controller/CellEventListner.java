@@ -54,7 +54,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             case 'P':
                 if (GameUtils.pickedCell!=null){
                     dropOnPath(cell);
-
+                    computerDropPiece();
                 } else {
                     GameUtils.showAlertBox(ExceptFactor.PICKED_UP_DATA_MESS);
                 }   break;
@@ -93,24 +93,37 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
         //try to remove pattern here
-        int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration());
+        int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration(), 
+                GameUtils.currentColor);
         GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
         GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
         //currentColor do not change until now, a piece is dropped on board.
         GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
 
-        //computer AI works now
-        Pair<CellData, CellData> optimalMove =
-                squeezeAI.findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration());
-        removeHighlight();
-        GameUtils.getCurrentBoardConfiguration().setPiece(optimalMove);
-        removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration());
-        GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
-        GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
-        GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
-        
         refreshGrid();
         refreshStatus();
+
+    }
+
+    private void computerDropPiece() {
+        if (GameUtils.game_started.get()) {
+            //computer AI thinks now
+            Pair<CellData, CellData> optimalMove =
+                    squeezeAI.findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
+            // remove highlight first
+            removeHighlight();
+            // set piece
+            GameUtils.getCurrentBoardConfiguration().setPiece(optimalMove);
+            // try to remove pattern here
+            int removalCount = GameUtils.tryRemovePattern(optimalMove.getSecond(), GameUtils.getCurrentBoardConfiguration(),
+                    GameUtils.currentColor);
+            GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
+            GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
+            //currentColor do not change until now, a piece is dropped on board.
+            GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
+            refreshGrid();
+            refreshStatus();
+        }
     }
     
     private void refreshGrid(){

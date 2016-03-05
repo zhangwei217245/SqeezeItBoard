@@ -76,10 +76,10 @@ public class GameUtils {
 
     public static final int GRID_DIMENSION = 8;
 
-    public static final int MAXIMUM_MOVES = 10;
+    public static int MAXIMUM_MOVES = 10;
 
-    public static final int SEARCH_WIDTH = 12;
-    public static final int SEARCH_DEPTH = 3;
+    public static int SEARCH_WIDTH = 12;
+    public static int SEARCH_DEPTH = 9;
 
 
     public static BoardConfiguration[] existingMoves;
@@ -211,11 +211,11 @@ public class GameUtils {
     
     public static BoardConfiguration undoConfiguration() {
         BoardConfiguration currentConfig = existingMoves[currentCursor.get()];
-        currentColor = currentConfig.getMoveMaker();
         if (currentCursor.get() > 0) {
             currentConfig.destroy();
             currentConfig = existingMoves[currentCursor.decrementAndGet()];
         }
+        currentColor = currentConfig.getMoveMaker();
         return currentConfig;
     }
     
@@ -273,9 +273,9 @@ public class GameUtils {
         return null;
     }
 
-    public static int tryRemovePattern(CellData cell, BoardConfiguration boardConfiguration) {
+    public static int tryRemovePattern(CellData cell, BoardConfiguration boardConfiguration, PlayerColor color) {
         Map<SqueezePatternType, List<SqueezePattern>> pattern =
-                SqueezePatternFinder.findPattern(boardConfiguration, cell, GameUtils.currentColor);
+                SqueezePatternFinder.findPattern(boardConfiguration, cell, color);
         List<SqueezePattern> squeezePatterns = pattern.get(SqueezePatternType.FULFILLED_GAP);
         Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
                 .max((f, s) -> f.validRemovalCount() - s.validRemovalCount());

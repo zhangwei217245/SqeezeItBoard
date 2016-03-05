@@ -9,9 +9,15 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
@@ -19,6 +25,7 @@ import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,6 +62,9 @@ public class SqueezeBoardController implements Initializable {
 
     @FXML
     private MenuItem menu_undo;
+
+    @FXML
+    private MenuItem menu_pref;
 
     private final ToggleGroup radioGroup = new ToggleGroup();
 
@@ -133,6 +143,7 @@ public class SqueezeBoardController implements Initializable {
         grid_view.setDisable(false);
         menu_undo.setDisable(false);
         grid_view.setVisible(true);
+        menu_pref.setDisable(true);
         System.out.println("start GAme");
     }
 
@@ -142,6 +153,8 @@ public class SqueezeBoardController implements Initializable {
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         grid_view.setDisable(true);
         menu_undo.setDisable(true);
+        menu_pref.setDisable(false);
+        GameUtils.game_started.compareAndSet(true, false);
         System.out.println("end game");
     }
 
@@ -184,6 +197,20 @@ public class SqueezeBoardController implements Initializable {
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> System.out.println(response.getButtonData()));
+    }
+
+    @FXML
+    private void handleMenuPref(ActionEvent e) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Preferences.fxml"));
+        Stage stage = new Stage();
+        Scene scene = new Scene(root);
+
+        stage.setScene(scene);
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.setTitle("Preferences for SqueezeIt!");
+        stage.setResizable(false);
+        stage.show();
     }
 
     private void resetBoard() {

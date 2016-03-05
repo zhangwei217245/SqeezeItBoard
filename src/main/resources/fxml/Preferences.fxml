@@ -1,13 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="squeezeboard.PreferencesController">
+
+<AnchorPane id="AnchorPane" prefHeight="450.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="squeezeboard.PreferencesController">
     <stylesheets>
         <URL value="@/styles/preferences.css" />
     </stylesheets>
    <children>
-      <VBox prefHeight="400.0" prefWidth="600.0" />
+      <VBox prefHeight="450.0" prefWidth="600.0">
+         <children>
+            <AnchorPane prefHeight="150.0" prefWidth="600.0">
+               <children>
+                  <Group>
+                     <children>
+                        <Label layoutX="42.0" layoutY="67.0" text="Search Width" />
+                        <Slider fx:id="searchWidth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="12.0" />
+                        <TextField fx:id="txt_sWidth" layoutX="134.0" layoutY="59.0" onAction="#handleSearchWidth" prefHeight="27.0" prefWidth="49.0" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="150.0" prefWidth="600.0">
+               <children>
+                  <Group>
+                     <children>
+                        <Label layoutX="42.0" layoutY="67.0" text="Search Depth" />
+                        <Slider fx:id="searchDepth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="4.0" />
+                        <TextField fx:id="txt_sDepth" layoutX="133.0" layoutY="61.0" onAction="#handleSearchDepth" prefHeight="27.0" prefWidth="49.0" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="150.0" prefWidth="600.0">
+               <children>
+                  <Group>
+                     <children>
+                        <Label layoutX="22.0" layoutY="69.0" text="Maximum Moves" />
+                        <Slider fx:id="maxMoves" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                        <TextField fx:id="txt_mMoves" layoutX="131.0" layoutY="64.0" onAction="#handleMaxMoves" prefHeight="27.0" prefWidth="49.0" />
+                     </children>
+                  </Group>
+               </children>
+            </AnchorPane>
+         </children></VBox>
    </children>
 </AnchorPane>

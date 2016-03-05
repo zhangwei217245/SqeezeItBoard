@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.paint.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.*?>
 <?import java.net.URL?>
+
 <VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="squeezeboard.SqueezeBoardController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
@@ -21,14 +26,14 @@
             <MenuItem disable="true" mnemonicParsing="false" text="Save As…" />
             <MenuItem disable="true" mnemonicParsing="false" text="Revert" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem disable="true" mnemonicParsing="false" text="Preferences…" />
+            <MenuItem fx:id="menu_pref" mnemonicParsing="false" onAction="#handleMenuPref" text="Preferences…" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem fx:id="menu_quit" mnemonicParsing="false" onAction="#handleQuit" text="Quit" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
           <items>
-            <MenuItem fx:id="menu_undo" disable="true" mnemonicParsing="false" text="Undo" onAction="#handleUndo" />
+            <MenuItem fx:id="menu_undo" disable="true" mnemonicParsing="false" onAction="#handleUndo" text="Undo" />
             <MenuItem fx:id="menu_redo" disable="true" mnemonicParsing="false" text="Redo" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem disable="true" mnemonicParsing="false" text="Cut" />
