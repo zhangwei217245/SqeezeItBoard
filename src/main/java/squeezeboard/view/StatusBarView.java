@@ -57,31 +57,15 @@ public class StatusBarView {
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
         if (mainController.getBtn_start().isSelected()) {
-            determineGameResult(computerLeft, playerLeft);
-        }
-    }
-
-    public void determineGameResult(int computerLeft, int playerLeft){
-        if (GameUtils.currentCursor.get() >= 10/*GameUtils.MAXIMUM_MOVES * 2*/) {
-            // GAME MUST COME TO AN END HERE, which one has the most pieces on the board will win
-            showDifferentGameResult(computerLeft,playerLeft);
-        } else {
-            // if anyone has only one piece left on the board, he will lost.
-            if (computerLeft <= 0 || playerLeft <= 0) {
-                showDifferentGameResult(computerLeft,playerLeft);
+            PromptableException.ExceptFactor gameResult = GameUtils.determineGameResult(GameUtils.currentCursor.get(), computerLeft, playerLeft);
+            if (gameResult != null) {
+                GameUtils.showAlertBox(gameResult);
+                mainController.getBtn_start().fire();
             }
         }
     }
-    private void showDifferentGameResult(int computerLeft, int playerLeft){
-        if (computerLeft > playerLeft) {
-            GameUtils.showAlertBox(PromptableException.ExceptFactor.COMPUTER_WIN);
-        } else if (playerLeft > computerLeft) {
-            GameUtils.showAlertBox(PromptableException.ExceptFactor.YOU_WIN);
-        } else if (computerLeft == playerLeft) {
-            GameUtils.showAlertBox(PromptableException.ExceptFactor.DRAW_GAME);
-        }
-        mainController.getBtn_start().fire();
-    }
+
+
  
     public Label getLeftStatus() {
         return leftStatus;

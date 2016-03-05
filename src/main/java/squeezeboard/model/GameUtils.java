@@ -17,10 +17,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
+import squeezeboard.controller.pattern.SqueezePattern;
+import squeezeboard.controller.pattern.SqueezePatternFinder;
+import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.Animation.AnimatedGif;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -71,8 +77,11 @@ public class GameUtils {
     public static final int GRID_DIMENSION = 8;
 
     public static final int MAXIMUM_MOVES = 50;
-    
-    
+
+    public static final int SEARCH_WIDTH = 12;
+    public static final int SEARCH_DEPTH = 3;
+
+
     public static BoardConfiguration[] existingMoves;
     
     public static final AtomicInteger currentCursor = new AtomicInteger(0);
@@ -107,6 +116,37 @@ public class GameUtils {
                 }
                 imgView.setUserData(cell);
                 setPictureToImageView(cell, imgView);
+            }
+        }
+    }
+
+    public static void checkAndHighlight(CellData currCell, CellData[][] grid,
+                                         int rowIncr, int colIncr, List<CellData> possMoves){
+        int ir = rowIncr;
+        int ic = colIncr;
+        int boundReached = 0;
+        int row = currCell.getRowCord();
+        int col = currCell.getColCord();
+        int newcol = col + ic;
+        int newrow = row + ir;
+        while (true) {
+            if (newcol <= 7 && newrow <=7
+                    && newcol >= 0 && newrow >= 0 && grid[newrow][newcol].getCellChar()=='E') {
+                if (possMoves != null) {
+                    possMoves.add(grid[newrow][newcol]);
+                }
+                grid[newrow][newcol].setCellChar('P');
+                newcol = newcol + ic;
+                newrow = newrow + ir;
+            } else {
+                ir = -ir;
+                ic = -ic;
+                newcol = col + ic;
+                newrow = row + ir;
+                boundReached++;
+            }
+            if (boundReached >= 2) {
+                break;
             }
         }
     }
@@ -198,6 +238,48 @@ public class GameUtils {
         alert.showAndWait()
         .filter(response -> response == ButtonType.OK)
         .ifPresent(response -> System.out.println(response.getButtonData()));
+    }
+
+    /**
+     *
+     * @param computerLeft
+     * @param playerLeft
+     * @return whether there is someone winning this game
+     */
+    public static PromptableException.ExceptFactor determineGameResult(int moveCounter, int computerLeft, int playerLeft){
+        if (moveCounter >= 10/*GameUtils.MAXIMUM_MOVES * 2*/) {
+            // GAME MUST COME TO AN END HERE, which one has the most pieces on the board will win
+            return getDifferentGameResult(computerLeft,playerLeft);
+        } else {
+            // if anyone has only one piece left on the board, he will lost.
+            if (computerLeft <= 0 || playerLeft <= 0) {
+                return getDifferentGameResult(computerLeft,playerLeft);
+            }
+        }
+        return null;
+    }
+
+    private static PromptableException.ExceptFactor getDifferentGameResult(int computerLeft, int playerLeft){
+        if (computerLeft > playerLeft) {
+            return PromptableException.ExceptFactor.COMPUTER_WIN;
+        } else if (playerLeft > computerLeft) {
+            return PromptableException.ExceptFactor.YOU_WIN;
+        } else if (computerLeft == playerLeft) {
+            return PromptableException.ExceptFactor.DRAW_GAME;
+        }
+        return null;
+    }
+
+    public static int tryRemovePattern(CellData cell, BoardConfiguration boardConfiguration) {
+        Map<SqueezePatternType, List<SqueezePattern>> pattern =
+                SqueezePatternFinder.findPattern(boardConfiguration, cell, GameUtils.currentColor);
+        List<SqueezePattern> squeezePatterns = pattern.get(SqueezePatternType.FULFILLED_GAP);
+        Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
+                .max((f, s) -> f.validRemovalCount() - s.validRemovalCount());
+        if (patternToRemove.isPresent()) {
+            return patternToRemove.get().tryEliminate(cell);
+        }
+        return 0;
     }
 
 }

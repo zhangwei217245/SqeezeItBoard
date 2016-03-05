@@ -30,13 +30,19 @@ public class SqueezePatternFinder {
         int dimension = boardConfiguration.getDimension();
         // extracting string from current board.
         for (SqueezePatternType patternType : SqueezePatternType.values()) {
-            List<SqueezePattern>  patternsInType = getSqueezePatterns(patternType, currentColor,
-                    piece, board, dimension, false);
-            patternsInType.addAll(getSqueezePatterns(patternType, currentColor,
-                    piece, board, dimension, true));
+            List<SqueezePattern> patternsInType = getSqueezePatterns(patternType, currentColor, piece, board, dimension);
             result.put(patternType, patternsInType);
         }
         return result;
+    }
+
+    public static List<SqueezePattern> getSqueezePatterns(SqueezePatternType patternType, PlayerColor patternColor, CellData piece,
+                                                          CellData[][] board, int dimension) {
+        List<SqueezePattern>  patternsInType = getSqueezePatterns(patternType, patternColor,
+                piece, board, dimension, false);
+        patternsInType.addAll(getSqueezePatterns(patternType, patternColor,
+                piece, board, dimension, true));
+        return patternsInType;
     }
     
     public static List<SqueezePattern> getSqueezePatterns(SqueezePatternType patternType, PlayerColor patternColor, CellData piece,

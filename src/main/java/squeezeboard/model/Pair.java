@@ -29,4 +29,12 @@ public class Pair<T, S> {
     public void setSecond(S second) {
         this.second = second;
     }
+
+    @Override
+    public String toString() {
+        return "Pair{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
+    }
 }

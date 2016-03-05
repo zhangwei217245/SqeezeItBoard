@@ -87,5 +87,9 @@ public enum PlayerColor {
     }
 
     public abstract void decreaseLeftCount(int removal);
+
+    public PlayerColor getOpponentColor() {
+        return PlayerColor.getColorByCursor(this.ordinal() + 1);
+    }
     
 }

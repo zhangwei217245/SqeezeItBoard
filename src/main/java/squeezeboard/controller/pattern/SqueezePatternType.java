@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * @author zhangwei
  */
 public enum SqueezePatternType {
-    GAP {
+    GAP(1000.0d) {
         @Override
         public Pattern getPattern(PlayerColor color) {
             return color.getGapPattern();
@@ -23,7 +23,7 @@ public enum SqueezePatternType {
             return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
         }
     },
-    FULFILLED_GAP {
+    FULFILLED_GAP(10000.0d) {
         @Override
         public Pattern getPattern(PlayerColor color) {
             return color.getFulfilledGapPattern();
@@ -37,7 +37,7 @@ public enum SqueezePatternType {
             return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
         }
     },
-    INCOMPLETE_GAP {
+    INCOMPLETE_GAP(100.0d) {
         @Override
         public Pattern getPattern(PlayerColor color) {
             return color.getIncompleteGapPattern();
@@ -55,8 +55,18 @@ public enum SqueezePatternType {
         }
     };
 
+    private double baseScore;
+
+    SqueezePatternType(double baseScore) {
+        this.baseScore = baseScore;
+    }
+
     public abstract Pattern getPattern(PlayerColor color);
 
     public abstract double removalRate(SqueezePattern squeezePattern);
+
+    public double score(SqueezePattern squeezePattern) {
+        return (double)this.baseScore + removalRate(squeezePattern);
+    }
 
 }

@@ -3,20 +3,12 @@ package squeezeboard.controller;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import squeezeboard.controller.pattern.SqueezePattern;
-import squeezeboard.controller.pattern.SqueezePatternFinder;
-import squeezeboard.controller.pattern.SqueezePatternType;
-import squeezeboard.model.BoardConfiguration;
-import squeezeboard.model.CellData;
-import squeezeboard.model.GameUtils;
-import squeezeboard.model.PlayerColor;
+import squeezeboard.controller.ai.AlphaBetaPruning;
+import squeezeboard.controller.ai.SqueezeAI;
+import squeezeboard.model.*;
 import squeezeboard.model.PromptableException.ExceptFactor;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  *
@@ -27,6 +19,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     private final GridPaneView gridPaneView;
     
     private final StatusBarView statusBarView;
+
+    private final SqueezeAI squeezeAI = new AlphaBetaPruning();
     
     @Override
     public void handle(MouseEvent event) {
@@ -60,6 +54,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             case 'P':
                 if (GameUtils.pickedCell!=null){
                     dropOnPath(cell);
+
                 } else {
                     GameUtils.showAlertBox(ExceptFactor.PICKED_UP_DATA_MESS);
                 }   break;
@@ -84,9 +79,9 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         CellData[][] grid = currentConfig.getBoard();
         GameUtils.pickedCell = grid[cell.getRowCord()][cell.getColCord()];
         // Checking the current row where the picked cell exists.
-        checkAndHighlight(GameUtils.pickedCell, grid, 0, 1);
+        GameUtils.checkAndHighlight(GameUtils.pickedCell, grid, 0, 1, null);
         // Checking the current column where the picked cell exists.
-        checkAndHighlight(GameUtils.pickedCell, grid, 1, 0);
+        GameUtils.checkAndHighlight(GameUtils.pickedCell, grid, 1, 0, null);
         gridPaneView.update(currentConfig);
     }
     
@@ -97,11 +92,18 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
-        //TODO : try to remove pattern here
-        tryRemovePattern(cell);
+        //try to remove pattern here
+        int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration());
+        GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
         GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
         //currentColor do not change until now, a piece is dropped on board.
         GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
+
+        //computer AI works now
+        Pair<CellData, CellData> optimalMove =
+                squeezeAI.findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration());
+        GameUtils.getCurrentBoardConfiguration().setPiece(optimalMove);
+
         refreshGrid();
         refreshStatus();
     }
@@ -112,32 +114,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
    
     
-    private void checkAndHighlight(CellData currCell, CellData[][] grid, int rowIncr, int colIncr){
-        int ir = rowIncr;
-        int ic = colIncr;
-        int boundReached = 0;
-        int row = currCell.getRowCord();
-        int col = currCell.getColCord();
-        int newcol = col + ic;
-        int newrow = row + ir;
-        while (true) {
-            if (newcol <= 7 && newrow <=7 
-                    && newcol >= 0 && newrow >= 0 && grid[newrow][newcol].getCellChar()=='E') {
-                grid[newrow][newcol].setCellChar('P');
-                newcol = newcol + ic;
-                newrow = newrow + ir;
-            } else {
-                ir = -ir;
-                ic = -ic;
-                newcol = col + ic;
-                newrow = row + ir;
-                boundReached++;
-            }
-            if (boundReached >= 2) {
-                break;
-            }
-        }
-    }
+
 
 
     public CellEventListner(GridPaneView gridController, StatusBarView statusBarView) {
@@ -163,18 +140,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         statusBarView.update();
     }
 
-    private void tryRemovePattern(CellData cell) {
-        BoardConfiguration currentBoardConfiguration = GameUtils.getCurrentBoardConfiguration();
-        Map<SqueezePatternType, List<SqueezePattern>> pattern =
-                SqueezePatternFinder.findPattern(currentBoardConfiguration, cell, GameUtils.currentColor);
-        List<SqueezePattern> squeezePatterns = pattern.get(SqueezePatternType.FULFILLED_GAP);
-        Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
-                .max((f, s) -> f.validRemovalCount() - s.validRemovalCount());
-        if (patternToRemove.isPresent()) {
-            int removalCount = patternToRemove.get().tryEliminate(cell);
-            PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1).decreaseLeftCount(removalCount);
-        }
-    }
+
     
     
 }

@@ -82,7 +82,6 @@ public class SqueezePattern {
 
     public int tryEliminate(CellData newpiece) {
         // if it is not a fulfilled gap, never try to remove anything.
-        System.out.println(this.toString());
         int removal = 0;
         if (!this.patternType.equals(SqueezePatternType.FULFILLED_GAP)){
             return removal;
