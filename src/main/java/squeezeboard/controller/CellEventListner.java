@@ -39,7 +39,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                     if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
                         // either it is the original piece. Just remove the highlight.
                         if (cell.equals(GameUtils.pickedCell)){
-                            removeHighlight(cell);
+                            removeHighlight();
                             GameUtils.pickedCell = null;
                         } else {
                             //or, pick up another.
@@ -70,7 +70,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
     
     private void pickUpAnother(CellData cell) {
-        removeHighlight(cell);
+        removeHighlight();
         pickUpPiece(cell);
     }
     
@@ -88,7 +88,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     
     
     private void dropOnPath(CellData cell) {
-        removeHighlight(cell);
+        removeHighlight();
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
@@ -97,13 +97,18 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
         GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
         //currentColor do not change until now, a piece is dropped on board.
-        GameUtils.currentColor = PlayerColor.getColorByCursor(GameUtils.currentColor.ordinal() + 1);
+        GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
 
         //computer AI works now
         Pair<CellData, CellData> optimalMove =
                 squeezeAI.findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration());
+        removeHighlight();
         GameUtils.getCurrentBoardConfiguration().setPiece(optimalMove);
-
+        removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration());
+        GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
+        GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
+        GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
+        
         refreshGrid();
         refreshStatus();
     }
@@ -122,7 +127,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         this.statusBarView = statusBarView;
     }
     
-    private void removeHighlight(CellData cell) {
+    private void removeHighlight() {
         BoardConfiguration currentConfig = GameUtils.getCurrentBoardConfiguration();
         CellData[][] grid = currentConfig.getBoard();
         int d = currentConfig.getDimension();

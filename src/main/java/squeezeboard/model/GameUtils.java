@@ -76,7 +76,7 @@ public class GameUtils {
 
     public static final int GRID_DIMENSION = 8;
 
-    public static final int MAXIMUM_MOVES = 50;
+    public static final int MAXIMUM_MOVES = 10;
 
     public static final int SEARCH_WIDTH = 12;
     public static final int SEARCH_DEPTH = 3;
@@ -184,6 +184,9 @@ public class GameUtils {
     }
     
     public static BoardConfiguration getCurrentBoardConfiguration() {
+        if (currentCursor.get() >= existingMoves.length) {
+            return existingMoves[existingMoves.length - 1];
+        }
         return existingMoves[currentCursor.get()];
     }
     
@@ -247,7 +250,7 @@ public class GameUtils {
      * @return whether there is someone winning this game
      */
     public static PromptableException.ExceptFactor determineGameResult(int moveCounter, int computerLeft, int playerLeft){
-        if (moveCounter >= 10/*GameUtils.MAXIMUM_MOVES * 2*/) {
+        if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
             // GAME MUST COME TO AN END HERE, which one has the most pieces on the board will win
             return getDifferentGameResult(computerLeft,playerLeft);
         } else {

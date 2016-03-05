@@ -61,6 +61,9 @@ public class AlphaBetaPruning implements SqueezeAI {
                     getBestMoves(newColor, newBoard);
             bestMoves.stream().forEach(pairIntegerPair -> {
                 if ((depth & 1) == 0) { // MIN
+                    if (pairIntegerPair.getFirst() == null) {
+                        return ;
+                    }
                     newBoard.setPiece(pairIntegerPair.getFirst());
                     GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard);
                     Pair<Integer, Integer> blue_orange = AlphaBetaPruningUtils.calculateLeftPiecesCount(newBoard);
@@ -73,16 +76,17 @@ public class AlphaBetaPruning implements SqueezeAI {
                             .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
                     if (gameResult != null) {
                         beta[0] = Integer.MIN_VALUE;
-                        return;
                     } else {
                         beta[0] = Math.min(beta[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard,
                               move, newColor.getOpponentColor()));
                         if (beta[0] <= alpha[0]){
                             result[0] = beta[0];
-                            return;
                         }
                     }
                 } else { // MAX
+                    if (pairIntegerPair.getFirst() == null) {
+                        return ;
+                    }
                     newBoard.setPiece(pairIntegerPair.getFirst());
                     GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard);
                     Pair<Integer, Integer> blue_orange = AlphaBetaPruningUtils.calculateLeftPiecesCount(newBoard);
@@ -95,13 +99,11 @@ public class AlphaBetaPruning implements SqueezeAI {
                             .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
                     if (gameResult != null) {
                         alpha[0] = Integer.MAX_VALUE;
-                        return;
                     } else {
                         alpha[0] = Math.max(alpha[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard,
                                 move, newColor.getOpponentColor()));
                         if (alpha[0] >= beta[0]){
                             result[0] = alpha[0];
-                            return;
                         }
                     }
                 }
@@ -113,7 +115,7 @@ public class AlphaBetaPruning implements SqueezeAI {
     public List<Pair<Pair<CellData, CellData>, Integer>> getBestMoves(List<Pair<CellData, CellData>> allPossibleMoves,
                                                                       BoardConfiguration currentBoardConfiguration,
                                                                       PlayerColor computerColor){
-        return allPossibleMoves.parallelStream().map(move -> {
+        return allPossibleMoves.stream().map(move -> {
             BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
             CellData source = clonedBoard.getCellByCoordination(move.getFirst().getRowCord(),
                     move.getFirst().getColCord());
@@ -126,7 +128,7 @@ public class AlphaBetaPruning implements SqueezeAI {
             if (maxPattern.isPresent()) {
                 return new Pair<Pair<CellData, CellData>, Integer>(move, (int) (SqueezePatternType.GAP.score(maxPattern.get()) * 100d));
             }
-            return new Pair<Pair<CellData, CellData>, Integer>(null, Integer.MIN_VALUE);
+            return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
         }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))
                 .limit(GameUtils.SEARCH_WIDTH).collect(Collectors.toList());
 
@@ -135,14 +137,14 @@ public class AlphaBetaPruning implements SqueezeAI {
     public List<Pair<CellData, CellData>> getAllPossibleMoves(List<CellData> allComputerPieces
              ,BoardConfiguration currentBoardConfiguration) {
         final List<Pair<CellData, CellData>> result = new ArrayList<>();
-        allComputerPieces.parallelStream().forEach(pickedCell -> {
+        allComputerPieces.stream().forEach(pickedCell -> {
             List<CellData> possMoves = new ArrayList<CellData>();
             //CellData[][] tempBoard = boardConfiguration.clone().getBoard();
             //Checking vertically
             GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 1, 0, possMoves);
             //Checking Horizontally
             GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 0, 1, possMoves);
-            List<Pair<CellData, CellData>> collect = possMoves.parallelStream().map(
+            List<Pair<CellData, CellData>> collect = possMoves.stream().map(
                     cellData -> new Pair<CellData, CellData>(pickedCell, cellData))
                     .collect(Collectors.toList());
             result.addAll(collect);
