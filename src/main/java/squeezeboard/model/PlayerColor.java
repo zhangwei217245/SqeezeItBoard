@@ -11,10 +11,20 @@ import java.util.regex.Pattern;
 public enum PlayerColor {
     
     orange('O', Color.web("0xff9900"),Pattern.compile("O[EB]+O"),
-            Pattern.compile("O[B]+O"), Pattern.compile("(B[O]+|[O]+B)")),
+            Pattern.compile("O[B]+O"), Pattern.compile("(B[O]+|[O]+B)")) {
+        @Override
+        public void decreaseLeftCount(int removal) {
+            GameUtils.orangeLeft.getAndAdd(0-removal);
+        }
+    },
     
     blue('B', Color.web("0x0099ff"), Pattern.compile("B[EO]+B"),
-            Pattern.compile("B[O]+B"), Pattern.compile("(O[B]+|[B]+O)"));
+            Pattern.compile("B[O]+B"), Pattern.compile("(O[B]+|[B]+O)")) {
+        @Override
+        public void decreaseLeftCount(int removal) {
+            GameUtils.blueLeft.getAndAdd(0-removal);
+        }
+    };
    
     private char CHAR;
     
@@ -75,6 +85,7 @@ public enum PlayerColor {
         }
         return null;
     }
-    
+
+    public abstract void decreaseLeftCount(int removal);
     
 }

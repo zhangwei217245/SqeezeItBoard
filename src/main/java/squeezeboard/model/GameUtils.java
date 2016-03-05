@@ -17,7 +17,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
-import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.model.Animation.AnimatedGif;
 import squeezeboard.view.GridPaneView;
 import squeezeboard.view.StatusBarView;
@@ -151,22 +150,29 @@ public class GameUtils {
     public static CellData[][] getCurrentBoard(){
         return getCurrentBoardConfiguration().getBoard();
     }
-    
-    public static BoardConfiguration copyCurrentConfiguration() {
-        BoardConfiguration currentConfig = existingMoves[currentCursor.get()];
-        currentConfig = currentConfig.clone();
-        existingMoves[currentCursor.incrementAndGet()] = currentConfig;
-        currentConfig.setMoveMaker(PlayerColor.getColorByCursor(currentColor.ordinal()+1));
-        return currentConfig;
+
+    /**
+     * after dropping a piece on the board, the board is cloned.
+     * @param currentColor  current player color who dropped piece on the board.
+     * @return
+     */
+    public static BoardConfiguration copyCurrentConfiguration(PlayerColor currentColor) {
+        if (currentColor == null) {
+            throw new IllegalStateException("current color should not be null!");
+        }
+        existingMoves[currentCursor.get()].setMoveMaker(currentColor);
+        BoardConfiguration clonedBoard = existingMoves[currentCursor.get()].clone();
+        existingMoves[currentCursor.incrementAndGet()] = clonedBoard;
+        return clonedBoard;
     }
     
     public static BoardConfiguration undoConfiguration() {
         BoardConfiguration currentConfig = existingMoves[currentCursor.get()];
+        currentColor = currentConfig.getMoveMaker();
         if (currentCursor.get() > 0) {
             currentConfig.destroy();
             currentConfig = existingMoves[currentCursor.decrementAndGet()];
         }
-        currentColor = currentConfig.getMoveMaker();
         return currentConfig;
     }
     
@@ -193,17 +199,5 @@ public class GameUtils {
         .filter(response -> response == ButtonType.OK)
         .ifPresent(response -> System.out.println(response.getButtonData()));
     }
-    
-    
-    public static String getPatternString(SqueezePattern pattern){
-        StringBuilder sb = new StringBuilder();
-        for (CellData cell : pattern.getPattern()) {
-            sb.append(cell.getCellChar());
-        }
-        return sb.toString();
-    }
-    
-    
 
-    
 }

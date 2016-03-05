@@ -73,16 +73,17 @@ public class SqueezeBoardController implements Initializable {
     }
 
     private void initiateBoard() {
-
         gridViewController = new GridPaneView(grid_view);
         statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer, this);
         GameUtils.currentCursor.set(0);
         BoardConfiguration initialBoard = new BoardConfiguration(GameUtils.GRID_DIMENSION);
-        initialBoard.setMoveMaker(GameUtils.currentColor);
+        //initialBoard.setMoveMaker(GameUtils.currentColor);
         GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
         GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
-                grid_view, GameUtils.GRID_DIMENSION, (isGridInitialized ? null : gridViewController), (isGridInitialized ? null : statusBarController));
+                grid_view, GameUtils.GRID_DIMENSION,
+                (isGridInitialized ? null : gridViewController),
+                (isGridInitialized ? null : statusBarController));
 
         isGridInitialized = true;
         GameUtils.orangeLeft = new AtomicInteger(GameUtils.GRID_DIMENSION);
@@ -97,8 +98,9 @@ public class SqueezeBoardController implements Initializable {
         radio_blue.setToggleGroup(radioGroup);
         radio_orange.setToggleGroup(radioGroup);
         radio_blue.setSelected(true);
-        radioGroup.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov, Toggle old_toggle,
-                Toggle new_toggle) -> {
+        radioGroup.selectedToggleProperty().addListener(
+                (ObservableValue<? extends Toggle> ov,
+                 Toggle old_toggle, Toggle new_toggle) -> {
             if (radioGroup.getSelectedToggle() != null) {
                 if (radioGroup.getSelectedToggle().equals(radio_blue)) {
                     GameUtils.computerRole = PlayerColor.blue;

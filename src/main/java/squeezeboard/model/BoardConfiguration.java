@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
  *
  * @author zhangwei
  */
-public final class BoardConfiguration {
+public final class BoardConfiguration implements Cloneable{
     
     private CellData[][] board;
     

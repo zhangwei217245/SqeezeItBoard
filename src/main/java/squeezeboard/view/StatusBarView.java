@@ -66,7 +66,7 @@ public class StatusBarView {
             showDifferentGameResult(computerLeft,playerLeft);
         } else {
             // if anyone has only one piece left on the board, he will lost.
-            if (computerLeft <= 1 || playerLeft <= 1) {
+            if (computerLeft <= 0 || playerLeft <= 0) {
                 showDifferentGameResult(computerLeft,playerLeft);
             }
         }

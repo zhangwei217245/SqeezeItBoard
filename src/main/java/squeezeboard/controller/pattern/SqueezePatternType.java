@@ -14,11 +14,27 @@ public enum SqueezePatternType {
         public Pattern getPattern(PlayerColor color) {
             return color.getGapPattern();
         }
+
+        @Override
+        public double removalRate(SqueezePattern squeezePattern) {
+            int capacity = squeezePattern.capacity();
+            int empty = squeezePattern.emptyCount();
+            int validRemoval = squeezePattern.validRemovalCount();
+            return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
+        }
     },
     FULFILLED_GAP {
         @Override
         public Pattern getPattern(PlayerColor color) {
             return color.getFulfilledGapPattern();
+        }
+
+        @Override
+        public double removalRate(SqueezePattern squeezePattern) {
+            int capacity = squeezePattern.capacity();
+            int empty = squeezePattern.emptyCount();
+            int validRemoval = squeezePattern.validRemovalCount();
+            return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
         }
     },
     INCOMPLETE_GAP {
@@ -26,8 +42,21 @@ public enum SqueezePatternType {
         public Pattern getPattern(PlayerColor color) {
             return color.getIncompleteGapPattern();
         }
+
+        @Override
+        public double removalRate(SqueezePattern squeezePattern) {
+            //FIXME: should check the opening column to make sure the removal rate is meaningful
+            //TODO: if opening column has the supportive piece, then return actual removalRate.
+            //TODO: if not, return Double.NEGATIVE_INFINITY.
+            int capacity = squeezePattern.capacity();
+            int empty = squeezePattern.emptyCount();
+            int validRemoval = squeezePattern.validRemovalCount();
+            return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
+        }
     };
 
     public abstract Pattern getPattern(PlayerColor color);
+
+    public abstract double removalRate(SqueezePattern squeezePattern);
 
 }
