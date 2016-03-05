@@ -78,7 +78,7 @@ public class SqueezeBoardController implements Initializable {
         GameUtils.currentCursor.set(0);
         BoardConfiguration initialBoard = new BoardConfiguration(GameUtils.GRID_DIMENSION);
         //initialBoard.setMoveMaker(GameUtils.currentColor);
-        GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2];
+        GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2 + 10];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
         GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
                 grid_view, GameUtils.GRID_DIMENSION,

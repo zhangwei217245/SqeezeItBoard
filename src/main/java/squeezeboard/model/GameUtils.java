@@ -280,7 +280,7 @@ public class GameUtils {
         Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
                 .max((f, s) -> f.validRemovalCount() - s.validRemovalCount());
         if (patternToRemove.isPresent()) {
-            return patternToRemove.get().tryEliminate(cell);
+            return patternToRemove.get().tryEliminate(cell, boardConfiguration.getBoard());
         }
         return 0;
     }

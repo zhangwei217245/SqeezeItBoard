@@ -80,7 +80,7 @@ public class SqueezePattern {
         }
     }
 
-    public int tryEliminate(CellData newpiece) {
+    public int tryEliminate(CellData newpiece, CellData[][] boardToCarryoutRemoval) {
         // if it is not a fulfilled gap, never try to remove anything.
         int removal = 0;
         if (!this.patternType.equals(SqueezePatternType.FULFILLED_GAP)){
@@ -91,7 +91,7 @@ public class SqueezePattern {
         int start = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getFirst());
         int end = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getSecond());
         for (int i = start; i <= end; i++) {
-            CellData cell = this.patternDirection.getCellInAGroup(i, newpiece, GameUtils.getCurrentBoard());
+            CellData cell = this.patternDirection.getCellInAGroup(i, newpiece, boardToCarryoutRemoval);
             if (cell.getCellChar() == opponentColor.CHAR()) {
                 cell.setCellChar('E');
                 removal++;
