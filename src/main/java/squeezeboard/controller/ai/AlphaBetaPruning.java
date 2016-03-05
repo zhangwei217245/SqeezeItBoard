@@ -40,7 +40,7 @@ public class AlphaBetaPruning implements SqueezeAI {
         Optional<Integer> maxScore = bestMoves.stream().map(pairIntegerPair -> pairIntegerPair.getSecond())
                 .max((o1, o2) -> Integer.compare(o1, o2));
         int bestEstimate = maxScore.isPresent() ? maxScore.get() : Integer.MIN_VALUE;
-        System.out.println("bestMoves.size = " + bestMoves.size());
+        //System.out.println("bestMoves.size = " + bestMoves.size());
         List<Pair<Pair<CellData, CellData>, Integer>> resultList = bestMoves.stream()
                 .filter(pairIntegerPair -> bestEstimate == pairIntegerPair.getSecond()).collect(Collectors.toList());
         return resultList.get(RANDOM.nextInt(resultList.size())).getFirst();
@@ -139,7 +139,7 @@ public class AlphaBetaPruning implements SqueezeAI {
                     - SqueezePatternType.GAP.score(o2)) * 100d));
             
             if (maxPattern.isPresent()) {
-                System.out.println(maxPattern.get());
+                //System.out.println(maxPattern.get());
                 return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(SqueezePatternType.GAP.score(maxPattern.get()) * 100d));
             }
             return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
@@ -165,6 +165,7 @@ public class AlphaBetaPruning implements SqueezeAI {
         GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 1, 0, possMoves);
         //Checking Horizontally
         GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 0, 1, possMoves);
+        GameUtils.removeHighlight(currentBoardConfiguration);
         List<Pair<CellData, CellData>> collect = possMoves.stream().map(
                 cellData -> new Pair<CellData, CellData>(pickedCell, cellData))
                 .collect(Collectors.toList());

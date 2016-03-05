@@ -39,7 +39,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                     if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
                         // either it is the original piece. Just remove the highlight.
                         if (cell.equals(GameUtils.pickedCell)){
-                            removeHighlight();
+                            GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+                            refreshGrid();
                             GameUtils.pickedCell = null;
                         } else {
                             //or, pick up another.
@@ -70,7 +71,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
     
     private void pickUpAnother(CellData cell) {
-        removeHighlight();
+        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+        refreshGrid();
         pickUpPiece(cell);
     }
     
@@ -88,7 +90,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     
     
     private void dropOnPath(CellData cell) {
-        removeHighlight();
+        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+        refreshGrid();
         cell.setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.pickedCell.setCellChar('E');
         GameUtils.pickedCell = null;
@@ -111,7 +114,8 @@ public class CellEventListner implements EventHandler<MouseEvent>{
             Pair<CellData, CellData> optimalMove =
                     squeezeAI.findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
             // remove highlight first
-            removeHighlight();
+            GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+            refreshGrid();
             // set piece
             GameUtils.getCurrentBoardConfiguration().setPiece(optimalMove);
             // try to remove pattern here
@@ -140,19 +144,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         this.statusBarView = statusBarView;
     }
     
-    private void removeHighlight() {
-        BoardConfiguration currentConfig = GameUtils.getCurrentBoardConfiguration();
-        CellData[][] grid = currentConfig.getBoard();
-        int d = currentConfig.getDimension();
-        for (int i = 0; i < d ; i++) {
-            for (int j = 0; j< d; j++) {
-                if(grid[i][j].getCellChar() =='P'){
-                    grid[i][j].setCellChar('E');
-                }
-            }
-        }
-        refreshGrid();
-    }
+
 
     private void refreshStatus() {
         statusBarView.update();

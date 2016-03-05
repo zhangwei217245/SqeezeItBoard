@@ -47,7 +47,7 @@ public class StatusBarView {
         rightStatus.setTextFill(PlayerColor.orange.getColor());
         
         String playerName = "Player";
-        System.out.println(GameUtils.currentColor);
+        //System.out.println(GameUtils.currentColor);
         if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
             playerName = "Computer";
         }

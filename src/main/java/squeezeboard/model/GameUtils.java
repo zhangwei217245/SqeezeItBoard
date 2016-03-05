@@ -79,7 +79,7 @@ public class GameUtils {
     public static int MAXIMUM_MOVES = 10;
 
     public static int SEARCH_WIDTH = 12;
-    public static int SEARCH_DEPTH = 9;
+    public static int SEARCH_DEPTH = 3;
 
 
     public static BoardConfiguration[] existingMoves;
@@ -147,6 +147,18 @@ public class GameUtils {
             }
             if (boundReached >= 2) {
                 break;
+            }
+        }
+    }
+
+    public static void removeHighlight(BoardConfiguration currentConfig) {
+        CellData[][] grid = currentConfig.getBoard();
+        int d = currentConfig.getDimension();
+        for (int i = 0; i < d ; i++) {
+            for (int j = 0; j< d; j++) {
+                if(grid[i][j].getCellChar() =='P'){
+                    grid[i][j].setCellChar('E');
+                }
             }
         }
     }
