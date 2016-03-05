@@ -56,12 +56,13 @@ public class StatusBarView {
                         : "%s Will Firstly Serve.| Round : %s | Move : %s"
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
-        determineGameResult(computerLeft,playerLeft);
-
+        if (mainController.getBtn_start().isSelected()) {
+            determineGameResult(computerLeft, playerLeft);
+        }
     }
 
     public void determineGameResult(int computerLeft, int playerLeft){
-        if (GameUtils.currentCursor.get() >= GameUtils.MAXIMUM_MOVES) {
+        if (GameUtils.currentCursor.get() >= 10/*GameUtils.MAXIMUM_MOVES * 2*/) {
             // GAME MUST COME TO AN END HERE, which one has the most pieces on the board will win
             showDifferentGameResult(computerLeft,playerLeft);
         } else {
@@ -79,7 +80,7 @@ public class StatusBarView {
         } else if (computerLeft == playerLeft) {
             GameUtils.showAlertBox(PromptableException.ExceptFactor.DRAW_GAME);
         }
-        mainController.endGame();
+        mainController.getBtn_start().fire();
     }
  
     public Label getLeftStatus() {

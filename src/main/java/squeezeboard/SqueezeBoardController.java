@@ -217,5 +217,7 @@ public class SqueezeBoardController implements Initializable {
     }
 
 
-
+    public ToggleButton getBtn_start() {
+        return btn_start;
+    }
 }
