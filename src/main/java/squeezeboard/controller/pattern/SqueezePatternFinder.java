@@ -48,7 +48,7 @@ public class SqueezePatternFinder {
     public static List<SqueezePattern> getSqueezePatterns(SqueezePatternType patternType, PlayerColor patternColor, CellData piece,
                                                            CellData[][] board, int dimension, boolean isConsecutive) {
         List<SqueezePattern> squeezePatterns = new ArrayList<>();
-        PlayerColor gapColor = isConsecutive? PlayerColor.getColorByCursor(patternColor.ordinal() + 1): patternColor;
+        PlayerColor gapColor = isConsecutive? patternColor.getOpponentColor(): patternColor;
         for (PatternDirection direction : PatternDirection.values()) {
             Matcher matcher = patternType.getPattern(gapColor).matcher(getGroupStr(piece, board, dimension, direction));
             int start = 0;

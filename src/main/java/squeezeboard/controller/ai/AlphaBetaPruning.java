@@ -133,14 +133,14 @@ public class AlphaBetaPruning implements SqueezeAI {
             BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
             clonedBoard.setPiece(move);
             List<SqueezePattern> gapPatterns = SqueezePatternFinder
-                    .getSqueezePatterns(SqueezePatternType.GAP, computerColor,
+                    .getSqueezePatterns(SqueezePatternType.FULFILLED_GAP, computerColor,
                             move.getSecond(), clonedBoard.getBoard(), clonedBoard.getDimension());
-            Optional<SqueezePattern> maxPattern = gapPatterns.stream().max((o1, o2) -> (int) ((SqueezePatternType.GAP.score(o1)
-                    - SqueezePatternType.GAP.score(o2)) * 100d));
+            Optional<SqueezePattern> maxPattern = gapPatterns.stream().max((o1, o2) -> (int) ((SqueezePatternType.FULFILLED_GAP.score(o1)
+                    - SqueezePatternType.FULFILLED_GAP.score(o2)) * 100d));
             
             if (maxPattern.isPresent()) {
                 //System.out.println(maxPattern.get());
-                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(SqueezePatternType.GAP.score(maxPattern.get()) * 100d));
+                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(SqueezePatternType.FULFILLED_GAP.score(maxPattern.get()) * 100d));
             }
             return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
         }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))

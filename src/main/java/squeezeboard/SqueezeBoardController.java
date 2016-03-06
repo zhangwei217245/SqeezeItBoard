@@ -145,6 +145,10 @@ public class SqueezeBoardController implements Initializable {
         grid_view.setVisible(true);
         menu_pref.setDisable(true);
         System.out.println("start GAme");
+        Platform.runLater(() ->{
+            GameUtils.computerAction();
+        });
+
     }
 
     public void endGame() {

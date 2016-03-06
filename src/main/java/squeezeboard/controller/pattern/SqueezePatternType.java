@@ -20,6 +20,7 @@ public enum SqueezePatternType {
             int capacity = squeezePattern.capacity();
             int empty = squeezePattern.emptyCount();
             int validRemoval = squeezePattern.validRemovalCount();
+
             return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
         }
     },

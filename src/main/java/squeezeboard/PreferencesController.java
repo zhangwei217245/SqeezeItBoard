@@ -5,11 +5,12 @@
  */
 package squeezeboard;
 
-import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.input.DragEvent;
 import squeezeboard.model.GameUtils;
 
 import java.net.URL;
@@ -43,9 +44,7 @@ public class PreferencesController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        searchWidth.setValue(GameUtils.SEARCH_WIDTH);
-        searchDepth.setValue(GameUtils.SEARCH_DEPTH);
-        maxMoves.setValue(GameUtils.MAXIMUM_MOVES);
+
 
         searchWidth.valueProperty().addListener((observable, oldValue, newValue) -> {
             txt_sWidth.setText(String.valueOf(newValue.intValue()));
@@ -60,27 +59,32 @@ public class PreferencesController implements Initializable {
             GameUtils.MAXIMUM_MOVES = newValue.intValue();
         });
 
-        this.searchWidth.fireEvent(new ActionEvent(this.searchWidth, this.searchWidth));
-        this.searchDepth.fireEvent(new ActionEvent(this.searchDepth, this.searchDepth));
-        this.maxMoves.fireEvent(new ActionEvent(this.maxMoves, this.maxMoves));
+        searchWidth.setValue(GameUtils.SEARCH_WIDTH);
+        this.searchWidth.fireEvent(new Event(DragEvent.ANY));
+
+        searchDepth.setValue(GameUtils.SEARCH_DEPTH);
+        this.searchDepth.fireEvent(new Event(DragEvent.ANY));
+
+        maxMoves.setValue(GameUtils.MAXIMUM_MOVES);
+        this.maxMoves.fireEvent(new Event(DragEvent.ANY));
     }
 
     @FXML
-    public void handleMaxMoves(ActionEvent e) {
+    public void handleMaxMoves(Event e) {
         this.maxMoves.setValue(Double.valueOf(this.txt_mMoves.getText()).intValue());
-        this.maxMoves.fireEvent(new ActionEvent(this.maxMoves, this.maxMoves));
+        this.maxMoves.fireEvent(new Event(DragEvent.ANY));
     }
 
     @FXML
-    public void handleSearchDepth(ActionEvent e) {
+    public void handleSearchDepth(Event e) {
         this.searchDepth.setValue(Double.valueOf(this.txt_sDepth.getText()).intValue());
-        this.searchDepth.fireEvent(new ActionEvent(this.searchDepth, this.searchDepth));
+        this.searchDepth.fireEvent(new Event(DragEvent.ANY));
     }
 
     @FXML
-    public void handleSearchWidth(ActionEvent e) {
+    public void handleSearchWidth(Event e) {
         this.searchWidth.setValue(Double.valueOf(this.txt_sWidth.getText()).intValue());
-        this.searchWidth.fireEvent(new ActionEvent(this.searchWidth, this.searchWidth));
+        this.searchWidth.fireEvent(new Event(DragEvent.ANY));
     }
     
     

@@ -6,6 +6,7 @@
 package squeezeboard.model;
 
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -13,10 +14,13 @@ import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.controller.CellEventListner;
+import squeezeboard.controller.ai.AlphaBetaPruning;
+import squeezeboard.controller.ai.SqueezeAI;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
@@ -81,6 +85,8 @@ public class GameUtils {
     public static int SEARCH_WIDTH = 12;
     public static int SEARCH_DEPTH = 3;
 
+    public static final ImageView[][] imgMatrix = new ImageView[GRID_DIMENSION][GRID_DIMENSION];
+
 
     public static BoardConfiguration[] existingMoves;
     
@@ -111,6 +117,7 @@ public class GameUtils {
                     imgView = new ImageView();
                     imgView.addEventHandler(MouseEvent.MOUSE_CLICKED, new CellEventListner(gridController, statusBarView));
                     gridView.add(imgView, j, i);
+                    imgMatrix[i][j] = imgView;
                 } else {
                     imgView = (ImageView) getNodeByRowColumnIndex(i, j, gridView);
                 }
@@ -297,4 +304,31 @@ public class GameUtils {
         return 0;
     }
 
+    public static void computerMoveByEvent(Pair<CellData, CellData> move) {
+        //Pick piece
+        fireEventOnCellImgView(move.getFirst());
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+
+        }
+        //drop piece
+        fireEventOnCellImgView(move.getSecond());
+    }
+
+    public static void fireEventOnCellImgView(CellData cord) {
+        ImageView imgView = imgMatrix[cord.getRowCord()][cord.getColCord()];
+        Event.fireEvent(imgView, new MouseEvent(MouseEvent.MOUSE_CLICKED, 0,
+                0, 0, 0, MouseButton.PRIMARY, 1, true, true, true, true,
+                true, true, true, true, true, true, null));
+    }
+
+    public static void computerAction() {
+        if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
+            SqueezeAI squeezeAI = new AlphaBetaPruning();
+            Pair<CellData, CellData> optimalMove = squeezeAI
+                    .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
+            GameUtils.computerMoveByEvent(optimalMove);
+        }
+    }
 }

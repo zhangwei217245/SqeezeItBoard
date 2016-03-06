@@ -48,7 +48,7 @@ public class SqueezePattern {
 
     public int validRemovalCount() {
         int removal = 0;
-        PlayerColor opponentColor = PlayerColor.getColorByCursor(this.patternCreator.ordinal() + 1);
+        PlayerColor opponentColor = this.patternCreator.getOpponentColor();
         for (char c : patternStr.toCharArray()) {
             if (c == opponentColor.CHAR()) {
                 removal++;
@@ -86,7 +86,7 @@ public class SqueezePattern {
         if (!this.patternType.equals(SqueezePatternType.FULFILLED_GAP)){
             return removal;
         }
-        PlayerColor opponentColor = PlayerColor.getColorByCursor(this.patternCreator.ordinal() + 1);
+        PlayerColor opponentColor = this.patternCreator.getOpponentColor();
 
         int start = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getFirst());
         int end = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getSecond());

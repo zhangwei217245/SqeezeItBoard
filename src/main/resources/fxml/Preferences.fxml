@@ -21,7 +21,7 @@
                   <Group>
                      <children>
                         <Label layoutX="42.0" layoutY="67.0" text="Search Width" />
-                        <Slider fx:id="searchWidth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="12.0" />
+                        <Slider fx:id="searchWidth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" minorTickCount="5" onDragDetected="#handleSearchWidth" onDragDone="#handleSearchWidth" onDragDropped="#handleSearchWidth" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
                         <TextField fx:id="txt_sWidth" layoutX="134.0" layoutY="59.0" onAction="#handleSearchWidth" prefHeight="27.0" prefWidth="49.0" />
                      </children>
                   </Group>
@@ -32,7 +32,7 @@
                   <Group>
                      <children>
                         <Label layoutX="42.0" layoutY="67.0" text="Search Depth" />
-                        <Slider fx:id="searchDepth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="4.0" />
+                        <Slider fx:id="searchDepth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="1.0" max="20.0" minorTickCount="1" onDragDetected="#handleSearchDepth" onDragDone="#handleSearchDepth" onDragDropped="#handleSearchDepth" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="1.0" />
                         <TextField fx:id="txt_sDepth" layoutX="133.0" layoutY="61.0" onAction="#handleSearchDepth" prefHeight="27.0" prefWidth="49.0" />
                      </children>
                   </Group>
@@ -43,7 +43,7 @@
                   <Group>
                      <children>
                         <Label layoutX="22.0" layoutY="69.0" text="Maximum Moves" />
-                        <Slider fx:id="maxMoves" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                        <Slider fx:id="maxMoves" layoutX="201.0" layoutY="67.0" majorTickUnit="10.0" min="10.0" minorTickCount="5" onDragDetected="#handleMaxMoves" onDragDone="#handleMaxMoves" onDragDropped="#handleMaxMoves" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="20.0" />
                         <TextField fx:id="txt_mMoves" layoutX="131.0" layoutY="64.0" onAction="#handleMaxMoves" prefHeight="27.0" prefWidth="49.0" />
                      </children>
                   </Group>
