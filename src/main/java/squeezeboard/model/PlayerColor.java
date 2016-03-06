@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public enum PlayerColor {
     
-    orange('O', Color.web("0xff9900"),Pattern.compile("O[EB]+O"),
+    orange('O', Color.web("0xff9900"),Pattern.compile("O[B]*[E]+[B]*O"),
             Pattern.compile("O[B]+O"), Pattern.compile("(B[O]+|[O]+B)")) {
         @Override
         public void decreaseLeftCount(int removal) {
@@ -18,7 +18,7 @@ public enum PlayerColor {
         }
     },
     
-    blue('B', Color.web("0x0099ff"), Pattern.compile("B[EO]+B"),
+    blue('B', Color.web("0x0099ff"), Pattern.compile("B[O]*[E]+[O]*B"),
             Pattern.compile("B[O]+B"), Pattern.compile("(O[B]+|[B]+O)")) {
         @Override
         public void decreaseLeftCount(int removal) {

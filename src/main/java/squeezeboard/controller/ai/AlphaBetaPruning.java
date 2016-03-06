@@ -2,11 +2,13 @@ package squeezeboard.controller.ai;
 
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
-import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -132,10 +134,12 @@ public class AlphaBetaPruning implements SqueezeAI {
         return allPossibleMoves.stream().map(move -> {
             BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
             clonedBoard.setPiece(move);
-            List<SqueezePattern> gapPatterns = SqueezePatternFinder
-                    .getSqueezePatterns(SqueezePatternType.FULFILLED_GAP, computerColor,
-                            move.getSecond(), clonedBoard.getBoard(), clonedBoard.getDimension());
-            Optional<SqueezePattern> maxPattern = gapPatterns.stream().max((o1, o2) ->
+            List<SqueezePattern> patternsToBeEvaluated = new ArrayList<SqueezePattern>();
+            SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
+                    .values().stream().forEach( list -> patternsToBeEvaluated.addAll(list));
+
+
+            Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
                     Double.compare(o1.score(), o2.score()));
             
             if (maxPattern.isPresent()) {

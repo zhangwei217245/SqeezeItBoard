@@ -55,9 +55,9 @@ public class SqueezePatternFinder {
             int end = 0;
             while (matcher.find(start)) {
                 start = matcher.toMatchResult().start();
-                end = matcher.toMatchResult().end();
+                end = matcher.toMatchResult().end() - 1;
                 CellData startCell = direction.getCellInAGroup(start, piece, board);
-                CellData endCell = direction.getCellInAGroup(end - 1, piece, board);
+                CellData endCell = direction.getCellInAGroup(end, piece, board);
                 //System.out.println(String.format("%s, %s", start, end));
                 Pair<CellData, CellData> bothEnds = new Pair<>(startCell, endCell);
                 String patternStr = getPatternStr(bothEnds, board, direction);
@@ -98,10 +98,31 @@ public class SqueezePatternFinder {
             start = matcherB.toMatchResult().start();
             end = matcherB.toMatchResult().end();
             System.out.println(start + "," + end);
-            start = end;
+            start = end - 1;
         }
         
-        Matcher matcherO = PlayerColor.orange.getGapPattern().matcher("OEOEOBO");
+        Matcher matcherO = PlayerColor.orange.getGapPattern().matcher("OEOBEOBO");
+        start = 0;
+        end = 0;
+        while (matcherO.find(start)) {
+            start = matcherO.toMatchResult().start();
+            end = matcherO.toMatchResult().end();
+            System.out.println(start + "," + end);
+            start = end - 1;
+        }
+
+        matcherB = PlayerColor.blue.getGapPattern().matcher("EBOOOBE");
+
+        start = 0;
+        end = 0;
+        while (matcherB.find(start)) {
+            start = matcherB.toMatchResult().start();
+            end = matcherB.toMatchResult().end();
+            System.out.println(start + "," + end);
+            start = end;
+        }
+
+        matcherO = PlayerColor.orange.getGapPattern().matcher("EOBBBBOE");
         start = 0;
         end = 0;
         while (matcherO.find(start)) {
@@ -110,26 +131,26 @@ public class SqueezePatternFinder {
             System.out.println(start + "," + end);
             start = end;
         }
-        
-        Matcher consecB = PlayerColor.blue.getIncompleteGapPattern().matcher("BEBBOBB");
-        start = 0;
-        end = 0;
-        while (consecB.find(start)) {
-            start = consecB.toMatchResult().start();
-            end = consecB.toMatchResult().end();
-            System.out.println(start + "," + end);
-            start = end;
-        }
-        
-        
-        Matcher consecO = PlayerColor.orange.getIncompleteGapPattern().matcher("BEBBOBB");
-        start = 0;
-        end = 0;
-        while (consecO.find(start)) {
-            start = consecO.toMatchResult().start();
-            end = consecO.toMatchResult().end();
-            System.out.println(start + "," + end);
-            start = end;
-        }
+
+//        Matcher consecB = PlayerColor.blue.getIncompleteGapPattern().matcher("BEBBOBB");
+//        start = 0;
+//        end = 0;
+//        while (consecB.find(start)) {
+//            start = consecB.toMatchResult().start();
+//            end = consecB.toMatchResult().end();
+//            System.out.println(start + "," + end);
+//            start = end;
+//        }
+//
+//
+//        Matcher consecO = PlayerColor.orange.getIncompleteGapPattern().matcher("BEBBOBB");
+//        start = 0;
+//        end = 0;
+//        while (consecO.find(start)) {
+//            start = consecO.toMatchResult().start();
+//            end = consecO.toMatchResult().end();
+//            System.out.println(start + "," + end);
+//            start = end;
+//        }
     }
 }
