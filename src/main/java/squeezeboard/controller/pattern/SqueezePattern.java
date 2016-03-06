@@ -100,6 +100,10 @@ public class SqueezePattern {
         return removal;
     }
 
+    public double score(){
+        return this.getPatternType().score(this);
+    }
+
     @Override
     public String toString() {
         return "SqueezePattern{" +

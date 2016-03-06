@@ -18,6 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
+import squeezeboard.SqueezeBoardController;
 import squeezeboard.controller.CellEventListner;
 import squeezeboard.controller.ai.AlphaBetaPruning;
 import squeezeboard.controller.ai.SqueezeAI;
@@ -91,6 +92,8 @@ public class GameUtils {
     public static BoardConfiguration[] existingMoves;
     
     public static final AtomicInteger currentCursor = new AtomicInteger(0);
+
+    public static SqueezeBoardController mainController;
     
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;
@@ -233,8 +236,11 @@ public class GameUtils {
         if (currentCursor.get() > 0) {
             currentConfig.destroy();
             currentConfig = existingMoves[currentCursor.decrementAndGet()];
+            currentColor = currentConfig.getMoveMaker().getOpponentColor();
+            Pair<Integer, Integer> blue_orange_count = calculateLeftPiecesCount(currentConfig);
+            blueLeft.set(blue_orange_count.getFirst());
+            orangeLeft.set(blue_orange_count.getSecond());
         }
-        currentColor = currentConfig.getMoveMaker();
         return currentConfig;
     }
     
@@ -297,7 +303,7 @@ public class GameUtils {
                 SqueezePatternFinder.findPattern(boardConfiguration, cell, color);
         List<SqueezePattern> squeezePatterns = pattern.get(SqueezePatternType.FULFILLED_GAP);
         Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
-                .max((f, s) -> f.validRemovalCount() - s.validRemovalCount());
+                .max((f, s) -> Integer.compare(f.validRemovalCount(), s.validRemovalCount()));
         if (patternToRemove.isPresent()) {
             return patternToRemove.get().tryEliminate(cell, boardConfiguration.getBoard());
         }
@@ -324,11 +330,55 @@ public class GameUtils {
     }
 
     public static void computerAction() {
-        if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
-            SqueezeAI squeezeAI = new AlphaBetaPruning();
-            Pair<CellData, CellData> optimalMove = squeezeAI
-                    .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
-            GameUtils.computerMoveByEvent(optimalMove);
+        if (game_started.get()) {
+            if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
+                SqueezeAI squeezeAI = new AlphaBetaPruning();
+                Pair<CellData, CellData> optimalMove = squeezeAI
+                        .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
+                if (optimalMove != null) {
+                    GameUtils.computerMoveByEvent(optimalMove);
+                } else {
+                    Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
+                    GameUtils.game_over(left.getFirst(), left.getSecond());
+                }
+            }
         }
+    }
+
+    public static Pair<Integer, Integer> getComputerPlayerLeft() {
+        int playerLeft = GameUtils.orangeLeft.get();
+        int computerLeft = GameUtils.blueLeft.get();
+        if (GameUtils.computerRole.equals(PlayerColor.orange)) {
+            playerLeft = GameUtils.blueLeft.get();
+            computerLeft = GameUtils.orangeLeft.get();
+        }
+        return new Pair<>(computerLeft, playerLeft);
+    }
+
+    public static void game_over(int computerLeft, int playerLeft) {
+        if (mainController.getBtn_start().isSelected()) {
+            PromptableException.ExceptFactor gameResult = GameUtils.determineGameResult(GameUtils.currentCursor.get(),
+                    computerLeft, playerLeft);
+            if (gameResult != null) {
+                GameUtils.showAlertBox(gameResult);
+                mainController.getBtn_start().fire();
+            }
+        }
+    }
+
+    public static Pair<Integer,Integer> calculateLeftPiecesCount(BoardConfiguration newboard) {
+        int orangeLeft = 0;
+        int blueLeft = 0;
+        CellData[][] boardData = newboard.getBoard();
+        for (CellData[] row : boardData) {
+            for (CellData cell : row) {
+                if (cell.getCellChar() == PlayerColor.blue.CHAR()) {
+                    blueLeft ++;
+                } else if (cell.getCellChar() == PlayerColor.orange.CHAR()) {
+                    orangeLeft ++;
+                }
+            }
+        }
+        return new Pair<>(blueLeft, orangeLeft);
     }
 }

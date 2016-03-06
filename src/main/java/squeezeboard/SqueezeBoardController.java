@@ -76,7 +76,6 @@ public class SqueezeBoardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
         initiateBoard();
         initRadioGroup();
         refreshStatusBar();
@@ -85,11 +84,13 @@ public class SqueezeBoardController implements Initializable {
     private void initiateBoard() {
         gridViewController = new GridPaneView(grid_view);
         statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer, this);
+        GameUtils.mainController = this;
         GameUtils.currentCursor.set(0);
         BoardConfiguration initialBoard = new BoardConfiguration(GameUtils.GRID_DIMENSION);
-        //initialBoard.setMoveMaker(GameUtils.currentColor);
-        GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2 + 10];
+        GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2 + GameUtils.SEARCH_DEPTH + 10];
         GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
+        GameUtils.existingMoves[GameUtils.currentCursor.incrementAndGet()] = initialBoard.clone();
+        initialBoard.setMoveMaker(GameUtils.currentColor.getOpponentColor());
         GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
                 grid_view, GameUtils.GRID_DIMENSION,
                 (isGridInitialized ? null : gridViewController),
@@ -107,7 +108,6 @@ public class SqueezeBoardController implements Initializable {
 
         radio_blue.setToggleGroup(radioGroup);
         radio_orange.setToggleGroup(radioGroup);
-        radio_blue.setSelected(true);
         radioGroup.selectedToggleProperty().addListener(
                 (ObservableValue<? extends Toggle> ov,
                  Toggle old_toggle, Toggle new_toggle) -> {
@@ -121,7 +121,7 @@ public class SqueezeBoardController implements Initializable {
             GameUtils.currentColor = PlayerColor.orange;
             refreshStatusBar();
         });
-
+        radio_blue.fire();
     }
 
     @FXML
@@ -138,6 +138,11 @@ public class SqueezeBoardController implements Initializable {
         btn_start.setSelected(true);
         GameUtils.round.incrementAndGet();
         initiateBoard();
+        radioGroup.getToggles().stream().forEach(radio -> {
+            if (((RadioButton)radio).isSelected()) {
+                ((RadioButton)radio).fire();
+            }
+        });
         radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(true));
         GameUtils.game_started.compareAndSet(false, true);
         grid_view.setDisable(false);
@@ -154,18 +159,25 @@ public class SqueezeBoardController implements Initializable {
     public void endGame() {
         btn_start.setText("Start");
         btn_start.setSelected(false);
-        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         grid_view.setDisable(true);
         menu_undo.setDisable(true);
         menu_pref.setDisable(false);
         GameUtils.game_started.compareAndSet(true, false);
+        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
+        radioGroup.getToggles().stream().forEach(radio -> {
+            if (((RadioButton)radio).isSelected()) {
+                ((RadioButton)radio).fire();
+            }
+        });
         System.out.println("end game");
     }
 
     @FXML
     private void handleReset(ActionEvent event) {
+        btn_start.fire();
         resetMemory();
         resetStatus();
+        resetRadio();
         resetBoard();
     }
 
@@ -185,9 +197,10 @@ public class SqueezeBoardController implements Initializable {
             return;
         }
         Platform.runLater(() -> {
-            this.gridViewController.update(GameUtils.undoConfiguration());
-            refreshStatusBar();
-            this.gridViewController.update(GameUtils.undoConfiguration());
+            int redo = 3;
+            for (int i = 0; i < redo; i++) {
+                this.gridViewController.update(GameUtils.undoConfiguration());
+            }
             refreshStatusBar();
         });
     }
@@ -215,6 +228,13 @@ public class SqueezeBoardController implements Initializable {
         stage.setTitle("Preferences for SqueezeIt!");
         stage.setResizable(false);
         stage.show();
+    }
+
+    private void resetRadio() {
+        radio_orange.fire();
+        radio_blue.fire();
+        radio_orange.fire();
+        radio_blue.fire();
     }
 
     private void resetBoard() {

@@ -6,10 +6,7 @@ import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +40,9 @@ public class AlphaBetaPruning implements SqueezeAI {
         //System.out.println("bestMoves.size = " + bestMoves.size());
         List<Pair<Pair<CellData, CellData>, Integer>> resultList = bestMoves.stream()
                 .filter(pairIntegerPair -> bestEstimate == pairIntegerPair.getSecond()).collect(Collectors.toList());
+        if (resultList != null && resultList.size() == 0) {
+            return null;
+        }
         return resultList.get(RANDOM.nextInt(resultList.size())).getFirst();
     }
 
@@ -83,7 +83,7 @@ public class AlphaBetaPruning implements SqueezeAI {
                 newBoard.setPiece(pairIntegerPair.getFirst());
                 GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, newColor);
                 if ((depth & 1) == 0) { // MIN
-                    Pair<Integer, Integer> blue_orange = AlphaBetaPruningUtils.calculateLeftPiecesCount(newBoard);
+                    Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
                         beta[0] = Integer.MIN_VALUE;
@@ -101,7 +101,7 @@ public class AlphaBetaPruning implements SqueezeAI {
                         }
                     }
                 } else { // MAX
-                    Pair<Integer, Integer> blue_orange = AlphaBetaPruningUtils.calculateLeftPiecesCount(newBoard);
+                    Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
                         alpha[0] = Integer.MAX_VALUE;
@@ -135,12 +135,12 @@ public class AlphaBetaPruning implements SqueezeAI {
             List<SqueezePattern> gapPatterns = SqueezePatternFinder
                     .getSqueezePatterns(SqueezePatternType.FULFILLED_GAP, computerColor,
                             move.getSecond(), clonedBoard.getBoard(), clonedBoard.getDimension());
-            Optional<SqueezePattern> maxPattern = gapPatterns.stream().max((o1, o2) -> (int) ((SqueezePatternType.FULFILLED_GAP.score(o1)
-                    - SqueezePatternType.FULFILLED_GAP.score(o2)) * 100d));
+            Optional<SqueezePattern> maxPattern = gapPatterns.stream().max((o1, o2) ->
+                    Double.compare(o1.score(), o2.score()));
             
             if (maxPattern.isPresent()) {
                 //System.out.println(maxPattern.get());
-                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(SqueezePatternType.FULFILLED_GAP.score(maxPattern.get()) * 100d));
+                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score() * 100d));
             }
             return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
         }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))

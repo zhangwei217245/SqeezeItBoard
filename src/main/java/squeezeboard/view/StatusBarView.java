@@ -3,8 +3,8 @@ package squeezeboard.view;
 import javafx.scene.control.Label;
 import squeezeboard.SqueezeBoardController;
 import squeezeboard.model.GameUtils;
+import squeezeboard.model.Pair;
 import squeezeboard.model.PlayerColor;
-import squeezeboard.model.PromptableException;
 
 /**
  *
@@ -30,14 +30,13 @@ public class StatusBarView {
     }
     
     public void update(){
-        int computerLeft = GameUtils.blueLeft.get();
-        int playerLeft = GameUtils.orangeLeft.get();
+        Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
+        int computerLeft = left.getFirst();
+        int playerLeft = left.getSecond();
         
         String leftMessage = String.format("Computer left: %s", computerLeft);
         String rightMessage = String.format("Player left: %s", playerLeft);
         if (GameUtils.computerRole.equals(PlayerColor.orange)) {
-            playerLeft = GameUtils.blueLeft.get();
-            computerLeft = GameUtils.orangeLeft.get();
             leftMessage = String.format("Player left: %s", playerLeft);
             rightMessage = String.format("Computer left: %s", computerLeft);
         }
@@ -57,13 +56,7 @@ public class StatusBarView {
                         : "%s Will Firstly Serve.| Round : %s | Move : %s"
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
-        if (mainController.getBtn_start().isSelected()) {
-            PromptableException.ExceptFactor gameResult = GameUtils.determineGameResult(GameUtils.currentCursor.get(), computerLeft, playerLeft);
-            if (gameResult != null) {
-                GameUtils.showAlertBox(gameResult);
-                mainController.getBtn_start().fire();
-            }
-        }
+        GameUtils.game_over(computerLeft, playerLeft);
     }
 
 
