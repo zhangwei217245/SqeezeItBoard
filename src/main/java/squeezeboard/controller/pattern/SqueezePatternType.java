@@ -56,7 +56,7 @@ public enum SqueezePatternType {
         }
     };
 
-    private double baseScore;
+    public final double baseScore;
 
     SqueezePatternType(double baseScore) {
         this.baseScore = baseScore;

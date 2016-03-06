@@ -2,6 +2,7 @@ package squeezeboard.controller.ai;
 
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
+import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
 import java.security.SecureRandom;
@@ -19,6 +20,10 @@ public class AlphaBetaPruning implements SqueezeAI {
 
     private static final Random RANDOM = new SecureRandom();
 
+    private static final int MAX_SCORE = 1000610; //(10000 + max gap capacity)*100 + 10
+
+    private static final int MIN_SCORE = 9990; //(100 + least incomplete gap score 0 ) * 100 - 10
+
     @Override
     public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration currentBoardConfiguration) {
         List<CellData> allComputerPieces = findAllComputerPieces(computerColor, currentBoardConfiguration);
@@ -32,7 +37,10 @@ public class AlphaBetaPruning implements SqueezeAI {
             BoardConfiguration newBoard = currentBoardConfiguration.clone();
             Pair<CellData, CellData> move = pairIntegerPair.getFirst();
             newBoard.setPiece(move);
-            int estmateScore = this.alphaBetaPruning(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard, move,
+            int removal = GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, computerColor);
+
+            int estmateScore = removal > 0 ? (int)(removal + SqueezePatternType.FULFILLED_GAP.baseScore) * 100
+                    : this.alphaBetaPruning(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard, move,
                     computerColor.getOpponentColor());
             pairIntegerPair.setSecond(estmateScore);
         });
@@ -78,52 +86,59 @@ public class AlphaBetaPruning implements SqueezeAI {
             final int[] alpha = {lowerBound};
             final int[] beta = {upperBound};
             
-            bestMoves.stream().forEach(pairIntegerPair -> {
+            for (Pair<Pair<CellData, CellData>, Integer> pairIntegerPair : bestMoves) {
                 if (pairIntegerPair.getFirst() == null) {
-                    return ;
+                    break;
                 }
                 newBoard.setPiece(pairIntegerPair.getFirst());
-                GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, newColor);
+                int removal = GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, newColor);
+                int threateningScore = (int)(removal + SqueezePatternType.FULFILLED_GAP.baseScore) * 100;
+
                 if ((depth & 1) == 0) { // MIN
+                    if (removal > 0) {
+                        return -threateningScore;
+                    }
                     Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
-                        beta[0] = Integer.MIN_VALUE;
-                        return;
+                        break;
                     }
                     PromptableException.ExceptFactor gameResult = GameUtils
                             .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
                     if (gameResult != null) {
-                        beta[0] = Integer.MIN_VALUE;
+                        beta[0] = -MAX_SCORE;
                     } else {
-                        beta[0] = Math.min(beta[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard,
+                        beta[0] = Math.min(beta[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard.clone(),
                               pairIntegerPair.getFirst(), newColor.getOpponentColor()));
+                        // undo set Chess.
                         if (beta[0] <= alpha[0]){
-                            result[0] = beta[0];
+                            return beta[0];
                         }
                     }
                 } else { // MAX
+                    if (removal > 0) {
+                        return threateningScore;
+                    }
                     Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
-                        alpha[0] = Integer.MAX_VALUE;
-                        return;
+                        break;
                     }
                     PromptableException.ExceptFactor gameResult = GameUtils
                             .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
                     if (gameResult != null) {
-                        alpha[0] = Integer.MAX_VALUE;
+                        alpha[0] = MAX_SCORE;
                     } else {
                         alpha[0] = Math.max(alpha[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard,
                                 pairIntegerPair.getFirst(), newColor.getOpponentColor()));
                         if (alpha[0] >= beta[0]){
-                            result[0] = alpha[0];
+                            return alpha[0];
                         }
                     }
 
                 }
 
-            });
+            };
             return (depth & 1) == 0? beta[0] : alpha[0];
         }
     }
