@@ -6,10 +6,7 @@ import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -101,6 +98,7 @@ public class AlphaBetaPruning implements SqueezeAI {
                     Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
+                        beta[0] = -MAX_SCORE;
                         break;
                     }
                     PromptableException.ExceptFactor gameResult = GameUtils
@@ -122,6 +120,7 @@ public class AlphaBetaPruning implements SqueezeAI {
                     Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                     int moveCounter = GameUtils.currentCursor.get() + depth;
                     if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
+                        alpha[0] = MAX_SCORE;
                         break;
                     }
                     PromptableException.ExceptFactor gameResult = GameUtils
@@ -152,8 +151,7 @@ public class AlphaBetaPruning implements SqueezeAI {
             List<SqueezePattern> patternsToBeEvaluated = new ArrayList<SqueezePattern>();
             SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
                     .values().stream().forEach( list -> patternsToBeEvaluated.addAll(list));
-
-
+            
             Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
                     Double.compare(o1.score(), o2.score()));
             
