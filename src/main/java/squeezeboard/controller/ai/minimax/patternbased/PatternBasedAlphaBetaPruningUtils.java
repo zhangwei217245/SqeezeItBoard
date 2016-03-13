@@ -1,11 +1,11 @@
-package squeezeboard.controller.ai;
+package squeezeboard.controller.ai.minimax.patternbased;
 
 import squeezeboard.model.*;
 
 /**
  * Created by zhangwei on 3/4/16.
  */
-public class AlphaBetaPruningUtils {
+public class PatternBasedAlphaBetaPruningUtils {
 
     public static int globalEstimate(BoardConfiguration newboard, PlayerColor color) {
         Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newboard);

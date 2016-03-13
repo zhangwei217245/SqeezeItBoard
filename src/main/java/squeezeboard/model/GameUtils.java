@@ -20,7 +20,7 @@ import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.SqueezeBoardController;
 import squeezeboard.controller.CellEventListner;
-import squeezeboard.controller.ai.AlphaBetaPruning;
+import squeezeboard.controller.ai.minimax.patternbased.PatternBasedAlphaBetaPruning;
 import squeezeboard.controller.ai.SqueezeAI;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
@@ -332,7 +332,7 @@ public class GameUtils {
     public static void computerAction() {
         if (game_started.get()) {
             if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
-                SqueezeAI squeezeAI = new AlphaBetaPruning();
+                SqueezeAI squeezeAI = new PatternBasedAlphaBetaPruning();
                 Pair<CellData, CellData> optimalMove = squeezeAI
                         .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
                 if (optimalMove != null) {

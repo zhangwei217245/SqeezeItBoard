@@ -1,5 +1,6 @@
-package squeezeboard.controller.ai;
+package squeezeboard.controller.ai.minimax.patternbased;
 
+import squeezeboard.controller.ai.SqueezeAI;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by zhangwei on 3/4/16.
  */
-public class AlphaBetaPruning implements SqueezeAI {
+public class PatternBasedAlphaBetaPruning implements SqueezeAI {
 
 
     private static final Random RANDOM = new SecureRandom();
@@ -77,7 +78,7 @@ public class AlphaBetaPruning implements SqueezeAI {
             if (bestMove.isPresent()) {
                 return bestMove.get().getSecond();
             }
-            return AlphaBetaPruningUtils.globalEstimate(newBoard, newColor);
+            return PatternBasedAlphaBetaPruningUtils.globalEstimate(newBoard, newColor);
         } else {
             final int[] result = {0};
             final int[] alpha = {lowerBound};
