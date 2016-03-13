@@ -1,8 +1,7 @@
 package squeezeboard.controller.ai.minimax.patternbased;
 
+import squeezeboard.controller.ai.AIUtils;
 import squeezeboard.controller.ai.SqueezeAI;
-import squeezeboard.controller.pattern.SqueezePattern;
-import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
@@ -24,13 +23,13 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
 
     @Override
     public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration currentBoardConfiguration) {
-        List<CellData> allComputerPieces = findAllComputerPieces(computerColor, currentBoardConfiguration);
+        List<CellData> allComputerPieces = AIUtils.findAllComputerPieces(computerColor, currentBoardConfiguration);
         if (allComputerPieces.size() <= 0) {
             return null;
         }
-        List<Pair<CellData, CellData>> allPossibleMoves = getAllPossibleMoves(allComputerPieces, currentBoardConfiguration);
+        List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, currentBoardConfiguration);
         List<Pair<Pair<CellData, CellData>, Integer>> bestMoves =
-                getBestMoves(allPossibleMoves, currentBoardConfiguration, computerColor);
+                AIUtils.selectBestMoves(allPossibleMoves, currentBoardConfiguration, computerColor);
         bestMoves.parallelStream().forEach(pairIntegerPair -> {
             BoardConfiguration newBoard = currentBoardConfiguration.clone();
             Pair<CellData, CellData> move = pairIntegerPair.getFirst();
@@ -54,17 +53,13 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
         return resultList.get(RANDOM.nextInt(resultList.size())).getFirst();
     }
 
-    public List<Pair<Pair<CellData, CellData>, Integer>> getBestMoves(PlayerColor computerColor, BoardConfiguration currentBoardConfiguration){
-        List<CellData> allComputerPieces = findAllComputerPieces(computerColor, currentBoardConfiguration);
-        List<Pair<CellData, CellData>> allPossibleMoves = getAllPossibleMoves(allComputerPieces, currentBoardConfiguration);
-        return getBestMoves(allPossibleMoves, currentBoardConfiguration, computerColor);
-    }
+
 
     private int alphaBetaPruning(int depth, int lowerBound, int upperBound,
                                  BoardConfiguration newBoard, Pair<CellData, CellData> move,
                                  PlayerColor newColor) {
         List<Pair<Pair<CellData, CellData>, Integer>> bestMoves =
-                    getBestMoves(getAllPossibleMovesForACell(move.getSecond(), newBoard)
+                    AIUtils.selectBestMoves(AIUtils.getAllPossibleMovesForACell(move.getSecond(), newBoard)
                     , newBoard, newColor);
         if (depth >= GameUtils.SEARCH_DEPTH) {
             
@@ -78,7 +73,7 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
             if (bestMove.isPresent()) {
                 return bestMove.get().getSecond();
             }
-            return PatternBasedAlphaBetaPruningUtils.globalEstimate(newBoard, newColor);
+            return AIUtils.globalEstimate(newBoard, newColor);
         } else {
             final int[] result = {0};
             final int[] alpha = {lowerBound};
@@ -143,64 +138,11 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
         }
     }
 
-    public List<Pair<Pair<CellData, CellData>, Integer>> getBestMoves(List<Pair<CellData, CellData>> allPossibleMoves,
-                                                                      BoardConfiguration currentBoardConfiguration,
-                                                                      PlayerColor computerColor){
-        return allPossibleMoves.stream().map(move -> {
-            BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
-            clonedBoard.setPiece(move);
-            List<SqueezePattern> patternsToBeEvaluated = new ArrayList<SqueezePattern>();
-            SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
-                    .values().stream().forEach( list -> patternsToBeEvaluated.addAll(list));
-            
-            Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
-                    Double.compare(o1.score(), o2.score()));
-            
-            if (maxPattern.isPresent()) {
-                //System.out.println(maxPattern.get());
-                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score() * 100d));
-            }
-            return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
-        }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))
-                .limit(GameUtils.SEARCH_WIDTH).collect(Collectors.toList());
 
-    }
 
-    public List<Pair<CellData, CellData>> getAllPossibleMoves(List<CellData> allComputerPieces
-             ,BoardConfiguration currentBoardConfiguration) {
-        final List<Pair<CellData, CellData>> result = new ArrayList<>();
-        
-        allComputerPieces.stream().forEach(pickedCell -> {
-            result.addAll(getAllPossibleMovesForACell(pickedCell, currentBoardConfiguration));
-        });
-        return result;
-    }
+
     
-    public List<Pair<CellData, CellData>> getAllPossibleMovesForACell(CellData pickedCell, BoardConfiguration currentBoardConfiguration) {
-        final List<Pair<CellData, CellData>> result = new ArrayList<>();
-        List<CellData> possMoves = new ArrayList<CellData>();
-        //Checking vertically
-        GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 1, 0, possMoves);
-        //Checking Horizontally
-        GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 0, 1, possMoves);
-        GameUtils.removeHighlight(currentBoardConfiguration);
-        List<Pair<CellData, CellData>> collect = possMoves.stream().map(
-                cellData -> new Pair<CellData, CellData>(pickedCell, cellData))
-                .collect(Collectors.toList());
-        result.addAll(collect);
-        return result;
-    }  
 
-    public List<CellData> findAllComputerPieces(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
-        List<CellData> result = new ArrayList<>();
-        CellData[][] board = boardConfiguration.getBoard();
-        for (CellData[] row : board) {
-            for (CellData cell : row) {
-                if (cell.getCellChar() == computerColor.CHAR()) {
-                    result.add(cell);
-                }
-            }
-        }
-        return result;
-    }
+
+
 }

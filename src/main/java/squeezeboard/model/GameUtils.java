@@ -20,7 +20,7 @@ import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.SqueezeBoardController;
 import squeezeboard.controller.CellEventListner;
-import squeezeboard.controller.ai.minimax.patternbased.PatternBasedAlphaBetaPruning;
+import squeezeboard.controller.ai.AIHeuristicSelector;
 import squeezeboard.controller.ai.SqueezeAI;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
@@ -94,6 +94,8 @@ public class GameUtils {
     public static final AtomicInteger currentCursor = new AtomicInteger(0);
 
     public static SqueezeBoardController mainController;
+
+    public static AIHeuristicSelector heuristicSelector = AIHeuristicSelector.LOCAL_GREEDY;
     
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;
@@ -332,7 +334,7 @@ public class GameUtils {
     public static void computerAction() {
         if (game_started.get()) {
             if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
-                SqueezeAI squeezeAI = new PatternBasedAlphaBetaPruning();
+                SqueezeAI squeezeAI = heuristicSelector.getHeuristic();
                 Pair<CellData, CellData> optimalMove = squeezeAI
                         .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
                 if (optimalMove != null) {
