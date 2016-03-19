@@ -95,7 +95,7 @@ public class GameUtils {
 
     public static SqueezeBoardController mainController;
 
-    public static AIHeuristicSelector heuristicSelector = AIHeuristicSelector.LOCAL_GREEDY;
+    public static AIHeuristicSelector heuristicSelector = AIHeuristicSelector.PATTERN_BASED_MINIMAX;
     
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;

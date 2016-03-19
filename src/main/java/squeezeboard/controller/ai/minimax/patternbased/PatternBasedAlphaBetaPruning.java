@@ -29,7 +29,8 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
         }
         List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, currentBoardConfiguration);
         List<Pair<Pair<CellData, CellData>, Integer>> bestMoves =
-                AIUtils.selectBestMoves(allPossibleMoves, currentBoardConfiguration, computerColor);
+                AIUtils.selectBestMoves(allPossibleMoves, currentBoardConfiguration, computerColor,
+                        (p1, p2) -> Double.compare(p1.score(currentBoardConfiguration), p2.score(currentBoardConfiguration)));
         bestMoves.parallelStream().forEach(pairIntegerPair -> {
             BoardConfiguration newBoard = currentBoardConfiguration.clone();
             Pair<CellData, CellData> move = pairIntegerPair.getFirst();
@@ -60,7 +61,7 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
                                  PlayerColor newColor) {
         List<Pair<Pair<CellData, CellData>, Integer>> bestMoves =
                     AIUtils.selectBestMoves(AIUtils.getAllPossibleMovesForACell(move.getSecond(), newBoard)
-                    , newBoard, newColor);
+                    , newBoard, newColor, (p1, p2) -> Double.compare(p1.score(newBoard), p2.score(newBoard)));
         if (depth >= GameUtils.SEARCH_DEPTH) {
             
             Optional<Pair<Pair<CellData, CellData>, Integer>> bestMove = null;

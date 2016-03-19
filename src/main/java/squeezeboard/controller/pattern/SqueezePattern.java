@@ -40,6 +40,10 @@ public class SqueezePattern {
         return patternDirection;
     }
 
+    public Pair<CellData, CellData> getPatternBothEnds() {
+        return patternBothEnds;
+    }
+
     public boolean isEliminatable(){
         return SqueezePatternType.FULFILLED_GAP
                 .getPattern(this.getPatternCreator())
@@ -100,8 +104,8 @@ public class SqueezePattern {
         return removal;
     }
 
-    public double score(){
-        return this.getPatternType().score(this);
+    public double score(BoardConfiguration boardConfiguration){
+        return this.getPatternType().score(this, boardConfiguration);
     }
 
     @Override

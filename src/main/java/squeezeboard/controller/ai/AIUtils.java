@@ -5,6 +5,7 @@ import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.model.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,7 +56,8 @@ public class AIUtils {
 
     public static List<Pair<Pair<CellData, CellData>, Integer>> selectBestMoves(List<Pair<CellData, CellData>> allPossibleMoves,
                                                                                 BoardConfiguration currentBoardConfiguration,
-                                                                                PlayerColor computerColor){
+                                                                                PlayerColor computerColor,
+                                                                                Comparator<SqueezePattern> comparator){
         return allPossibleMoves.stream().map(move -> {
             BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
             clonedBoard.setPiece(move);
@@ -63,8 +65,9 @@ public class AIUtils {
             SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
                     .values().stream().forEach( list -> patternsToBeEvaluated.addAll(list));
 
-            Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
-                    Double.compare(o1.score(), o2.score()));
+            Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max(comparator);
+            //Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
+            //Double.compare(o1.score(), o2.score()));
 
             if (maxPattern.isPresent()) {
                 return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score() * 100d));
