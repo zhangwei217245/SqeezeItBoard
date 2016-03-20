@@ -17,10 +17,10 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static squeezeboard.model.GameUtils.tryRemovePattern;
 
@@ -33,6 +33,13 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
 
     @Override
     public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
+        List<CellData> allComputerPieces = AIUtils.findAllComputerPieces(computerColor, boardConfiguration);
+        List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, boardConfiguration);
+        if (allPossibleMoves.isEmpty()) {
+            throw new IllegalStateException("No more moves~~");
+        }
+        Pair<CellData, CellData> result = allPossibleMoves.get(RANDOM.nextInt(allPossibleMoves.size()));
+
         //TODO: get optimal attacking move here
         //First, try to get any move that gives us the most defensive attack!
         List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves = getAttackingMoves(boardConfiguration, computerColor);
@@ -40,29 +47,39 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
         // the number of residual pieces of current player is maximized while the number of residual pieces of opponent
         // is going to be minimized.
         if (!attackingMoves.isEmpty()) {
-            Stream<Tuple<Pair<CellData, CellData>, Integer, Integer>> movesWithRank = attackingMoves.parallelStream().map(tuple -> {
+            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> movesWithRank = attackingMoves.parallelStream().map(tuple -> {
                 BoardConfiguration newBoard = boardConfiguration.clone();
                 //Virtually carry out attack, and see what's going to happen.
                 Pair<CellData, CellData> move = tuple.getFirst();
                 newBoard.setPiece(move);
                 int removal = GameUtils.tryRemovePattern(move.getSecond(), newBoard, computerColor);
                 int estimateScore = this.alphaBeta(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard,
-                        pair -> {return getAttackingMoves(pair.getFirst(), pair.getSecond());},
+                        new Function<Pair<BoardConfiguration, PlayerColor>, List<Tuple<Pair<CellData, CellData>, Integer, Integer>>>() {
+                            @Override
+                            public List<Tuple<Pair<CellData, CellData>, Integer, Integer>> apply(Pair<BoardConfiguration, PlayerColor> pair) {
+                                return getAttackingMoves(pair.getFirst(), pair.getSecond());
+                            }
+                        },
                         computerColor.getOpponentColor());
                 return new Tuple<>(move, removal, estimateScore);
-            });
+            }).collect(Collectors.toList());
             //Get the score for the attack that is most defensive.
-            int bestEstimate = movesWithRank.map( pair -> pair.getThird()).max((a,b) -> Integer.compare(a, b))
+            int bestEstimate = movesWithRank.stream().map( pair -> pair.getThird()).max((a,b) -> Integer.compare(a, b))
                     .get();
             //get best attacking move among all that are with the same defensive score.
-            return movesWithRank.filter(pair -> bestEstimate == pair.getThird())
-                    .max((a,b) -> Integer.compare(a.getSecond(), b.getSecond())).get().getFirst();
+            Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> max = movesWithRank.stream().filter(pair -> bestEstimate == pair.getThird())
+                    .max((a, b) -> Integer.compare(a.getSecond(), b.getSecond()));
+            if (max.isPresent()){
+                result = max.get().getFirst();
+            } else {
+                result = movesWithRank.stream().max((a, b) -> Integer.compare(a.getSecond(), b.getSecond())).get().getFirst();
+            }
         } else {
             //TODO: find optimal defensive move here.
             List<Tuple<Pair<CellData, CellData>, Integer, Integer>> defensiveMoves = getDefensiveMoves(boardConfiguration, computerColor);
 
             if (!defensiveMoves.isEmpty()) {
-                Stream<Tuple<Pair<CellData, CellData>, Integer, Integer>> movesWithRank = defensiveMoves.parallelStream().map(tuple -> {
+                List<Tuple<Pair<CellData, CellData>, Integer, Integer>> movesWithRank = defensiveMoves.parallelStream().map(tuple -> {
                     BoardConfiguration newBoard = boardConfiguration.clone();
                     //Virtually carry out attack, and see what's going to happen.
                     Pair<CellData, CellData> move = tuple.getFirst();
@@ -74,20 +91,17 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
                             },
                             computerColor.getOpponentColor());
                     return new Tuple<>(move, removal, estimateScore);
-                });
+                }).collect(Collectors.toList());
 
-                int bestEstimate = movesWithRank.map( pair -> pair.getThird()).max((a,b) -> Integer.compare(a, b))
+                int bestEstimate = movesWithRank.stream().map( pair -> pair.getThird()).max((a,b) -> Integer.compare(a, b))
                         .get();
                 //get best defensive move among all that are with the same defensive score.
-                return movesWithRank.filter(pair -> bestEstimate == pair.getThird())
+                return movesWithRank.stream().filter(pair -> bestEstimate == pair.getThird())
                         .min((a,b) -> Integer.compare(a.getSecond(), b.getSecond())).get().getFirst();
 
             }
         }
-        List<CellData> allComputerPieces = AIUtils.findAllComputerPieces(computerColor, boardConfiguration);
-        List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, boardConfiguration);
-
-        return allPossibleMoves.get(RANDOM.nextInt(allPossibleMoves.size()));
+        return result;
     }
 
     private List<Tuple<Pair<CellData, CellData>, Integer, Integer>> getAttackingMoves(BoardConfiguration boardConfiguration, PlayerColor attackingColor) {
@@ -193,7 +207,7 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
 
                 if ((depth & 1) == 0) { // even depth, 0, 2, 4, 8... Human's turn, minimize it's estimate.
                     if (gameResult != null) {
-                        beta = Integer.MIN_VALUE;
+                        beta = Integer.MAX_VALUE;
                     } else {
                         int estimateScore = this.alphaBeta(depth+1, alpha, beta, newBoard,func,
                                 playerColor.getOpponentColor());
@@ -205,7 +219,7 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
                     }
                 } else { //odd depth, 1, 3, 5, 7... Computer's turn again, maximize it's estimate.
                     if (gameResult != null) {
-                        alpha = Integer.MAX_VALUE;
+                        alpha = Integer.MIN_VALUE;
                     } else {
                         int estimateScore = this.alphaBeta(depth+1, alpha, beta, newBoard,func,
                                 playerColor.getOpponentColor());

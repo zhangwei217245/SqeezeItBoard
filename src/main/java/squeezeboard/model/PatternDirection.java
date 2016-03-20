@@ -53,6 +53,7 @@ public enum PatternDirection {
                             result.add(possibleMove);
                         }
                     }
+                    //TODO: test another direction.
                 }
             }
             return result;
