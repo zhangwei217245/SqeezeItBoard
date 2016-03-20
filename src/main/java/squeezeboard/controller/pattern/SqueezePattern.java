@@ -2,6 +2,9 @@ package squeezeboard.controller.pattern;
 
 import squeezeboard.model.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author zhangwei
@@ -106,6 +109,14 @@ public class SqueezePattern {
 
     public double score(BoardConfiguration boardConfiguration){
         return this.getPatternType().score(this, boardConfiguration);
+    }
+
+    public List<Pair<CellData, CellData>> findPossibleAttackingMoves(CellData[][] board, PlayerColor playerColor) {
+        List<Pair<CellData, CellData>> allMoves = new ArrayList<>();
+        for (PatternDirection direction : PatternDirection.values()) {
+            allMoves.addAll(direction.findPossibleAttackingMoves(this, board, playerColor));
+        }
+        return allMoves;
     }
 
     @Override

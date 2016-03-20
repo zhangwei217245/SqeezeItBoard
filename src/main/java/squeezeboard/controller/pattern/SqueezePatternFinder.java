@@ -44,7 +44,36 @@ public class SqueezePatternFinder {
                 piece, board, dimension, true));
         return patternsInType;
     }
-    
+
+
+    public static List<SqueezePattern> getAllSqueezePatternsOnBoard(PlayerColor patternColor, CellData[][] board) {
+        List<SqueezePattern> squeezePatterns = new ArrayList<>();
+        for (PatternDirection direction : PatternDirection.values()) {
+            direction.getGroupStrList(board).forEach(pair -> {
+                for (SqueezePatternType patternType : SqueezePatternType.values()) {
+                    Matcher matcher = patternType.getPattern(patternColor).matcher(pair.getFirst());
+                    int start = 0;
+                    int end = 0;
+                    while (matcher.find(start)) {
+                        start = matcher.toMatchResult().start();
+                        end = matcher.toMatchResult().end() - 1;
+                        CellData startCell = direction.getCellInAGroup(start, pair.getSecond(), board);
+                        CellData endCell = direction.getCellInAGroup(end, pair.getSecond(), board);
+                        //System.out.println(String.format("%s, %s", start, end));
+                        Pair<CellData, CellData> bothEnds = new Pair<>(startCell, endCell);
+                        String patternStr = getPatternStr(bothEnds, board, direction);
+                        SqueezePattern squeezePattern = new SqueezePattern(bothEnds, patternStr, patternType, patternColor,
+                                direction);
+                        squeezePatterns.add(squeezePattern);
+                        start = end;
+                    }
+                }
+
+            });
+        }
+        return squeezePatterns;
+    }
+
     public static List<SqueezePattern> getSqueezePatterns(SqueezePatternType patternType, PlayerColor patternColor, CellData piece,
                                                            CellData[][] board, int dimension, boolean isConsecutive) {
         List<SqueezePattern> squeezePatterns = new ArrayList<>();

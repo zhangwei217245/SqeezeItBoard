@@ -10,6 +10,19 @@ import java.util.regex.Pattern;
  * @author zhangwei
  */
 public enum SqueezePatternType {
+    FULFILLED_GAP(10000.0d) {
+        @Override
+        public Pattern getPattern(PlayerColor color) {
+            return color.getFulfilledGapPattern();
+        }
+
+        @Override
+        public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
+            return (double)squeezePattern.validRemovalCount();
+        }
+
+    },
+
     GAP(1000.0d) {
         @Override
         public Pattern getPattern(PlayerColor color) {
@@ -23,26 +36,14 @@ public enum SqueezePatternType {
             int empty = squeezePattern.emptyCount();
             int validRemoval = squeezePattern.validRemovalCount();
 
-            squeezePattern.getPatternDirection().
-
-
             double generalProbability = ((double)(capacity - empty))/(double)capacity;
             double conditionalProbability = 0.5d;
             return  (supportivePieceAppeared? conditionalProbability : generalProbability)
                     * (double)validRemoval;
         }
-    },
-    FULFILLED_GAP(10000.0d) {
-        @Override
-        public Pattern getPattern(PlayerColor color) {
-            return color.getFulfilledGapPattern();
-        }
 
-        @Override
-        public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            return (double)squeezePattern.validRemovalCount();
-        }
     },
+
     INCOMPLETE_GAP(100.0d) {
         @Override
         public Pattern getPattern(PlayerColor color) {
@@ -59,6 +60,7 @@ public enum SqueezePatternType {
             int validRemoval = squeezePattern.validRemovalCount();
             return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
         }
+
     };
 
     public final double baseScore;
@@ -74,5 +76,4 @@ public enum SqueezePatternType {
     public double score(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
         return (double)this.baseScore + removalRate(squeezePattern, boardConfiguration);
     }
-
 }

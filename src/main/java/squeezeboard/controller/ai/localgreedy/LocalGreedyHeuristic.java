@@ -20,9 +20,9 @@ public class LocalGreedyHeuristic implements SqueezeAI {
         List<CellData> allComputerPieces = AIUtils.findAllComputerPieces(computerColor, boardConfiguration);
         List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, boardConfiguration);
 
-        AIUtils.selectBestMoves(allPossibleMoves, boardConfiguration, computerColor, (p1, p2) -> {
-
-        });
+//        AIUtils.selectBestMoves(allPossibleMoves, boardConfiguration, computerColor, (p1, p2) -> {
+//
+//        });
 
         return null;
     }

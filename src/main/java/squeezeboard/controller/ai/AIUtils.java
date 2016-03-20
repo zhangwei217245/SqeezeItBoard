@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 public class AIUtils {
 
 
+//    public static List<SqueezePattern> findAllUsefulPatterns(PlayerColor playerColor, BoardConfiguration boardConfiguration) {
+//        boardConfiguration.getBoard();
+//    }
+
     public static List<CellData> findAllComputerPieces(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
         List<CellData> result = new ArrayList<>();
         CellData[][] board = boardConfiguration.getBoard();
@@ -70,7 +74,7 @@ public class AIUtils {
             //Double.compare(o1.score(), o2.score()));
 
             if (maxPattern.isPresent()) {
-                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score() * 100d));
+                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score(clonedBoard) * 100d));
             }
             return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
         }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))
