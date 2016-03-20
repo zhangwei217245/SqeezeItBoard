@@ -60,7 +60,24 @@ public enum PatternDirection {
 
         @Override
         public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
-            return null;
+            List<Pair<CellData, CellData>> result = new ArrayList<>();
+            Pair<CellData, CellData> patternBothEnds = squeezePattern.getPatternBothEnds();
+            int c = patternBothEnds.getFirst().getColCord();
+            int start = patternBothEnds.getFirst().getRowCord();
+            int end = patternBothEnds.getSecond().getRowCord();
+            for (int r = start; r <= end; r++) {
+                CellData cell = board[r][c];
+                if (cell.getCellChar()==playerColor.CHAR()) {
+                    for (int i = 0; i < board.length ; i++) {
+                        CellData testingCell = board[r][i];
+                        if (testingCell.getCellChar() == playerColor.CHAR()) {
+                            Pair<CellData, CellData> possibleMove = new Pair<>(testingCell, cell);
+                            result.add(possibleMove);
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
 
