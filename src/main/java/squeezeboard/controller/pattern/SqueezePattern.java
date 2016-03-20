@@ -119,6 +119,14 @@ public class SqueezePattern {
         return allMoves;
     }
 
+    public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(CellData[][] board, PlayerColor playerColor) {
+        List<Pair<CellData, CellData>> allMoves = new ArrayList<>();
+        for (PatternDirection direction : PatternDirection.values()) {
+            allMoves.addAll(direction.findPossibleDefensiveMoves(this, board, playerColor));
+        }
+        return allMoves;
+    }
+
     @Override
     public String toString() {
         return "SqueezePattern{" +

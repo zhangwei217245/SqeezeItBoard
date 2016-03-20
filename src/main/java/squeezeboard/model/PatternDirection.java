@@ -68,12 +68,21 @@ public enum PatternDirection {
             for (int r = start; r <= end; r++) {
                 CellData cell = board[r][c];
                 if (cell.getCellChar()==playerColor.CHAR()) {
-                    for (int i = 0; i < board.length ; i++) {
+                    boolean meetObstacle = false;
+                    for (int i = c - 1; i >= 0; i--) {
                         CellData testingCell = board[r][i];
-                        if (testingCell.getCellChar() == playerColor.CHAR()) {
-                            Pair<CellData, CellData> possibleMove = new Pair<>(testingCell, cell);
-                            result.add(possibleMove);
+                        if (testingCell.getCellChar() != 'E' && testingCell.getCellChar() != 'P') {
+                            meetObstacle = true;
                         }
+                        if (!meetObstacle) new Pair<>(cell, testingCell);
+                    }
+                    meetObstacle = false;
+                    for (int i = c + 1; i < board.length; i++) {
+                        CellData testingCell = board[r][i];
+                        if (testingCell.getCellChar() != 'E' && testingCell.getCellChar() != 'P') {
+                            meetObstacle = true;
+                        }
+                        if (!meetObstacle) new Pair<>(cell, testingCell);
                     }
                 }
             }
@@ -140,7 +149,33 @@ public enum PatternDirection {
 
         @Override
         public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
-            return null;
+            List<Pair<CellData, CellData>> result = new ArrayList<>();
+            Pair<CellData, CellData> patternBothEnds = squeezePattern.getPatternBothEnds();
+            int r = patternBothEnds.getFirst().getRowCord();
+            int start = patternBothEnds.getFirst().getColCord();
+            int end = patternBothEnds.getSecond().getColCord();
+            for (int c = start; c <= end; c++) {
+                CellData cell = board[r][c];
+                if (cell.getCellChar()==playerColor.CHAR()) {
+                    boolean meetObstacle = false;
+                    for (int i = r - 1; i >= 0; i--) {
+                        CellData testingCell = board[i][c];
+                        if (testingCell.getCellChar() != 'E' && testingCell.getCellChar() != 'P') {
+                            meetObstacle = true;
+                        }
+                        if (!meetObstacle) new Pair<>(cell, testingCell);
+                    }
+                    meetObstacle = false;
+                    for (int i = r + 1; i < board.length; i++) {
+                        CellData testingCell = board[i][c];
+                        if (testingCell.getCellChar() != 'E' && testingCell.getCellChar() != 'P') {
+                            meetObstacle = true;
+                        }
+                        if (!meetObstacle) new Pair<>(cell, testingCell);
+                    }
+                }
+            }
+            return result;
         }
 
 
