@@ -163,9 +163,8 @@ public class GameUtils {
         }
     }
 
-    public static void removeHighlight(BoardConfiguration currentConfig) {
-        CellData[][] grid = currentConfig.getBoard();
-        int d = currentConfig.getDimension();
+    public static void removeHighlight(CellData[][] grid) {
+        int d = grid.length;
         for (int i = 0; i < d ; i++) {
             for (int j = 0; j< d; j++) {
                 if(grid[i][j].getCellChar() =='P'){
@@ -173,6 +172,10 @@ public class GameUtils {
                 }
             }
         }
+    }
+
+    public static void removeHighlight(BoardConfiguration currentConfig) {
+        removeHighlight(currentConfig.getBoard());
     }
     
     private static void setPictureToImageView(CellData cell, ImageView imgView) {

@@ -111,10 +111,10 @@ public class SqueezePattern {
         return this.getPatternType().score(this, boardConfiguration);
     }
 
-    public List<Pair<CellData, CellData>> findPossibleAttackingMoves(CellData[][] board, PlayerColor playerColor) {
+    public List<Pair<CellData, CellData>> findPossibleAttackingMoves(CellData[][] board, PlayerColor playerColor, boolean recursive) {
         List<Pair<CellData, CellData>> allMoves = new ArrayList<>();
         for (PatternDirection direction : PatternDirection.values()) {
-            allMoves.addAll(direction.findPossibleAttackingMoves(this, board, playerColor));
+            allMoves.addAll(direction.findPossibleAttackingMoves(this, board, playerColor, recursive));
         }
         return allMoves;
     }
