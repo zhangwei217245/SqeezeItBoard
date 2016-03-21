@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="squeezeboard.TutorialViewrController">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="New" />
+            <MenuItem mnemonicParsing="false" onAction="#loadFile" text="Open…" />
+            <Menu mnemonicParsing="false" text="Open Recent" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Close" />
+            <MenuItem mnemonicParsing="false" text="Save" />
+            <MenuItem mnemonicParsing="false" text="Save As…" />
+            <MenuItem mnemonicParsing="false" text="Revert" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Preferences…" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Quit" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Edit">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Undo" />
+            <MenuItem mnemonicParsing="false" text="Redo" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Cut" />
+            <MenuItem mnemonicParsing="false" text="Copy" />
+            <MenuItem mnemonicParsing="false" text="Paste" />
+            <MenuItem mnemonicParsing="false" text="Delete" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Select All" />
+            <MenuItem mnemonicParsing="false" text="Unselect All" />
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+      <!--<HBox prefHeight="500.0" prefWidth="900.0">-->
+         <!--<children>-->
+          <!--<AnchorPane minHeight="500.0" minWidth="100.0" prefHeight="500.0" prefWidth="100.0">-->
+          <!--</AnchorPane>-->
+             <!--<AnchorPane minHeight="500.0" minWidth="700.0" prefHeight="500.0" prefWidth="700.0">-->
+                 <!--<children>-->
+                     <ScrollPane fx:id="scroller" minHeight="500" minWidth="700" pannable="true" prefHeight="500.0" prefWidth="700.0" />
+                 <!--</children>-->
+             <!--</AnchorPane>-->
+
+          <!--<AnchorPane minHeight="500.0" minWidth="100.0" prefHeight="500.0" prefWidth="100.0">-->
+          <!--</AnchorPane>-->
+         <!--</children>-->
+      <!--</HBox>-->
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="900.0">
+         <children>
+            <Pagination fx:id="pagination" prefHeight="100.0" prefWidth="900.0" />
+              <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="900.0">
+                 <children>
+                    <Label alignment="CENTER" prefHeight="30.0" prefWidth="56.0" text="Zoom:" textAlignment="CENTER" />
+                    <Button mnemonicParsing="false" onAction="#zoomOut" text="-" />
+                    <Button mnemonicParsing="false" onAction="#zoomIn" text="+" />
+                    <Button mnemonicParsing="false" fx:id="btn_zoom_fit" onAction="#zoomFit" text="Zoom to fit" />
+                    <Button mnemonicParsing="false" fx:id="btn_zoom_width" onAction="#zoomWidth" text="Zoom to width" />
+                    <Label fx:id="currentZoomLabel" alignment="CENTER" prefHeight="28.0" prefWidth="69.0" text="Label" textAlignment="CENTER" />
+                 </children>
+              </HBox>
+         </children>
+      </VBox>
+  </children>
+</VBox>

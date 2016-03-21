@@ -229,6 +229,20 @@ public class SqueezeBoardController implements Initializable {
     }
 
     @FXML
+    private void handleTutorial(ActionEvent e) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/TutorialViewer.fxml"));
+        Stage stage = new Stage();
+        Scene scene = new Scene(root);
+
+        stage.setScene(scene);
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.setTitle("Tutorial Viewer for SqueezeIt!");
+        stage.setResizable(false);
+        stage.show();
+    }
+
+    @FXML
     private void handleMenuPref(ActionEvent e) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/Preferences.fxml"));
         Stage stage = new Stage();

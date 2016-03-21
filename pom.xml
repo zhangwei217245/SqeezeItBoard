@@ -11,6 +11,11 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.rjolly</groupId>
+            <artifactId>pdf-renderer</artifactId>
+            <version>140</version>
+        </dependency>
     </dependencies>
     <packaging>jar</packaging>
 

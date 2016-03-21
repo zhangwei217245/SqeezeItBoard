@@ -47,6 +47,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
           <items>
+            <MenuItem fx:id="menu_tutorial" mnemonicParsing="false" onAction="#handleTutorial" text="Tutorial" />
             <MenuItem fx:id="menu_help" mnemonicParsing="false" onAction="#handleAbout" text="About SqueezeIt" />
           </items>
         </Menu>
