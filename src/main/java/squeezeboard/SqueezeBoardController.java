@@ -221,8 +221,8 @@ public class SqueezeBoardController implements Initializable {
     private void handleAbout(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Author\n  Wei Zhang (x-spirit.zhang@ttu.edu)\n"
                 + "  Ahmad Aseeri(aseeri.ahmad@ttu.edu)\n TTU 2016 All rights reserved.\n");
-        alert.setTitle("About SqueezeIt v1.0");
-        alert.setHeaderText("About SqueezeIt v1.0");
+        alert.setTitle("About SqueezeIt v1.2");
+        alert.setHeaderText("About SqueezeIt v1.2");
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> System.out.println(response.getButtonData()));

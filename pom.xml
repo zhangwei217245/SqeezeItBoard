@@ -4,7 +4,7 @@
 
     <groupId>x.spirit</groupId>
     <artifactId>SqueezeIt</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2</version>
     <dependencies>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
