@@ -19,16 +19,16 @@ public class SqueezePattern {
     
     private final PlayerColor patternCreator;
     
-    private final PatternDirection patternDirection;
+    private final SqueezePatternDirection squeezePatternDirection;
 
     public SqueezePattern(Pair<CellData, CellData> patternBothEnds, String patternStr, SqueezePatternType patternType,
-                          PlayerColor patternCreator, PatternDirection patternDirection) {
+                          PlayerColor patternCreator, SqueezePatternDirection squeezePatternDirection) {
 
         this.patternBothEnds = patternBothEnds;
         this.patternStr = patternStr;
         this.patternType = patternType;
         this.patternCreator = patternCreator;
-        this.patternDirection = patternDirection;
+        this.squeezePatternDirection = squeezePatternDirection;
     }
 
     public SqueezePatternType getPatternType() {
@@ -39,8 +39,8 @@ public class SqueezePattern {
         return patternCreator;
     }
 
-    public PatternDirection getPatternDirection() {
-        return patternDirection;
+    public SqueezePatternDirection getSqueezePatternDirection() {
+        return squeezePatternDirection;
     }
 
     public Pair<CellData, CellData> getPatternBothEnds() {
@@ -95,10 +95,10 @@ public class SqueezePattern {
         }
         PlayerColor opponentColor = this.patternCreator.getOpponentColor();
 
-        int start = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getFirst());
-        int end = this.patternDirection.getIndexInAGroup(this.patternBothEnds.getSecond());
+        int start = this.squeezePatternDirection.getIndexInAGroup(this.patternBothEnds.getFirst());
+        int end = this.squeezePatternDirection.getIndexInAGroup(this.patternBothEnds.getSecond());
         for (int i = start; i <= end; i++) {
-            CellData cell = this.patternDirection.getCellInAGroup(i, newpiece, boardToCarryoutRemoval);
+            CellData cell = this.squeezePatternDirection.getCellInAGroup(i, newpiece, boardToCarryoutRemoval);
             if (cell.getCellChar() == opponentColor.CHAR()) {
                 cell.setCellChar('E');
                 removal++;
@@ -113,7 +113,7 @@ public class SqueezePattern {
 
     public List<Pair<CellData, CellData>> findPossibleAttackingMoves(CellData[][] board, PlayerColor playerColor, boolean recursive) {
         List<Pair<CellData, CellData>> allMoves = new ArrayList<>();
-        for (PatternDirection direction : PatternDirection.values()) {
+        for (SqueezePatternDirection direction : SqueezePatternDirection.values()) {
             allMoves.addAll(direction.findPossibleAttackingMoves(this, board, playerColor, recursive));
         }
         return allMoves;
@@ -121,7 +121,7 @@ public class SqueezePattern {
 
     public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(CellData[][] board, PlayerColor playerColor) {
         List<Pair<CellData, CellData>> allMoves = new ArrayList<>();
-        for (PatternDirection direction : PatternDirection.values()) {
+        for (SqueezePatternDirection direction : SqueezePatternDirection.values()) {
             allMoves.addAll(direction.findPossibleDefensiveMoves(this, board, playerColor));
         }
         return allMoves;
@@ -134,7 +134,7 @@ public class SqueezePattern {
                 ", patternStr='" + patternStr + '\'' +
                 ", patternType=" + patternType +
                 ", patternCreator=" + patternCreator +
-                ", patternDirection=" + patternDirection +
+                ", squeezePatternDirection=" + squeezePatternDirection +
                 '}';
     }
 }
