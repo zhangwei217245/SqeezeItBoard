@@ -72,7 +72,7 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
                     .filter(pair -> bestEstimate == pair.getThird()).collect(Collectors.toList());
 
             List<Tuple<Pair<CellData, CellData>, Integer, Integer>> bestMoves = null;
-            if (boardConfiguration.getNumberOfPieces(computerColor) >= 3) {
+            if (boardConfiguration.getNumberOfPieces(computerColor) >= GameUtils.GRID_DIMENSION - 1) {
                 Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> mostDefensive =
                         aggressiveAttacks.stream().max((a, b) -> Integer.compare(a.getThird(), b.getThird()));
 
