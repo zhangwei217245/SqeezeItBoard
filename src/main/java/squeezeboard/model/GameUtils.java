@@ -81,7 +81,7 @@ public class GameUtils {
 
     public static final int GRID_DIMENSION = 8;
 
-    public static int MAXIMUM_MOVES = 10;
+    public static int MAXIMUM_MOVES = 100;
 
     public static int SEARCH_WIDTH = 12;
     public static int SEARCH_DEPTH = 3;
@@ -230,8 +230,9 @@ public class GameUtils {
         if (currentColor == null) {
             throw new IllegalStateException("current color should not be null!");
         }
-        existingMoves[currentCursor.get()].setMoveMaker(currentColor);
+        //existingMoves[currentCursor.get()].setMoveMaker(currentColor);
         BoardConfiguration clonedBoard = existingMoves[currentCursor.get()].clone();
+        clonedBoard.setMoveMaker(currentColor);
         existingMoves[currentCursor.incrementAndGet()] = clonedBoard;
         return clonedBoard;
     }
@@ -261,7 +262,7 @@ public class GameUtils {
             } else if (exceptFactor.equals(PromptableException.ExceptFactor.COMPUTER_WIN)){
                 AnimatedGif img_computer_win = new AnimatedGif(
                         SqueezeBoard.class.getResource(file_computer_win).toExternalForm(), 2200);
-                img_computer_win.setCycleCount(5);
+                img_computer_win.setCycleCount(200);
                 img_computer_win.play();
                 alert.setGraphic(img_computer_win.getView());
             } else if (exceptFactor.equals(PromptableException.ExceptFactor.DRAW_GAME)) {

@@ -24,7 +24,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     public void handle(MouseEvent event) {
         ImageView img_view = ((ImageView)event.getSource());
         CellData cell = (CellData) img_view.getUserData();
-        
+
         switch (cell.getCellChar()) {
             case 'B':
             case 'O':
@@ -90,14 +90,15 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     private void dropOnPath(CellData cell) {
         GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
         refreshGrid();
-        cell.setCellChar(GameUtils.pickedCell.getCellChar());
-        GameUtils.pickedCell.setCellChar('E');
+        GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
+        GameUtils.getCurrentBoard()[cell.getRowCord()][cell.getColCord()].setCellChar(GameUtils.pickedCell.getCellChar());
+        GameUtils.getCurrentBoard()[GameUtils.pickedCell.getRowCord()][GameUtils.pickedCell.getColCord()].setCellChar('E');
         GameUtils.pickedCell = null;
         //try to remove pattern here
-        int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration(), 
+        int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration(),
                 GameUtils.currentColor);
         GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);
-        GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
+
         //currentColor do not change until now, a piece is dropped on board.
         GameUtils.currentColor = GameUtils.currentColor.getOpponentColor();
 

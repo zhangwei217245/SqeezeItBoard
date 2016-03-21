@@ -94,12 +94,13 @@ public final class BoardConfiguration implements Cloneable{
     
     public void printMatrix() {
         for (int i = 0; i < this.dimension; i++) {
+            System.out.print("\t");
             for (int j = 0; j < this.dimension; j++) {
                 System.out.print(String.format("%c ", board[i][j].getCellChar()));
             }
             System.out.println("");
         }
-        System.out.println("================");
+        System.out.println("\t================");
     }
 
 

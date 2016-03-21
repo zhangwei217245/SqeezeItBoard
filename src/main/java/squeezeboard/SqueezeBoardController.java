@@ -30,6 +30,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static squeezeboard.model.GameUtils.computerAction;
+import static squeezeboard.model.GameUtils.computerRole;
+import static squeezeboard.model.GameUtils.currentCursor;
+
 /**
  *
  * @author zhangwei
@@ -85,12 +89,14 @@ public class SqueezeBoardController implements Initializable {
         gridViewController = new GridPaneView(grid_view);
         statusBarController = new StatusBarView(leftStatus, rightStatus, label_currPlayer, this);
         GameUtils.mainController = this;
-        GameUtils.currentCursor.set(0);
+        currentCursor.set(0);
         BoardConfiguration initialBoard = new BoardConfiguration(GameUtils.GRID_DIMENSION);
         GameUtils.existingMoves = new BoardConfiguration[GameUtils.MAXIMUM_MOVES * 2 + GameUtils.SEARCH_DEPTH + 10];
-        GameUtils.existingMoves[GameUtils.currentCursor.get()] = initialBoard;
-        GameUtils.existingMoves[GameUtils.currentCursor.incrementAndGet()] = initialBoard.clone();
+        GameUtils.existingMoves[currentCursor.get()] = initialBoard;
         initialBoard.setMoveMaker(GameUtils.currentColor.getOpponentColor());
+//        GameUtils.existingMoves[GameUtils.currentCursor.incrementAndGet()] = initialBoard.clone();
+//        GameUtils.existingMoves[GameUtils.currentCursor.get()].setMoveMaker(initialBoard.getMoveMaker());
+
         GameUtils.renderGridView(GameUtils.getCurrentBoardConfiguration(),
                 grid_view, GameUtils.GRID_DIMENSION,
                 (isGridInitialized ? null : gridViewController),
@@ -113,9 +119,9 @@ public class SqueezeBoardController implements Initializable {
                  Toggle old_toggle, Toggle new_toggle) -> {
             if (radioGroup.getSelectedToggle() != null) {
                 if (radioGroup.getSelectedToggle().equals(radio_blue)) {
-                    GameUtils.computerRole = PlayerColor.blue;
+                    computerRole = PlayerColor.blue;
                 } else if (radioGroup.getSelectedToggle().equals(radio_orange)) {
-                    GameUtils.computerRole = PlayerColor.orange;
+                    computerRole = PlayerColor.orange;
                 }
             }
             GameUtils.currentColor = PlayerColor.orange;
@@ -137,7 +143,7 @@ public class SqueezeBoardController implements Initializable {
         btn_start.setText("End");
         btn_start.setSelected(true);
         GameUtils.round.incrementAndGet();
-        initiateBoard();
+        //initiateBoard();
         radioGroup.getToggles().stream().forEach(radio -> {
             if (((RadioButton)radio).isSelected()) {
                 ((RadioButton)radio).fire();
@@ -151,7 +157,7 @@ public class SqueezeBoardController implements Initializable {
         menu_pref.setDisable(true);
         System.out.println("start GAme");
         Platform.runLater(() ->{
-            GameUtils.computerAction();
+            computerAction();
         });
 
     }
@@ -163,22 +169,24 @@ public class SqueezeBoardController implements Initializable {
         menu_undo.setDisable(true);
         menu_pref.setDisable(false);
         GameUtils.game_started.compareAndSet(true, false);
-        radioGroup.getToggles().stream().forEach(radio -> ((RadioButton) radio).setDisable(false));
         radioGroup.getToggles().stream().forEach(radio -> {
             if (((RadioButton)radio).isSelected()) {
                 ((RadioButton)radio).fire();
             }
         });
+        radioGroup.getToggles().stream().forEach(radio ->
+                ((RadioButton) radio).setDisable(false));
         System.out.println("end game");
     }
 
     @FXML
     private void handleReset(ActionEvent event) {
-        btn_start.fire();
+        //btn_start.fire();
+        resetBoard();
         resetMemory();
         resetStatus();
         resetRadio();
-        resetBoard();
+
     }
 
     @FXML
@@ -188,18 +196,22 @@ public class SqueezeBoardController implements Initializable {
 
     @FXML
     private void handleUndo(ActionEvent event) {
-        if (GameUtils.currentCursor.get() == 0) {
+        if (currentCursor.get() == 0) {
             GameUtils.showAlertBox(ExceptFactor.NO_MOVES_TO_BE_UNDONE);
             return;
         }
-        if (GameUtils.currentColor.equals(GameUtils.computerRole)) {
+        if (GameUtils.currentColor.equals(computerRole)) {
             GameUtils.showAlertBox(ExceptFactor.WAIT_FOR_COMPUTER);
             return;
         }
         Platform.runLater(() -> {
-            int redo = 3;
+            int redo = 2;
             for (int i = 0; i < redo; i++) {
                 this.gridViewController.update(GameUtils.undoConfiguration());
+            }
+            if (currentCursor.get() == 0 && computerRole.equals(PlayerColor.orange)) {
+                computerAction();
+                gridViewController.update(GameUtils.getCurrentBoardConfiguration());
             }
             refreshStatusBar();
         });
@@ -231,10 +243,7 @@ public class SqueezeBoardController implements Initializable {
     }
 
     private void resetRadio() {
-        radio_orange.fire();
-        radio_blue.fire();
-        radio_orange.fire();
-        radio_blue.fire();
+        initRadioGroup();
     }
 
     private void resetBoard() {
@@ -250,11 +259,12 @@ public class SqueezeBoardController implements Initializable {
             }
         }
         GameUtils.existingMoves = null;
-        GameUtils.computerRole = PlayerColor.blue;
-        GameUtils.currentCursor.set(0);
+        computerRole = PlayerColor.blue;
+        currentCursor.set(0);
         GameUtils.currentColor = PlayerColor.orange;
         GameUtils.blueLeft.set(GameUtils.GRID_DIMENSION);
         GameUtils.orangeLeft.set(GameUtils.GRID_DIMENSION);
+        initiateBoard();
     }
 
     private void resetStatus() {
