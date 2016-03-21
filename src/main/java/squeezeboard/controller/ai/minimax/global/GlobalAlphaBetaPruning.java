@@ -35,17 +35,11 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
 
     @Override
     public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
-//        List<CellData> allComputerPieces = AIUtils.findAllComputerPieces(computerColor, boardConfiguration);
-//        List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMoves(allComputerPieces, boardConfiguration);
-//        if (allPossibleMoves.isEmpty()) {
-//            throw new IllegalStateException("No more moves~~");
-//        }
-        Pair<CellData, CellData> result = null; //allPossibleMoves.get(RANDOM.nextInt(allPossibleMoves.size()));
+        Pair<CellData, CellData> result = null;
 
         //TODO: get optimal attacking move here
         //First, try to get any move that gives us the most defensive attack!
         List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves = getAttackingMoves(boardConfiguration, computerColor, true);
-        System.out.println("attackingMoves" + attackingMoves);
         // if there are some attacking moves, try to evaluate them by minimax search, the goal is to make sure that
         // the number of residual pieces of current player is maximized while the number of residual pieces of opponent
         // is going to be minimized.
@@ -71,19 +65,37 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
             int mostRemoval = movesWithRank.stream().map( pair -> pair.getSecond()).max((a,b) -> Integer.compare(a, b)).get();
             //get best attacking move among all that are with the same defensive score.
 
-            Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> bestMove = movesWithRank.stream()
-                    .filter(move -> mostRemoval == move.getSecond())
-                    .filter(pair -> bestEstimate == pair.getThird()).findAny();
-            if (bestMove.isPresent()){
-                result = bestMove.get().getFirst();
-                System.out.println("Most aggressive defensive attacking move found!");
-            } else if (boardConfiguration.getNumberOfPieces(computerColor) >= GameUtils.GRID_DIMENSION / 2){
-                result = movesWithRank.stream()
-                        .filter(move -> mostRemoval == move.getSecond()).findAny().get().getFirst();
+            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> aggressiveAttacks = movesWithRank.stream()
+                    .filter(move -> mostRemoval == move.getSecond()).collect(Collectors.toList());
+
+            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> defensiveAttacks = movesWithRank.stream()
+                    .filter(pair -> bestEstimate == pair.getThird()).collect(Collectors.toList());
+
+            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> bestMoves = null;
+            if (boardConfiguration.getNumberOfPieces(computerColor) >= 3) {
+                Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> mostDefensive =
+                        aggressiveAttacks.stream().max((a, b) -> Integer.compare(a.getThird(), b.getThird()));
+
+                bestMoves = aggressiveAttacks.stream().filter(move -> mostDefensive.get().getThird() == move.getThird())
+                        .collect(Collectors.toList());
+            } else {
+                Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> mostAggressive
+                        = defensiveAttacks.stream().max((a, b) -> Integer.compare(a.getSecond(), b.getSecond()));
+                bestMoves = defensiveAttacks.stream().filter(move -> mostAggressive.get().getSecond() == move.getSecond())
+                        .collect(Collectors.toList());
+            }
+
+            if (bestMoves.size() > 1){
+                result = bestMoves.get(RANDOM.nextInt(bestMoves.size())).getFirst();
+                System.out.println("Most aggressive attacking move with largest defensive score found!");
+            } else if (boardConfiguration.getNumberOfPieces(computerColor) >= 3){
+                aggressiveAttacks.addAll(bestMoves);
+                result = aggressiveAttacks.get(RANDOM.nextInt(aggressiveAttacks.size())).getFirst();
                 System.out.println("Most aggressive attacking move found!");
             } else {
-                result = movesWithRank.stream()
-                        .filter(pair -> bestEstimate == pair.getThird()).findAny().get().getFirst();
+                defensiveAttacks.addAll(bestMoves);
+                System.out.println("Most defensive attacking move found!");
+                result = defensiveAttacks.get(RANDOM.nextInt(defensiveAttacks.size())).getFirst();
             }
         } else {
             //TODO: find optimal defensive move here.
@@ -110,7 +122,6 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
                 System.out.println("Most defensive move found!");
                 result = movesWithRank.stream().filter(pair -> bestEstimate == pair.getThird())
                         .min((a, b) -> Integer.compare(a.getSecond(), b.getSecond())).get().getFirst();
-
             }
         }
         if (result != null) {
@@ -125,7 +136,6 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
         List<SqueezePattern> allSqueezePatternsOnBoard =
                 SqueezePatternFinder.getAllSqueezePatternsOnBoard(attackingColor, boardConfiguration.getBoard());
         allSqueezePatternsOnBoard.addAll(SqueezePatternFinder.getAllSqueezePatternsOnBoard(attackingColor.getOpponentColor(), boardConfiguration.getBoard()));
-        //System.out.println("Pattern on the board" + allSqueezePatternsOnBoard);
         List<Pair<CellData, CellData>> possibleAttackingMoves =
                 getPossibleAttackingMovesFromPattern(allSqueezePatternsOnBoard, boardConfiguration, attackingColor, recursive);
         if (!possibleAttackingMoves.isEmpty()) {

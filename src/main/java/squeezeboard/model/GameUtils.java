@@ -114,7 +114,7 @@ public class GameUtils {
     public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, 
             int dimension, GridPaneView gridController, StatusBarView statusBarView) {
         ImageView imgView;
-        boardConfiguration.printMatrix();
+        //boardConfiguration.printMatrix();
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 CellData cell = boardConfiguration.getBoard()[i][j];
