@@ -85,7 +85,7 @@ public class GlobalAlphaBetaPruning implements SqueezeAI {
                         .collect(Collectors.toList());
             }
 
-            if (bestMoves.size() > 1){
+            if (bestMoves.size() >= 1){
                 result = bestMoves.get(RANDOM.nextInt(bestMoves.size())).getFirst();
                 System.out.println("Most aggressive attacking move with largest defensive score found!");
             } else if (boardConfiguration.getNumberOfPieces(computerColor) >= 3){
