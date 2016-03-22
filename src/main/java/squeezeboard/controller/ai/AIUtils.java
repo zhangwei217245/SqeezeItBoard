@@ -94,7 +94,7 @@ public class AIUtils {
     public static int alphaBeta(int depth, int lowerBound, int upperBound,
                           BoardConfiguration boardConfiguration,
                           Function<Pair<BoardConfiguration, PlayerColor>,
-                                  List<Tuple<Pair<CellData, CellData>, Integer, Integer>>> func,
+                                  List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>>> func,
                           PlayerColor playerColor) {
         if (depth >= GameUtils.SEARCH_DEPTH) {
             return getGlobalEstimate(boardConfiguration, playerColor);
@@ -102,14 +102,14 @@ public class AIUtils {
             int alpha = lowerBound;
             int beta = upperBound;
 
-            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves =
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> attackingMoves =
                     func.apply(new Pair<>(boardConfiguration, playerColor));
 
-            for (Tuple<Pair<CellData, CellData>, Integer, Integer> attackingMove : attackingMoves) {
+            for (Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer> attackingMove : attackingMoves) {
                 // for each attacking move made by the virtual player, copy a new configuration.
                 BoardConfiguration newBoard = boardConfiguration.clone();
                 // set pieces
-                Pair<CellData, CellData> move = attackingMove.getFirst();
+                Tuple<CellData, CellData, Integer> move = attackingMove.getFirst();
                 newBoard.setPiece(attackingMove.getFirst());
                 int removal = tryRemovePattern(move.getSecond(), newBoard, playerColor);
                 Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);

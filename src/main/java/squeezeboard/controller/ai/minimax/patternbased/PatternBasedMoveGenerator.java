@@ -36,21 +36,21 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
 
         //get optimal attacking move here
         //First, try to get any move that gives us the most defensive attack!
-        List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves = getAttackingMoves(boardConfiguration, computerColor, true);
+        List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> attackingMoves = getAttackingMoves(boardConfiguration, computerColor, true);
         // if there are some attacking moves, try to evaluate them by minimax search, the goal is to make sure that
         // the number of residual pieces of current player is maximized while the number of residual pieces of opponent
         // is going to be minimized.
         if (!attackingMoves.isEmpty()) {
-            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> movesWithRank = attackingMoves.parallelStream().map(tuple -> {
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> movesWithRank = attackingMoves.parallelStream().map(tuple -> {
                 BoardConfiguration newBoard = boardConfiguration.clone();
                 //Virtually carry out attack, and see what's going to happen.
-                Pair<CellData, CellData> move = tuple.getFirst();
+                Tuple<CellData, CellData, Integer> move = tuple.getFirst();
                 newBoard.setPiece(move);
                 int removal = GameUtils.tryRemovePattern(move.getSecond(), newBoard, computerColor);
                 int estimateScore = AIUtils.alphaBeta(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard,
-                        new Function<Pair<BoardConfiguration, PlayerColor>, List<Tuple<Pair<CellData, CellData>, Integer, Integer>>>() {
+                        new Function<Pair<BoardConfiguration, PlayerColor>, List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>>>() {
                             @Override
-                            public List<Tuple<Pair<CellData, CellData>, Integer, Integer>> apply(Pair<BoardConfiguration, PlayerColor> pair) {
+                            public List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> apply(Pair<BoardConfiguration, PlayerColor> pair) {
                                 return getAttackingMoves(pair.getFirst(), pair.getSecond(), false);
                             }
                         },
@@ -61,48 +61,56 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
             int bestEstimate = movesWithRank.stream().map(pair -> pair.getThird()).max((a, b) -> Integer.compare(a, b)).get();
             int mostRemoval = movesWithRank.stream().map(pair -> pair.getSecond()).max((a, b) -> Integer.compare(a, b)).get();
             //get best attacking move among all that are with the same defensive score.
+            if (mostRemoval > 0) {
 
-            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> aggressiveAttacks = movesWithRank.stream()
+            } else {
+
+            }
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> aggressiveAttacks = movesWithRank.stream()
                     .filter(move -> mostRemoval == move.getSecond()).collect(Collectors.toList());
 
-            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> defensiveAttacks = movesWithRank.stream()
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> defensiveAttacks = movesWithRank.stream()
                     .filter(pair -> bestEstimate == pair.getThird()).collect(Collectors.toList());
 
-            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> bestMoves = null;
-            if (boardConfiguration.getNumberOfPieces(computerColor) >= GameUtils.GRID_DIMENSION - 1) {
-                Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> mostDefensive =
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> bestMoves = null;
+            if (boardConfiguration.getNumberOfPieces(computerColor) < GameUtils.GRID_DIMENSION - 1) {
+                Optional<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> mostDefensive =
                         aggressiveAttacks.stream().max((a, b) -> Integer.compare(a.getThird(), b.getThird()));
 
                 bestMoves = aggressiveAttacks.stream().filter(move -> mostDefensive.get().getThird() == move.getThird())
                         .collect(Collectors.toList());
             } else {
-                Optional<Tuple<Pair<CellData, CellData>, Integer, Integer>> mostAggressive
+                Optional<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> mostAggressive
                         = defensiveAttacks.stream().max((a, b) -> Integer.compare(a.getSecond(), b.getSecond()));
                 bestMoves = defensiveAttacks.stream().filter(move -> mostAggressive.get().getSecond() == move.getSecond())
                         .collect(Collectors.toList());
             }
 
+            Tuple<CellData, CellData, Integer> tmpRst = null;
             if (bestMoves.size() >= 1) {
-                result = bestMoves.get(RANDOM.nextInt(bestMoves.size())).getFirst();
+                tmpRst = bestMoves.get(RANDOM.nextInt(bestMoves.size())).getFirst();
                 System.out.println("Most aggressive attacking move with largest defensive score found!");
             } else if (boardConfiguration.getNumberOfPieces(computerColor) >= 3) {
                 aggressiveAttacks.addAll(bestMoves);
-                result = aggressiveAttacks.get(RANDOM.nextInt(aggressiveAttacks.size())).getFirst();
+                tmpRst = aggressiveAttacks.get(RANDOM.nextInt(aggressiveAttacks.size())).getFirst();
                 System.out.println("Most aggressive attacking move found!");
             } else {
                 defensiveAttacks.addAll(bestMoves);
                 System.out.println("Most defensive attacking move found!");
-                result = defensiveAttacks.get(RANDOM.nextInt(defensiveAttacks.size())).getFirst();
+                tmpRst = defensiveAttacks.get(RANDOM.nextInt(defensiveAttacks.size())).getFirst();
+            }
+            if (tmpRst != null) {
+                result = new Pair<>(tmpRst.getFirst(), tmpRst.getSecond());
             }
         }
         return result;
     }
 
-    private List<Tuple<Pair<CellData, CellData>, Integer, Integer>> getAttackingMoves(BoardConfiguration boardConfiguration, PlayerColor attackingColor, boolean recursive) {
+    private List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> getAttackingMoves(BoardConfiguration boardConfiguration, PlayerColor attackingColor, boolean recursive) {
         List<SqueezePattern> allSqueezePatternsOnBoard =
                 SqueezePatternFinder.getAllSqueezePatternsOnBoard(attackingColor, boardConfiguration.getBoard());
         allSqueezePatternsOnBoard.addAll(SqueezePatternFinder.getAllSqueezePatternsOnBoard(attackingColor.getOpponentColor(), boardConfiguration.getBoard()));
-        List<Pair<CellData, CellData>> possibleAttackingMoves =
+        List<Tuple<CellData, CellData,Integer>>  possibleAttackingMoves =
                 getPossibleAttackingMovesFromPattern(allSqueezePatternsOnBoard, boardConfiguration, attackingColor, recursive);
         if (!possibleAttackingMoves.isEmpty()) {
             return getAttackingMoves(possibleAttackingMoves, boardConfiguration, attackingColor);
@@ -112,9 +120,9 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
 
 
 
-    private List<Tuple<Pair<CellData, CellData>, Integer, Integer>> getAttackingMoves(List<Pair<CellData, CellData>> possibleMovesFromPattern,
+    private List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> getAttackingMoves(List<Tuple<CellData, CellData,Integer>>  possibleMovesFromPattern,
                                                                                       BoardConfiguration boardConfiguration, PlayerColor attackingColor) {
-        List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves = possibleMovesFromPattern.parallelStream().map(move -> {
+        List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> attackingMoves = possibleMovesFromPattern.parallelStream().map(move -> {
             // Find all attacking moves among bestMoves that give me a really attack
             BoardConfiguration newBoard = boardConfiguration.clone();
             newBoard.setPiece(move);
@@ -122,7 +130,7 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
             int estimateScore = AIUtils.getGlobalEstimate(boardConfiguration, attackingColor);
             return new Tuple<>(move, removal, estimateScore);
         }).collect(Collectors.toList());
-        List<Tuple<Pair<CellData, CellData>, Integer, Integer>> realAttackingMoves =
+        List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> realAttackingMoves =
                 attackingMoves.stream().filter(tuple -> tuple.getSecond() > 0).collect(Collectors.toList());
         if (!realAttackingMoves.isEmpty()) {
             return realAttackingMoves;
@@ -130,10 +138,10 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
         return attackingMoves;
     }
 
-    private List<Pair<CellData, CellData>> getPossibleAttackingMovesFromPattern(List<SqueezePattern> allSqueezePatternsOnBoard,
+    private List<Tuple<CellData, CellData,Integer>>  getPossibleAttackingMovesFromPattern(List<SqueezePattern> allSqueezePatternsOnBoard,
                                                                                 BoardConfiguration boardConfiguration, PlayerColor computerColor
             , boolean recursive) {
-        List<Pair<CellData, CellData>> result = new ArrayList<>();
+        List<Tuple<CellData, CellData,Integer>> result = new ArrayList<>();
         allSqueezePatternsOnBoard.forEach(squeezePattern -> {
             SqueezePatternType patternType = squeezePattern.getPatternType();
             if (patternType.equals(SqueezePatternType.GAP) ||

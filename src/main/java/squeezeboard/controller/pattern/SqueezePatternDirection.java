@@ -13,7 +13,6 @@ import squeezeboard.model.Tuple;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  *
@@ -38,8 +37,8 @@ public enum SqueezePatternDirection {
         }
 
         @Override
-        public List<Pair<CellData, CellData>> findPossibleAttackingMoves(SqueezePattern pattern, CellData[][] board, PlayerColor playerColor, boolean recursive) {
-            List<Pair<CellData, CellData>> result = new ArrayList<>();
+        public List<Tuple<CellData, CellData, Integer>> findPossibleAttackingMoves(SqueezePattern pattern, CellData[][] board, PlayerColor playerColor, boolean recursive) {
+            List<Tuple<CellData, CellData, Integer>> result = new ArrayList<>();
             Pair<CellData, CellData> patternBothEnds = pattern.getPatternBothEnds();
             int c = patternBothEnds.getFirst().getColCord();
             int start = patternBothEnds.getFirst().getRowCord()-1 < 0?
@@ -52,25 +51,15 @@ public enum SqueezePatternDirection {
                 CellData cell = board[r][c];
                 if (cell.getCellChar()=='E') {
                     List<Tuple<CellData, CellData, Integer>> allSupportivePieces = findAllSupportivePieces(0, c, r, playerColor, board, recursive);
-                    Optional<Tuple<CellData, CellData, Integer>> min = allSupportivePieces.stream().min((a, b) -> Integer.compare(a.getThird(), b.getThird()));
-                    if (min.isPresent()) {
-                        allSupportivePieces.stream().filter(tuple -> tuple.getThird() ==
-                                min.get().getThird()).forEach(supportivePiece -> {
-                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-                        });
-                    } else {
-                        allSupportivePieces.stream().forEach(supportivePiece -> {
-                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-                        });
-                    }
+                    result.addAll(allSupportivePieces);
                 }
             }
             return result;
         }
 
         @Override
-        public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
-            List<Pair<CellData, CellData>> result = new ArrayList<>();
+        public List<Tuple<CellData, CellData, Integer>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
+            List<Tuple<CellData, CellData, Integer>> result = new ArrayList<>();
             Pair<CellData, CellData> patternBothEnds = squeezePattern.getPatternBothEnds();
             int c = patternBothEnds.getFirst().getColCord();
             int start = patternBothEnds.getFirst().getRowCord();
@@ -82,7 +71,7 @@ public enum SqueezePatternDirection {
                     GameUtils.checkAndHighlight(cell, board, 1, 0, destinations);
                     GameUtils.checkAndHighlight(cell, board, 0, 1, destinations);
                     GameUtils.removeHighlight(board);
-                    destinations.forEach(destination -> result.add(new Pair<>(cell, destination)));
+                    destinations.forEach(destination -> result.add(new Tuple<>(cell, destination, 0)));
                 }
             }
             return result;
@@ -121,8 +110,8 @@ public enum SqueezePatternDirection {
         }
 
         @Override
-        public List<Pair<CellData, CellData>> findPossibleAttackingMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor, boolean recursive) {
-            List<Pair<CellData, CellData>> result = new ArrayList<>();
+        public List<Tuple<CellData, CellData, Integer>> findPossibleAttackingMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor, boolean recursive) {
+            List<Tuple<CellData, CellData, Integer>> result = new ArrayList<>();
             Pair<CellData, CellData> patternBothEnds = squeezePattern.getPatternBothEnds();
             int r = patternBothEnds.getFirst().getRowCord();
             int start = patternBothEnds.getFirst().getColCord()-1 < 0?
@@ -135,16 +124,17 @@ public enum SqueezePatternDirection {
                 CellData cell = board[r][c];
                 if (cell.getCellChar()=='E') {
                     List<Tuple<CellData, CellData, Integer>> allSupportivePieces = findAllSupportivePieces(0, c, r, playerColor, board, recursive);
-                    Optional<Tuple<CellData, CellData, Integer>> min = allSupportivePieces.stream().min((a, b) -> Integer.compare(a.getThird(), b.getThird()));
-                    if (min.isPresent()) {
-                        allSupportivePieces.stream().filter(tuple -> tuple.getThird()==min.get().getThird()).forEach(supportivePiece -> {
-                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-                        });
-                    } else {
-                        allSupportivePieces.stream().forEach(supportivePiece -> {
-                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-                        });
-                    }
+//                    Optional<Tuple<CellData, CellData, Integer>> min = allSupportivePieces.stream().min((a, b) -> Integer.compare(a.getThird(), b.getThird()));
+//                    if (min.isPresent()) {
+//                        allSupportivePieces.stream().filter(tuple -> tuple.getThird()==min.get().getThird()).forEach(supportivePiece -> {
+//                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
+//                        });
+//                    } else {
+//                        allSupportivePieces.stream().forEach(supportivePiece -> {
+//                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
+//                        });
+//                    }
+                    result.addAll(allSupportivePieces);
                 }
             }
             return result;
@@ -153,8 +143,8 @@ public enum SqueezePatternDirection {
 
 
         @Override
-        public List<Pair<CellData, CellData>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
-            List<Pair<CellData, CellData>> result = new ArrayList<>();
+        public List<Tuple<CellData, CellData, Integer>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor) {
+            List<Tuple<CellData, CellData, Integer>> result = new ArrayList<>();
             Pair<CellData, CellData> patternBothEnds = squeezePattern.getPatternBothEnds();
             int r = patternBothEnds.getFirst().getRowCord();
             int start = patternBothEnds.getFirst().getColCord();
@@ -166,7 +156,7 @@ public enum SqueezePatternDirection {
                     GameUtils.checkAndHighlight(cell, board, 1, 0, destinations);
                     GameUtils.checkAndHighlight(cell, board, 0, 1, destinations);
                     GameUtils.removeHighlight(board);
-                    destinations.forEach(destination -> result.add(new Pair<>(cell, destination)));
+                    destinations.forEach(destination -> result.add(new Tuple<>(cell, destination, 0)));
                 }
             }
             return result;
@@ -195,9 +185,9 @@ public enum SqueezePatternDirection {
 
     public abstract int getIndexInAGroup(CellData cell);
 
-    public abstract List<Pair<CellData, CellData>> findPossibleAttackingMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor, boolean recursive);
+    public abstract List<Tuple<CellData, CellData, Integer>> findPossibleAttackingMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor, boolean recursive);
 
-    public abstract List<Pair<CellData, CellData>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor);
+    public abstract List<Tuple<CellData, CellData, Integer>> findPossibleDefensiveMoves(SqueezePattern squeezePattern, CellData[][] board, PlayerColor playerColor);
 
     public abstract List<Pair<String,Integer>> getGroupStrList(CellData[][] board);
 

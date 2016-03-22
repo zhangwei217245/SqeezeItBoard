@@ -115,6 +115,13 @@ public final class BoardConfiguration implements Cloneable{
         this.board[move.getFirst().getRowCord()][move.getFirst().getColCord()].setCellChar('E');
     }
 
+    public void setPiece(Tuple<CellData, CellData, ?> move) {
+        //System.out.println(move);
+        this.board[move.getSecond().getRowCord()][move.getSecond().getColCord()]
+                .setCellChar(move.getFirst().getCellChar());
+        this.board[move.getFirst().getRowCord()][move.getFirst().getColCord()].setCellChar('E');
+    }
+
     public int getNumberOfPieces(PlayerColor playerColor) {
         int result = 0;
         for (CellData[] rows : this.getBoard()) {
