@@ -1,18 +1,27 @@
-package squeezeboard.controller.ai.minimax.patternbased;
+package squeezeboard.controller.ai.minimax.global;
 
 import squeezeboard.controller.ai.AIUtils;
 import squeezeboard.controller.ai.SqueezeAI;
-import squeezeboard.controller.pattern.SqueezePatternType;
-import squeezeboard.model.*;
+import squeezeboard.model.BoardConfiguration;
+import squeezeboard.model.CellData;
+import squeezeboard.model.GameUtils;
+import squeezeboard.model.Pair;
+import squeezeboard.model.PlayerColor;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
+ * Search through all possible moves globally, and try to simulate the removal, to see which one can
+ * help you to eliminate the most number of opponent's pieces
+ *
+ *
  * Created by zhangwei on 3/4/16.
  */
-public class PatternBasedAlphaBetaPruning implements SqueezeAI {
+public class GlobalMoveGenerator implements SqueezeAI {
 
 
     private static final Random RANDOM = new SecureRandom();
@@ -36,8 +45,7 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
             Pair<CellData, CellData> move = pairIntegerPair.getFirst();
             newBoard.setPiece(move);
             int removal = GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, computerColor);
-
-            int estmateScore = removal > 0 ? (int)(removal + SqueezePatternType.FULFILLED_GAP.baseScore) * 100
+            int estmateScore = removal > 0 ? removal
                     : this.alphaBetaPruning(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard, move,
                     computerColor.getOpponentColor());
             pairIntegerPair.setSecond(estmateScore);
@@ -62,19 +70,12 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
         List<Pair<Pair<CellData, CellData>, Integer>> bestMoves =
                     AIUtils.selectBestMoves(AIUtils.getAllPossibleMovesForACell(move.getSecond(), newBoard)
                     , newBoard, newColor, (p1, p2) -> Double.compare(p1.score(newBoard), p2.score(newBoard)));
+
+        newBoard.setPiece(move);
+        int removal = GameUtils.tryRemovePattern(move.getSecond(), newBoard, newColor);
+
         if (depth >= GameUtils.SEARCH_DEPTH) {
-            
-            Optional<Pair<Pair<CellData, CellData>, Integer>> bestMove = null;
-            if ((depth & 1) == 0) {
-                bestMove = bestMoves.stream().min((o1, o2) -> Integer.compare(o1.getSecond(), o2.getSecond()));
-            } else {
-                bestMove = bestMoves.stream().max((o1, o2) -> Integer.compare(o1.getSecond(), o2.getSecond()));
-            }
-            
-            if (bestMove.isPresent()) {
-                return bestMove.get().getSecond();
-            }
-            return AIUtils.globalEstimate(newBoard, newColor);
+            return removal;
         } else {
             final int[] result = {0};
             final int[] alpha = {lowerBound};
@@ -84,48 +85,22 @@ public class PatternBasedAlphaBetaPruning implements SqueezeAI {
                 if (pairIntegerPair.getFirst() == null) {
                     break;
                 }
-                newBoard.setPiece(pairIntegerPair.getFirst());
-                int removal = GameUtils.tryRemovePattern(pairIntegerPair.getFirst().getSecond(), newBoard, newColor);
-                int threateningScore = (int)(removal + SqueezePatternType.FULFILLED_GAP.baseScore) * 100;
 
                 if ((depth & 1) == 0) { // MIN
-                    if (removal > 0) {
-                        return -threateningScore;
-                    }
-                    Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
-                    int moveCounter = GameUtils.currentCursor.get() + depth;
-                    if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
-                        beta[0] = -MAX_SCORE;
-                        break;
-                    }
-                    PromptableException.ExceptFactor gameResult = GameUtils
-                            .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
-                    if (gameResult != null) {
-                        beta[0] = -MAX_SCORE;
+                    if (removal == 0) {
+                        beta[0] = Integer.MIN_VALUE;
                     } else {
                         beta[0] = Math.min(beta[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard.clone(),
                               pairIntegerPair.getFirst(), newColor.getOpponentColor()));
-                        // undo set Chess.
                         if (beta[0] <= alpha[0]){
                             return beta[0];
                         }
                     }
                 } else { // MAX
-                    if (removal > 0) {
-                        return threateningScore;
-                    }
-                    Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
-                    int moveCounter = GameUtils.currentCursor.get() + depth;
-                    if (moveCounter >= GameUtils.MAXIMUM_MOVES * 2) {
-                        alpha[0] = MAX_SCORE;
-                        break;
-                    }
-                    PromptableException.ExceptFactor gameResult = GameUtils
-                            .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
-                    if (gameResult != null) {
-                        alpha[0] = MAX_SCORE;
+                    if (removal == 0) {
+                        alpha[0] = Integer.MAX_VALUE;
                     } else {
-                        alpha[0] = Math.max(alpha[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard,
+                        alpha[0] = Math.max(alpha[0], this.alphaBetaPruning(depth+1, alpha[0], beta[0], newBoard.clone(),
                                 pairIntegerPair.getFirst(), newColor.getOpponentColor()));
                         if (alpha[0] >= beta[0]){
                             return alpha[0];

@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 public class SqueezePatternFinder {
 
     /**
-     * API for you to find the pattern in the specified boardConfiguration based on the cell
+     * API for you to find the patternBasedDefender in the specified boardConfiguration based on the cell
      * to which you want to move the piece of currentColor.
      * @param boardConfiguration
      * @param piece

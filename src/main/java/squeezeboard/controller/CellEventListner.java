@@ -94,7 +94,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
         GameUtils.getCurrentBoard()[cell.getRowCord()][cell.getColCord()].setCellChar(GameUtils.pickedCell.getCellChar());
         GameUtils.getCurrentBoard()[GameUtils.pickedCell.getRowCord()][GameUtils.pickedCell.getColCord()].setCellChar('E');
         GameUtils.pickedCell = null;
-        //try to remove pattern here
+        //try to remove patternBasedDefender here
         int removalCount = GameUtils.tryRemovePattern(cell, GameUtils.getCurrentBoardConfiguration(),
                 GameUtils.currentColor);
         GameUtils.currentColor.getOpponentColor().decreaseLeftCount(removalCount);

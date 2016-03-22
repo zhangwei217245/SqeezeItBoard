@@ -95,8 +95,6 @@ public class GameUtils {
 
     public static SqueezeBoardController mainController;
 
-    public static AIHeuristicSelector heuristicSelector = AIHeuristicSelector.GLOBAL_MINIMAX;
-    
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;
         Integer r = new Integer(row);
@@ -114,7 +112,6 @@ public class GameUtils {
     public static void renderGridView(BoardConfiguration boardConfiguration, GridPane gridView, 
             int dimension, GridPaneView gridController, StatusBarView statusBarView) {
         ImageView imgView;
-        //boardConfiguration.printMatrix();
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 CellData cell = boardConfiguration.getBoard()[i][j];
@@ -337,13 +334,20 @@ public class GameUtils {
 
     public static void computerAction() {
         if (game_started.get()) {
+            Pair<CellData, CellData> optimalMove = null;
             if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
-                SqueezeAI squeezeAI = heuristicSelector.getHeuristic();
-                Pair<CellData, CellData> optimalMove = squeezeAI
-                        .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
-                if (optimalMove != null) {
-                    GameUtils.computerMoveByEvent(optimalMove);
-                } else {
+                for (AIHeuristicSelector aiHeuristicSelector : AIHeuristicSelector.sortedHeuristics()) {
+                    SqueezeAI squeezeAI = aiHeuristicSelector.getHeuristic();
+                    optimalMove = squeezeAI
+                            .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
+                    if (optimalMove != null) {
+                        GameUtils.computerMoveByEvent(optimalMove);
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+                if (optimalMove == null) {
                     Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
                     GameUtils.game_over(left.getFirst(), left.getSecond());
                 }

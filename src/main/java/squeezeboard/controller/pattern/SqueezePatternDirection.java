@@ -54,7 +54,8 @@ public enum SqueezePatternDirection {
                     List<Tuple<CellData, CellData, Integer>> allSupportivePieces = findAllSupportivePieces(0, c, r, playerColor, board, recursive);
                     Optional<Tuple<CellData, CellData, Integer>> min = allSupportivePieces.stream().min((a, b) -> Integer.compare(a.getThird(), b.getThird()));
                     if (min.isPresent()) {
-                        allSupportivePieces.stream().filter(tuple -> tuple.getThird()==min.get().getThird()).forEach(supportivePiece -> {
+                        allSupportivePieces.stream().filter(tuple -> tuple.getThird() ==
+                                min.get().getThird()).forEach(supportivePiece -> {
                             result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
                         });
                     } else {

@@ -1,35 +1,59 @@
 package squeezeboard.controller.ai;
 
-import squeezeboard.controller.ai.localgreedy.LocalGreedyHeuristic;
-import squeezeboard.controller.ai.minimax.global.GlobalAlphaBetaPruning;
-import squeezeboard.controller.ai.minimax.patternbased.PatternBasedAlphaBetaPruning;
+import squeezeboard.controller.ai.minimax.global.GlobalMoveGenerator;
+import squeezeboard.controller.ai.minimax.patternbased.PatternBasedDefender;
+import squeezeboard.controller.ai.minimax.patternbased.PatternBasedMoveGenerator;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by zhangwei on 3/13/16.
  */
 public enum AIHeuristicSelector {
-    LOCAL_GREEDY {
+    GLOBAL_MINIMAX(3) {
         @Override
         public SqueezeAI getHeuristic() {
-            return localGreedy;
+            return globalMoveGenerator;
         }
     },
-    GLOBAL_MINIMAX {
+    DEFENDER(2) {
         @Override
         public SqueezeAI getHeuristic() {
-            return globalMinimax;
+            return patternBasedDefender;
         }
     },
-    PATTERN_BASED_MINIMAX {
+    ATTACKER(1) {
         @Override
         public SqueezeAI getHeuristic() {
-            return patternBasedMinimax;
+            return patternBasedMoveGenerator;
         }
     };
 
-    protected SqueezeAI localGreedy = new LocalGreedyHeuristic();
-    protected SqueezeAI globalMinimax = new GlobalAlphaBetaPruning();
-    protected SqueezeAI patternBasedMinimax = new PatternBasedAlphaBetaPruning();
+    protected SqueezeAI patternBasedDefender = new PatternBasedDefender();
+    protected SqueezeAI globalMoveGenerator = new GlobalMoveGenerator();
+    protected SqueezeAI patternBasedMoveGenerator = new PatternBasedMoveGenerator();
+
+    AIHeuristicSelector(int index) {
+        this.index = index;
+    }
+
+    private int index;
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 
     public abstract SqueezeAI getHeuristic();
+
+    public static List<AIHeuristicSelector> sortedHeuristics() {
+        List<AIHeuristicSelector> aiHeuristics = Arrays.asList(AIHeuristicSelector.values()).stream().sorted((a, b) ->
+                Integer.compare(a.getIndex(), b.getIndex())).collect(Collectors.toList());
+        return aiHeuristics;
+    }
 }

@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static squeezeboard.model.GameUtils.tryRemovePattern;
 
 /**
  * Created by zhangwei on 3/4/16.
@@ -82,11 +85,66 @@ public class AIUtils {
 
     }
 
-    public static int globalEstimate(BoardConfiguration newboard, PlayerColor color) {
-        Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newboard);
-        int diff = color.equals(PlayerColor.blue) ? blue_orange.getFirst() - blue_orange.getSecond()
-                : blue_orange.getSecond() - blue_orange.getFirst();
-        return diff + 1000000;
+    public static int getGlobalEstimate(BoardConfiguration boardConfiguration, PlayerColor playerColor) {
+        int playEstimate = boardConfiguration.getNumberOfPieces(playerColor);
+        int opponentEstimate = boardConfiguration.getNumberOfPieces(playerColor.getOpponentColor());
+        return playEstimate - opponentEstimate;
+    }
+
+    public static int alphaBeta(int depth, int lowerBound, int upperBound,
+                          BoardConfiguration boardConfiguration,
+                          Function<Pair<BoardConfiguration, PlayerColor>,
+                                  List<Tuple<Pair<CellData, CellData>, Integer, Integer>>> func,
+                          PlayerColor playerColor) {
+        if (depth >= GameUtils.SEARCH_DEPTH) {
+            return getGlobalEstimate(boardConfiguration, playerColor);
+        } else {
+            int alpha = lowerBound;
+            int beta = upperBound;
+
+            List<Tuple<Pair<CellData, CellData>, Integer, Integer>> attackingMoves =
+                    func.apply(new Pair<>(boardConfiguration, playerColor));
+
+            for (Tuple<Pair<CellData, CellData>, Integer, Integer> attackingMove : attackingMoves) {
+                // for each attacking move made by the virtual player, copy a new configuration.
+                BoardConfiguration newBoard = boardConfiguration.clone();
+                // set pieces
+                Pair<CellData, CellData> move = attackingMove.getFirst();
+                newBoard.setPiece(attackingMove.getFirst());
+                int removal = tryRemovePattern(move.getSecond(), newBoard, playerColor);
+                Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
+                int moveCounter = GameUtils.currentCursor.get() + depth;
+                PromptableException.ExceptFactor gameResult = GameUtils
+                        .determineGameResult(moveCounter, blue_orange.getFirst(), blue_orange.getSecond());
+
+                if ((depth & 1) == 0) { // even depth, 0, 2, 4, 8... Human's turn, minimize it's estimate.
+                    if (gameResult != null) {
+                        beta = Integer.MIN_VALUE;
+                    } else {
+                        int estimateScore = alphaBeta(depth + 1, alpha, beta, newBoard, func,
+                                playerColor.getOpponentColor());
+                        beta = Math.min(beta, estimateScore);
+                    }
+                    newBoard = boardConfiguration;
+                    if (beta <= alpha) {
+                        return beta;
+                    }
+                } else { //odd depth, 1, 3, 5, 7... Computer's turn again, maximize it's estimate.
+                    if (gameResult != null) {
+                        alpha = Integer.MAX_VALUE;
+                    } else {
+                        int estimateScore = alphaBeta(depth + 1, alpha, beta, newBoard, func,
+                                playerColor.getOpponentColor());
+                        alpha = Math.max(alpha, estimateScore);
+                    }
+                    newBoard = boardConfiguration;
+                    if (alpha >= beta) {
+                        return alpha;
+                    }
+                }
+            }
+            return (depth & 1) == 0 ? beta : alpha;
+        }
     }
 
 }
