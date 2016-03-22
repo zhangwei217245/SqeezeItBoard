@@ -235,8 +235,8 @@ public class SqueezeBoardController implements Initializable {
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
+        //stage.initModality(Modality.WINDOW_MODAL);
+        //stage.initStyle(StageStyle.UTILITY);
         stage.setTitle("Tutorial Viewer for SqueezeIt!");
         stage.setResizable(false);
         stage.show();

@@ -35,6 +35,28 @@
     <build>
         <plugins>
             <plugin>
+                <!-- https://github.com/federkasten/appbundle-maven-plugin -->
+                <groupId>sh.tak.appbundler</groupId>
+                <artifactId>appbundle-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <mainClass>squeezeboard.SqueezeBoard</mainClass>
+                    <iconFile>ICON.icns</iconFile>
+                    <jrePath>/Library/Java/JavaVirtualMachines/jdk1.8.0_74.jdk</jrePath>
+                    <generateDiskImageFile>true</generateDiskImageFile>
+                    <includeApplicationsSymlink>true</includeApplicationsSymlink>
+                    <version>v1.3</version>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
