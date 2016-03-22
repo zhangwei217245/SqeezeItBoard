@@ -50,15 +50,15 @@ public class GameUtils {
     public static final String file_draw_game="/images/draw.jpeg";
     
     
-    public static final Image img_empty = new Image(SqueezeBoard.class.getResourceAsStream(file_empty));
-    public static final Image img_orange = new Image(SqueezeBoard.class.getResourceAsStream(file_orange));
-    public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue));
-    public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove));
+    public static final Image img_empty = new Image(SqueezeBoard.class.getResourceAsStream(file_empty), 50, 50, true, true);
+    public static final Image img_orange = new Image(SqueezeBoard.class.getResourceAsStream(file_orange), 50, 50, true, true);
+    public static final Image img_blue = new Image(SqueezeBoard.class.getResourceAsStream(file_blue), 50, 50, true, true);
+    public static final Image img_possMove = new Image(SqueezeBoard.class.getResourceAsStream(file_possMove), 50, 50, true, true);
     public static final Image img_you_win = new Image(SqueezeBoard.class.getResourceAsStream(file_you_win));
     public static final Image img_draw = new Image(SqueezeBoard.class.getResourceAsStream(file_draw_game));
     //public static final Image img_computer_win = new Image(SqueezeBoard.class.getResourceAsStream(file_computer_win));
     
-    public static double effecthreshold = 0.6d;
+    public static double effecthreshold = 1.0d;
     
     private static Effect bloom = new Bloom(effecthreshold);
     
