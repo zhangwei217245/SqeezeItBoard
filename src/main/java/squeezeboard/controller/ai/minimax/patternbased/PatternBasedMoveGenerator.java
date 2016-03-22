@@ -61,13 +61,17 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
             int bestEstimate = movesWithRank.stream().map(pair -> pair.getThird()).max((a, b) -> Integer.compare(a, b)).get();
             int mostRemoval = movesWithRank.stream().map(pair -> pair.getSecond()).max((a, b) -> Integer.compare(a, b)).get();
             //get best attacking move among all that are with the same defensive score.
+
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> aggressiveAttacks = null;
             if (mostRemoval > 0) {
-
+                aggressiveAttacks = movesWithRank.stream()
+                        .filter(move -> mostRemoval == move.getSecond()).collect(Collectors.toList());
             } else {
-
+                int minDepth = movesWithRank.stream()
+                        .map(m -> m.getFirst().getThird()).min((a, b) -> Integer.compare(a, b)).get();
+                aggressiveAttacks = movesWithRank.stream()
+                        .filter(move -> minDepth == move.getFirst().getThird()).collect(Collectors.toList());
             }
-            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> aggressiveAttacks = movesWithRank.stream()
-                    .filter(move -> mostRemoval == move.getSecond()).collect(Collectors.toList());
 
             List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> defensiveAttacks = movesWithRank.stream()
                     .filter(pair -> bestEstimate == pair.getThird()).collect(Collectors.toList());
