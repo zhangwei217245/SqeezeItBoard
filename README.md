@@ -11,3 +11,7 @@
 ## On Mac OS X
 
 If you are unable to compile with Maven on JDK1.8, please check you /etc/mavenrc file to see you java home settings.
+
+## Download as MAC App
+
+https://s3-us-west-2.amazonaws.com/apprepo4xspirit/SqueezeIt-1.3.0.0.dmg
