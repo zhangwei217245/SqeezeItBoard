@@ -32,22 +32,20 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.Window;
 import javafx.util.Callback;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+
+import static squeezeboard.model.GameUtils.file_manual;
 
 /**
  * Created by zhangwei on 3/21/16.
@@ -78,10 +76,10 @@ public class TutorialViewrController {
     public void initialize() {
 
         createAndConfigureImageLoadService();
-        createAndConfigureFileChooser();
+//        createAndConfigureFileChooser();
 
         currentFile = new SimpleObjectProperty<>();
-        updateWindowTitleWhenFileChanges();
+        //updateWindowTitleWhenFileChanges();
 
         currentImage = new SimpleObjectProperty<>();
         scroller.contentProperty().bind(currentImage);
@@ -111,6 +109,8 @@ public class TutorialViewrController {
 
         bindPaginationToCurrentFile();
         createPaginationPageFactory();
+
+        loadFile(SqueezeBoard.class.getResourceAsStream(file_manual));
     }
 
     private void createAndConfigureImageLoadService() {
@@ -124,29 +124,29 @@ public class TutorialViewrController {
         });
     }
 
-    private void createAndConfigureFileChooser() {
-        fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(Paths.get(System.getProperty("user.home")).toFile());
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
-    }
+//    private void createAndConfigureFileChooser() {
+//        fileChooser = new FileChooser();
+//        fileChooser.setInitialDirectory(Paths.get(System.getProperty("user.home")).toFile());
+//        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf", "*.PDF"));
+//    }
 
-    private void updateWindowTitleWhenFileChanges() {
-        currentFile.addListener(new ChangeListener<PDFFile>() {
-            @Override
-            public void changed(ObservableValue<? extends PDFFile> observable, PDFFile oldFile, PDFFile newFile) {
-                try {
-                    String title = newFile == null ? "PDF Viewer" : newFile.getStringMetadata("Title") ;
-                    Window window = pagination.getScene().getWindow();
-                    if (window instanceof Stage) {
-                        ((Stage)window).setTitle(title);
-                    }
-                } catch (IOException e) {
-                    showErrorMessage("Could not read title from pdf file", e);
-                }
-            }
-
-        });
-    }
+//    private void updateWindowTitleWhenFileChanges() {
+//        currentFile.addListener(new ChangeListener<PDFFile>() {
+//            @Override
+//            public void changed(ObservableValue<? extends PDFFile> observable, PDFFile oldFile, PDFFile newFile) {
+//                try {
+//                    String title = newFile == null ? "PDF Viewer" : newFile.getStringMetadata("Title") ;
+//                    Window window = pagination.getScene().getWindow();
+//                    if (window instanceof Stage) {
+//                        ((Stage)window).setTitle(title);
+//                    }
+//                } catch (IOException e) {
+//                    showErrorMessage("Could not read title from pdf file", e);
+//                }
+//            }
+//
+//        });
+//    }
 
     private void bindPaginationToCurrentFile() {
         currentFile.addListener(new ChangeListener<PDFFile>() {
@@ -189,19 +189,23 @@ public class TutorialViewrController {
 
     // ************** Event Handlers ****************
 
-    @FXML private void loadFile() {
-        final File file = fileChooser.showOpenDialog(pagination.getScene().getWindow());
-        if (file != null) {
+    private void loadFile(InputStream is) {
+//        final File file = fileChooser.showOpenDialog(pagination.getScene().getWindow());
+        if (is != null) {
             final Task<PDFFile> loadFileTask = new Task<PDFFile>() {
                 @Override
                 protected PDFFile call() throws Exception {
-                    try (
-                            RandomAccessFile raf = new RandomAccessFile(file, "r");
-                            FileChannel channel = raf.getChannel()
-                    ) {
-                        ByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-                        return new PDFFile(buffer);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] buf = new byte[1024];
+                    int read = 0;
+                    while ((read = is.read(buf, 0, buf.length)) != -1) {
+                        baos.write(buf, 0, read);
                     }
+                    baos.flush();
+                    byte[] bytes = baos.toByteArray();
+
+                    ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                        return new PDFFile(buffer);
                 }
             };
             loadFileTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
@@ -216,10 +220,10 @@ public class TutorialViewrController {
                 @Override
                 public void handle(WorkerStateEvent event) {
                     pagination.getScene().getRoot().setDisable(false);
-                    showErrorMessage("Could not load file "+file.getName(), loadFileTask.getException());
+                    showErrorMessage("Could not load file "+ file_manual, loadFileTask.getException());
                 }
             });
-            pagination.getScene().getRoot().setDisable(true);
+            //pagination.getScene().getRoot().setDisable(true);
             imageLoadService.submit(loadFileTask);
         }
     }

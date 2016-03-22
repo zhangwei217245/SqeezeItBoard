@@ -48,6 +48,8 @@ public class GameUtils {
     public static final String file_you_win="/images/Fireworks.jpg";
     public static final String file_computer_win="/images/oops.gif";
     public static final String file_draw_game="/images/draw.jpeg";
+
+    public static final String file_manual="/docs/manual.pdf";
     
     
     public static final Image img_empty = new Image(SqueezeBoard.class.getResourceAsStream(file_empty), 50, 50, true, true);
