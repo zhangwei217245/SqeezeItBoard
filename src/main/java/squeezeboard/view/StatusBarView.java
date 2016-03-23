@@ -56,7 +56,7 @@ public class StatusBarView {
                         : "%s Will Firstly Serve.| Round : %s | Move : %s"
                 , playerName, GameUtils.round.get(), GameUtils.currentCursor.get()));
         label_currPlayer.setTextFill(GameUtils.currentColor.getColor());
-        GameUtils.game_over(computerLeft, playerLeft);
+        GameUtils.game_over(computerLeft, playerLeft, null);
     }
 
 
