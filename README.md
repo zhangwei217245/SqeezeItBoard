@@ -14,4 +14,5 @@ If you are unable to compile with Maven on JDK1.8, please check you /etc/mavenrc
 
 ## Download as MAC App
 
-[Click Me](https://s3-us-west-2.amazonaws.com/apprepo4xspirit/SqueezeIt-1.4.0.0.dmg)
+[Version 1.3](https://s3-us-west-2.amazonaws.com/apprepo4xspirit/SqueezeIt-1.3.0.0.dmg)
+[Version 1.4](https://s3-us-west-2.amazonaws.com/apprepo4xspirit/SqueezeIt-1.4.0.0.dmg)
