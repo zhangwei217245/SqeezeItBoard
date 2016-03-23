@@ -32,7 +32,7 @@
                   <Group>
                      <children>
                         <Label layoutX="42.0" layoutY="67.0" text="Search Depth" />
-                        <Slider fx:id="searchDepth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="1.0" max="20.0" minorTickCount="1" onDragDetected="#handleSearchDepth" onDragDone="#handleSearchDepth" onDragDropped="#handleSearchDepth" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" value="1.0" />
+                        <Slider fx:id="searchDepth" blockIncrement="1.0" layoutX="201.0" layoutY="67.0" majorTickUnit="1.0" max="20.0" minorTickCount="1" onDragDetected="#handleSearchDepth" onDragDone="#handleSearchDepth" onDragDropped="#handleSearchDepth" prefHeight="15.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" min="6" value="6.0" />
                         <TextField fx:id="txt_sDepth" layoutX="133.0" layoutY="61.0" onAction="#handleSearchDepth" prefHeight="27.0" prefWidth="49.0" />
                      </children>
                   </Group>

@@ -80,8 +80,7 @@ public class SqueezePattern {
 
     public int capacity() {
         if (this.getPatternType().equals(SqueezePatternType.INCOMPLETE_GAP)) {
-            //FIXME: for incomplete gap, the capacity should be redefined.
-            return this.size() - 1;
+            return this.size() + 1 - 2;
         } else {
             return this.size() - 2;
         }

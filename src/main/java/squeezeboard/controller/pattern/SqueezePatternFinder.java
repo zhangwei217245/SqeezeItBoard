@@ -119,7 +119,7 @@ public class SqueezePatternFinder {
     }
 
     public static void main(String[] args) {
-        Matcher matcherB = PlayerColor.blue.getGapPattern().matcher("EBEBBOB");
+        Matcher matcherB = PlayerColor.blue.getGapPattern().matcher("OEBOOOBEBEOBBOB");
 
         int start = 0;
         int end = 0;
@@ -129,7 +129,18 @@ public class SqueezePatternFinder {
             System.out.println(start + "," + end);
             start = end - 1;
         }
-        
+        System.out.println("IncompleteGap");
+        matcherB = PlayerColor.blue.getIncompleteGapPattern().matcher("OEBOEEOBEBEOBBOB");
+
+        start = 0;
+        end = 0;
+        while (matcherB.find(start)) {
+            start = matcherB.toMatchResult().start();
+            end = matcherB.toMatchResult().end();
+            System.out.println("OEBOEEOBEBEOBBOB".substring(start, end));
+            start = end - 1;
+        }
+
         Matcher matcherO = PlayerColor.orange.getGapPattern().matcher("OEOBEOBO");
         start = 0;
         end = 0;

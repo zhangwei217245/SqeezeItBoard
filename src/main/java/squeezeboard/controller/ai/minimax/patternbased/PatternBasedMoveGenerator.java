@@ -15,12 +15,14 @@ import squeezeboard.model.Tuple;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static squeezeboard.model.GameUtils.SEARCH_WIDTH;
 import static squeezeboard.model.GameUtils.tryRemovePattern;
 
 /**
@@ -31,8 +33,8 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
     private static final Random RANDOM = new SecureRandom();
 
     @Override
-    public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
-        Pair<CellData, CellData> result = null;
+    public List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
+        final List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> result = new ArrayList<>();
 
         //get optimal attacking move here
         //First, try to get any move that gives us the most defensive attack!
@@ -64,50 +66,48 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
 
             List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> aggressiveAttacks = null;
             if (mostRemoval > 0) {
+                //if removal happens immediately, take those who gave the most number of removal.
                 aggressiveAttacks = movesWithRank.stream()
                         .filter(move -> mostRemoval == move.getSecond()).collect(Collectors.toList());
             } else {
+                // if removal doesn't happen immediately, take those who is from the shallowest level.
                 int minDepth = movesWithRank.stream()
                         .map(m -> m.getFirst().getThird()).min((a, b) -> Integer.compare(a, b)).get();
                 aggressiveAttacks = movesWithRank.stream()
-                        .filter(move -> minDepth == move.getFirst().getThird()).collect(Collectors.toList());
+                        .filter(move -> minDepth == move.getFirst().getThird())
+                        //need to guarantee that the estimation is larger than the number of detour times.
+                        .map(move -> {move.setSecond(move.getThird() - move.getFirst().getThird());return move;})
+                        .collect(Collectors.toList());
             }
 
+            // defensive attacks would be those who has the maximum estimating score.
             List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> defensiveAttacks = movesWithRank.stream()
                     .filter(pair -> bestEstimate == pair.getThird()).collect(Collectors.toList());
 
-            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> bestMoves = null;
-            if (boardConfiguration.getNumberOfPieces(computerColor) < GameUtils.GRID_DIMENSION - 1) {
-                Optional<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> mostDefensive =
-                        aggressiveAttacks.stream().max((a, b) -> Integer.compare(a.getThird(), b.getThird()));
+            Set<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> bestMoves = new HashSet<>();
+            //bestMoves.addAll(aggressiveAttacks);
+            defensiveAttacks.stream().filter(move -> move.getThird() == bestEstimate).forEach(move -> bestMoves.add(move));
+            aggressiveAttacks.stream().filter(move -> move.getSecond() == mostRemoval).forEach(move -> bestMoves.add(move));
 
-                bestMoves = aggressiveAttacks.stream().filter(move -> mostDefensive.get().getThird() == move.getThird())
-                        .collect(Collectors.toList());
-            } else {
-                Optional<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> mostAggressive
-                        = defensiveAttacks.stream().max((a, b) -> Integer.compare(a.getSecond(), b.getSecond()));
-                bestMoves = defensiveAttacks.stream().filter(move -> mostAggressive.get().getSecond() == move.getSecond())
-                        .collect(Collectors.toList());
-            }
-
-            Tuple<CellData, CellData, Integer> tmpRst = null;
             if (bestMoves.size() >= 1) {
-                tmpRst = bestMoves.get(RANDOM.nextInt(bestMoves.size())).getFirst();
+                result.addAll(bestMoves);
                 System.out.println("Most aggressive attacking move with largest defensive score found!");
             } else if (boardConfiguration.getNumberOfPieces(computerColor) >= 3) {
-                aggressiveAttacks.addAll(bestMoves);
-                tmpRst = aggressiveAttacks.get(RANDOM.nextInt(aggressiveAttacks.size())).getFirst();
+                result.addAll(attackingMoves);
                 System.out.println("Most aggressive attacking move found!");
             } else {
-                defensiveAttacks.addAll(bestMoves);
+                result.addAll(defensiveAttacks);
                 System.out.println("Most defensive attacking move found!");
-                tmpRst = defensiveAttacks.get(RANDOM.nextInt(defensiveAttacks.size())).getFirst();
-            }
-            if (tmpRst != null) {
-                result = new Pair<>(tmpRst.getFirst(), tmpRst.getSecond());
             }
         }
-        return result;
+
+        List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> finalResult =
+                result.stream().sorted((a, b) -> (AIUtils.getGlobalEstimate(boardConfiguration, computerColor) > 0) ?
+                        (Integer.compare(b.getSecond(), a.getSecond())): (Integer.compare(b.getThird(), a.getThird())))
+                .limit(SEARCH_WIDTH / 2).collect(Collectors.toList());
+        System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());
+        System.out.println("==================================================");
+        return finalResult;
     }
 
     private List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> getAttackingMoves(BoardConfiguration boardConfiguration, PlayerColor attackingColor, boolean recursive) {

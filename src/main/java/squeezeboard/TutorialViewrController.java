@@ -237,7 +237,7 @@ public class TutorialViewrController {
     }
 
     @FXML private void zoomFit() {
-        // TODO: the -20 is a kludge to account for the width of the scrollbars, if showing.
+        // the -20 is a kludge to account for the width of the scrollbars, if showing.
         double horizZoom = (scroller.getWidth()-20) / currentPageDimensions.width ;
         double verticalZoom = (scroller.getHeight()-20) / currentPageDimensions.height ;
         zoom.set(Math.min(horizZoom, verticalZoom));
@@ -315,7 +315,7 @@ public class TutorialViewrController {
 
     private void showErrorMessage(String message, Throwable exception) {
 
-        // TODO: move to fxml (or better, use ControlsFX)
+        //  move to fxml (or better, use ControlsFX)
 
         final Stage dialog = new Stage();
         dialog.initOwner(pagination.getScene().getWindow());

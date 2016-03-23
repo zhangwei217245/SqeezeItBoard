@@ -8,7 +8,6 @@ import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.CellData;
 import squeezeboard.model.GameUtils;
-import squeezeboard.model.Pair;
 import squeezeboard.model.PlayerColor;
 import squeezeboard.model.Tuple;
 
@@ -17,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static squeezeboard.model.GameUtils.SEARCH_WIDTH;
 import static squeezeboard.model.GameUtils.tryRemovePattern;
 
 /**
@@ -26,9 +26,9 @@ public class PatternBasedDefender implements SqueezeAI {
 
 
     @Override
-    public Pair<CellData, CellData> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
+    public List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> findOptimalMove(PlayerColor computerColor, BoardConfiguration boardConfiguration) {
 
-        Pair<CellData, CellData> result = null;
+        final List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> result = new ArrayList<>();
 
         //find optimal defensive move here.
         List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> defensiveMoves = getDefensiveMoves(boardConfiguration, computerColor);
@@ -39,7 +39,7 @@ public class PatternBasedDefender implements SqueezeAI {
                 //Virtually carry out attack, and see what's going to happen.
                 Tuple<CellData, CellData, Integer> move = tuple.getFirst();
                 newBoard.setPiece(move);
-                int removal = GameUtils.tryRemovePattern(move.getSecond(), newBoard, computerColor.getOpponentColor());
+                int removal = GameUtils.tryRemovePattern(move.getSecond(), newBoard, computerColor);
                 int estimateScore = AIUtils.alphaBeta(0, Integer.MIN_VALUE, Integer.MAX_VALUE, newBoard,
                         pair -> {
                             return getDefensiveMoves(pair.getFirst(), pair.getSecond());
@@ -48,16 +48,20 @@ public class PatternBasedDefender implements SqueezeAI {
                 return new Tuple<>(move, removal, estimateScore);
             }).collect(Collectors.toList());
 
-            int bestEstimate = movesWithRank.stream().map(pair -> pair.getThird()).max((a, b) -> Integer.compare(a, b))
-                    .get();
+//            int mostRemoval = movesWithRank.stream()
+//                    .map(move -> move.getSecond()).max((a, b) -> Integer.compare(a, b)).get();
+            int bestEstimate = movesWithRank.stream()
+                    .map(pair -> pair.getThird()).max((a, b) -> Integer.compare(a, b)).get();
+
             //get best defensive move among all that are with the same defensive score.
             System.out.println("Most defensive move found!");
-            Tuple<CellData, CellData, Integer> tmpRst = movesWithRank.stream().filter(pair -> bestEstimate == pair.getThird())
-                    .min((a, b) -> Integer.compare(a.getSecond(), b.getSecond())).get().getFirst();
-            if (tmpRst != null) {
-                result = new Pair<>(tmpRst.getFirst(), tmpRst.getSecond());
-            }
+            movesWithRank.stream().filter(pair -> pair.getFirst().getThird() >= 3)
+                    .filter(pair -> bestEstimate == pair.getThird())
+                    .sorted((a, b) -> Integer.compare(b.getFirst().getThird(), a.getFirst().getThird()))
+                    .limit(SEARCH_WIDTH/2).forEach(move -> result.add(move));
         }
+        System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());
+        System.out.println("==================================================");
         return result;
     }
 
@@ -79,7 +83,7 @@ public class PatternBasedDefender implements SqueezeAI {
             // Find all defensive moves among bestMoves that won't cause any elimination
             BoardConfiguration newBoard = boardConfiguration.clone();
             newBoard.setPiece(move);
-            int removal = tryRemovePattern(move.getSecond(), newBoard, attackingColor.getOpponentColor());
+            int removal = tryRemovePattern(move.getSecond(), newBoard, attackingColor);
             int estimateScore = AIUtils.getGlobalEstimate(boardConfiguration, attackingColor);
             return new Tuple<>(move, removal, estimateScore);
         }).filter(tuple -> tuple.getSecond() <= 0)/*FIXME:test this .limit(GameUtils.SEARCH_WIDTH)*/.collect(Collectors.toList());

@@ -37,7 +37,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
                     if (GameUtils.pickedCell.getCellChar()==cell.getCellChar()) {
                         // either it is the original piece. Just remove the highlight.
                         if (cell.equals(GameUtils.pickedCell)){
-                            GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+                            GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration().getBoard());
                             refreshGrid();
                             GameUtils.pickedCell = null;
                         } else {
@@ -69,7 +69,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     }
     
     private void pickUpAnother(CellData cell) {
-        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration().getBoard());
         refreshGrid();
         pickUpPiece(cell);
     }
@@ -88,7 +88,7 @@ public class CellEventListner implements EventHandler<MouseEvent>{
     
     
     private void dropOnPath(CellData cell) {
-        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration());
+        GameUtils.removeHighlight(GameUtils.getCurrentBoardConfiguration().getBoard());
         refreshGrid();
         GameUtils.copyCurrentConfiguration(GameUtils.currentColor);
         GameUtils.getCurrentBoard()[cell.getRowCord()][cell.getColCord()].setCellChar(GameUtils.pickedCell.getCellChar());

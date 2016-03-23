@@ -5,6 +5,7 @@
  */
 package squeezeboard.controller.pattern;
 
+import squeezeboard.controller.ai.AIUtils;
 import squeezeboard.model.CellData;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.Pair;
@@ -67,11 +68,13 @@ public enum SqueezePatternDirection {
             for (int r = start; r <= end; r++) {
                 CellData cell = board[r][c];
                 if (cell.getCellChar()==playerColor.CHAR()) {
-                    List<CellData> destinations = new ArrayList<>();
-                    GameUtils.checkAndHighlight(cell, board, 1, 0, destinations);
-                    GameUtils.checkAndHighlight(cell, board, 0, 1, destinations);
-                    GameUtils.removeHighlight(board);
-                    destinations.forEach(destination -> result.add(new Tuple<>(cell, destination, 0)));
+                    List<Pair<CellData, CellData>> allPossibleMoves = AIUtils.getAllPossibleMovesForACell(cell, board);
+                    allPossibleMoves.forEach(move -> {
+                        int distance = move.getFirst().getRowCord() == move.getSecond().getRowCord()?
+                                move.getFirst().getColCord()-move.getSecond().getColCord():
+                                move.getFirst().getRowCord()-move.getSecond().getRowCord();
+                        result.add(new Tuple<>(move.getFirst(), move.getSecond(), Math.abs(distance)));
+                    });
                 }
             }
             return result;
@@ -124,16 +127,6 @@ public enum SqueezePatternDirection {
                 CellData cell = board[r][c];
                 if (cell.getCellChar()=='E') {
                     List<Tuple<CellData, CellData, Integer>> allSupportivePieces = findAllSupportivePieces(0, c, r, playerColor, board, recursive);
-//                    Optional<Tuple<CellData, CellData, Integer>> min = allSupportivePieces.stream().min((a, b) -> Integer.compare(a.getThird(), b.getThird()));
-//                    if (min.isPresent()) {
-//                        allSupportivePieces.stream().filter(tuple -> tuple.getThird()==min.get().getThird()).forEach(supportivePiece -> {
-//                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-//                        });
-//                    } else {
-//                        allSupportivePieces.stream().forEach(supportivePiece -> {
-//                            result.add(new Pair<>(supportivePiece.getFirst(), supportivePiece.getSecond()));
-//                        });
-//                    }
                     result.addAll(allSupportivePieces);
                 }
             }
@@ -156,7 +149,12 @@ public enum SqueezePatternDirection {
                     GameUtils.checkAndHighlight(cell, board, 1, 0, destinations);
                     GameUtils.checkAndHighlight(cell, board, 0, 1, destinations);
                     GameUtils.removeHighlight(board);
-                    destinations.forEach(destination -> result.add(new Tuple<>(cell, destination, 0)));
+                    destinations.forEach(destination -> {
+                        int distance = cell.getRowCord() == destination.getRowCord()?
+                                cell.getColCord()-destination.getColCord():
+                                cell.getRowCord()-destination.getRowCord();
+                        result.add(new Tuple<>(cell, destination, Math.abs(distance)));
+                    });
                 }
             }
             return result;

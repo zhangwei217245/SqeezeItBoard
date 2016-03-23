@@ -31,15 +31,12 @@ public enum SqueezePatternType {
 
         @Override
         public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            boolean supportivePieceAppeared = false;
+            //just follow the probability
             int capacity = squeezePattern.capacity();
-            int empty = squeezePattern.emptyCount();
             int validRemoval = squeezePattern.validRemovalCount();
 
-            double generalProbability = ((double)(capacity - empty))/(double)capacity;
-            double conditionalProbability = 0.5d;
-            return  (supportivePieceAppeared? conditionalProbability : generalProbability)
-                    * (double)validRemoval;
+            double generalProbability = ((double)(validRemoval))/(double)capacity;
+            return  generalProbability;
         }
 
     },
@@ -52,21 +49,17 @@ public enum SqueezePatternType {
 
         @Override
         public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            //FIXME: should check the opening column to make sure the removal rate is meaningful
-            //TODO: if opening column has the supportive piece, then return actual removalRate.
-            //TODO: if not, return Double.NEGATIVE_INFINITY.
-            int capacity = squeezePattern.capacity();
-            int empty = squeezePattern.emptyCount();
+            //just follow the probability
             int validRemoval = squeezePattern.validRemovalCount();
-            return ((double)(capacity - empty))/(double)capacity * (double)validRemoval;
+            return 0.5d * (double)validRemoval;
         }
 
     };
 
-    public final double baseScore;
+    public final double weight;
 
-    SqueezePatternType(double baseScore) {
-        this.baseScore = baseScore;
+    SqueezePatternType(double weight) {
+        this.weight = weight;
     }
 
     public abstract Pattern getPattern(PlayerColor color);
@@ -74,6 +67,6 @@ public enum SqueezePatternType {
     public abstract double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration);
 
     public double score(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-        return (double)this.baseScore + removalRate(squeezePattern, boardConfiguration);
+        return (double)this.weight + removalRate(squeezePattern, boardConfiguration);
     }
 }

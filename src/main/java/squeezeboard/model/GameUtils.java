@@ -20,8 +20,7 @@ import javafx.scene.layout.GridPane;
 import squeezeboard.SqueezeBoard;
 import squeezeboard.SqueezeBoardController;
 import squeezeboard.controller.CellEventListner;
-import squeezeboard.controller.ai.AIHeuristicSelector;
-import squeezeboard.controller.ai.SqueezeAI;
+import squeezeboard.controller.ai.minimax.OptimalMoveFinder;
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
@@ -96,6 +95,23 @@ public class GameUtils {
     public static final AtomicInteger currentCursor = new AtomicInteger(0);
 
     public static SqueezeBoardController mainController;
+
+    public static OptimalMoveFinder moveFinder = OptimalMoveFinder.SEQUENTIAL;
+
+    public static void computerAction() {
+        if (game_started.get()) {
+            Pair<CellData, CellData> optimalMove = null;
+            if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
+                optimalMove = moveFinder.findOptimalMove(GameUtils.computerRole, getCurrentBoardConfiguration());
+                if (optimalMove != null) {
+                    GameUtils.computerMoveByEvent(optimalMove);
+                } else {
+                    Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
+                    GameUtils.game_over(left.getFirst(), left.getSecond());
+                }
+            }
+        }
+    }
 
     public static Node getNodeByRowColumnIndex(final int row,final int column,GridPane gridPane) {
         Node result = null;
@@ -173,10 +189,6 @@ public class GameUtils {
         }
     }
 
-    public static void removeHighlight(BoardConfiguration currentConfig) {
-        removeHighlight(currentConfig.getBoard());
-    }
-    
     private static void setPictureToImageView(CellData cell, ImageView imgView) {
         char cellChar = cell.getCellChar();
         Effect effect = null;
@@ -310,8 +322,22 @@ public class GameUtils {
         Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
                 .max((f, s) -> Integer.compare(f.validRemovalCount(), s.validRemovalCount()));
         if (patternToRemove.isPresent()) {
-            return patternToRemove.get().tryEliminate(cell, boardConfiguration.getBoard());
+            return patternToRemove.get().validRemovalCount();//.tryEliminate(cell, boardConfiguration.getBoard());
         }
+        return 0;
+    }
+
+    public static int findDangerForPlayer(CellData cell, BoardConfiguration boardConfiguration, PlayerColor color) {
+        Map<SqueezePatternType, List<SqueezePattern>> pattern =
+                SqueezePatternFinder.findPattern(boardConfiguration, cell, color.getOpponentColor());
+        List<SqueezePattern> normalGaps = pattern.get(SqueezePatternType.GAP);
+
+        List<SqueezePattern> incompleteGaps = pattern.get(SqueezePatternType.INCOMPLETE_GAP);
+//        Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
+//                .max((f, s) -> Integer.compare(f.validRemovalCount(), s.validRemovalCount()));
+//        if (patternToRemove.isPresent()) {
+//            return patternToRemove.get().validRemovalCount();//.tryEliminate(cell, boardConfiguration.getBoard());
+//        }
         return 0;
     }
 
@@ -334,28 +360,6 @@ public class GameUtils {
                 true, true, true, true, true, true, null));
     }
 
-    public static void computerAction() {
-        if (game_started.get()) {
-            Pair<CellData, CellData> optimalMove = null;
-            if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
-                for (AIHeuristicSelector aiHeuristicSelector : AIHeuristicSelector.sortedHeuristics()) {
-                    SqueezeAI squeezeAI = aiHeuristicSelector.getHeuristic();
-                    optimalMove = squeezeAI
-                            .findOptimalMove(GameUtils.computerRole, GameUtils.getCurrentBoardConfiguration().clone());
-                    if (optimalMove != null) {
-                        GameUtils.computerMoveByEvent(optimalMove);
-                        break;
-                    } else {
-                        continue;
-                    }
-                }
-                if (optimalMove == null) {
-                    Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
-                    GameUtils.game_over(left.getFirst(), left.getSecond());
-                }
-            }
-        }
-    }
 
     public static Pair<Integer, Integer> getComputerPlayerLeft() {
         int playerLeft = GameUtils.orangeLeft.get();

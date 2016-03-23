@@ -2,6 +2,7 @@ package squeezeboard.controller.ai;
 
 import squeezeboard.controller.pattern.SqueezePattern;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
+import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.*;
 
 import java.util.ArrayList;
@@ -41,19 +42,19 @@ public class AIUtils {
         final List<Pair<CellData, CellData>> result = new ArrayList<>();
 
         allComputerPieces.stream().forEach(pickedCell -> {
-            result.addAll(getAllPossibleMovesForACell(pickedCell, currentBoardConfiguration));
+            result.addAll(getAllPossibleMovesForACell(pickedCell, currentBoardConfiguration.getBoard()));
         });
         return result;
     }
 
-    public static List<Pair<CellData, CellData>> getAllPossibleMovesForACell(CellData pickedCell, BoardConfiguration currentBoardConfiguration) {
+    public static List<Pair<CellData, CellData>> getAllPossibleMovesForACell(CellData pickedCell, CellData[][] board) {
         final List<Pair<CellData, CellData>> result = new ArrayList<>();
         List<CellData> possMoves = new ArrayList<CellData>();
         //Checking vertically
-        GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 1, 0, possMoves);
+        GameUtils.checkAndHighlight(pickedCell, board, 1, 0, possMoves);
         //Checking Horizontally
-        GameUtils.checkAndHighlight(pickedCell, currentBoardConfiguration.getBoard(), 0, 1, possMoves);
-        GameUtils.removeHighlight(currentBoardConfiguration);
+        GameUtils.checkAndHighlight(pickedCell, board, 0, 1, possMoves);
+        GameUtils.removeHighlight(board);
         List<Pair<CellData, CellData>> collect = possMoves.stream().map(
                 cellData -> new Pair<CellData, CellData>(pickedCell, cellData))
                 .collect(Collectors.toList());
@@ -61,26 +62,30 @@ public class AIUtils {
         return result;
     }
 
-    public static List<Pair<Pair<CellData, CellData>, Integer>> selectBestMoves(List<Pair<CellData, CellData>> allPossibleMoves,
+    public static List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> selectBestMoves(List<Pair<CellData, CellData>> allPossibleMoves,
                                                                                 BoardConfiguration currentBoardConfiguration,
                                                                                 PlayerColor computerColor,
                                                                                 Comparator<SqueezePattern> comparator){
         return allPossibleMoves.stream().map(move -> {
             BoardConfiguration clonedBoard = currentBoardConfiguration.clone();
             clonedBoard.setPiece(move);
-            List<SqueezePattern> patternsToBeEvaluated = new ArrayList<SqueezePattern>();
-            SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
-                    .values().stream().forEach( list -> patternsToBeEvaluated.addAll(list));
+            Optional<SqueezePattern> max = SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor)
+                    .values().stream().flatMap(pattern -> pattern.stream())
+                    .max((a, b) -> Double.compare(a.score(clonedBoard), b.score(clonedBoard)));
 
-            Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max(comparator);
-            //Optional<SqueezePattern> maxPattern = patternsToBeEvaluated.stream().max((o1, o2) ->
-            //Double.compare(o1.score(), o2.score()));
+            int removalEstimate = max.isPresent()? Double.valueOf(max.get().score(clonedBoard) + 1.0d).intValue() : 0;
 
-            if (maxPattern.isPresent()) {
-                return new Pair<Pair<CellData, CellData>, Integer>(move, (int)(maxPattern.get().score(clonedBoard) * 100d));
-            }
-            return new Pair<Pair<CellData, CellData>, Integer>(move, Integer.MIN_VALUE);
-        }).sorted((o1, o2) -> Integer.compare(o2.getSecond(), o1.getSecond()))
+            Optional<SqueezePattern> maxOpponentRemoval = SqueezePatternFinder.findPattern(clonedBoard, move.getSecond(), computerColor.getOpponentColor())
+                    .values().stream().flatMap(pattern -> pattern.stream())
+                    //test if we can make any full filled gap
+                    .filter(pattern -> pattern.getPatternType().equals(SqueezePatternType.FULFILLED_GAP))
+                    .max((a, b) -> Integer.compare(a.validRemovalCount(), b.validRemovalCount()));
+            int localDanger = maxOpponentRemoval.isPresent()? maxOpponentRemoval.get().validRemovalCount() : 0;
+            int estimatingScore = removalEstimate - localDanger;
+
+            return new Tuple<>(new Tuple<>(move.getFirst(), move.getSecond(), localDanger), removalEstimate, estimatingScore);
+
+        }).sorted((o1, o2) -> Integer.compare(o1.getFirst().getThird(), o2.getFirst().getThird()))
                 .limit(GameUtils.SEARCH_WIDTH).collect(Collectors.toList());
 
     }
@@ -102,15 +107,15 @@ public class AIUtils {
             int alpha = lowerBound;
             int beta = upperBound;
 
-            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> attackingMoves =
+            List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> moveList =
                     func.apply(new Pair<>(boardConfiguration, playerColor));
 
-            for (Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer> attackingMove : attackingMoves) {
+            for (Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer> moveInfo : moveList) {
                 // for each attacking move made by the virtual player, copy a new configuration.
                 BoardConfiguration newBoard = boardConfiguration.clone();
                 // set pieces
-                Tuple<CellData, CellData, Integer> move = attackingMove.getFirst();
-                newBoard.setPiece(attackingMove.getFirst());
+                Tuple<CellData, CellData, Integer> move = moveInfo.getFirst();
+                newBoard.setPiece(moveInfo.getFirst());
                 int removal = tryRemovePattern(move.getSecond(), newBoard, playerColor);
                 Pair<Integer, Integer> blue_orange = GameUtils.calculateLeftPiecesCount(newBoard);
                 int moveCounter = GameUtils.currentCursor.get() + depth;
@@ -125,7 +130,7 @@ public class AIUtils {
                                 playerColor.getOpponentColor());
                         beta = Math.min(beta, estimateScore);
                     }
-                    newBoard = boardConfiguration;
+                    //newBoard = boardConfiguration;
                     if (beta <= alpha) {
                         return beta;
                     }
@@ -137,7 +142,7 @@ public class AIUtils {
                                 playerColor.getOpponentColor());
                         alpha = Math.max(alpha, estimateScore);
                     }
-                    newBoard = boardConfiguration;
+                    //newBoard = boardConfiguration;
                     if (alpha >= beta) {
                         return alpha;
                     }
