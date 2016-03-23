@@ -110,12 +110,18 @@ public class GameUtils {
                     //TODO: TEST IF THE SEARCH_WIDTH SHOULD VARY FROM TIME TO TIME.
                     SEARCH_WIDTH = 20 - leftPieces;
                 }
-                optimalMove = moveFinder.findOptimalMove(GameUtils.computerRole, getCurrentBoardConfiguration());
-                if (optimalMove != null) {
-                    GameUtils.computerMoveByEvent(optimalMove);
-                } else {
+                try {
+                    optimalMove = moveFinder.findOptimalMove(GameUtils.computerRole, getCurrentBoardConfiguration());
+                    if (optimalMove != null) {
+                        GameUtils.computerMoveByEvent(optimalMove);
+                    } else {
+                        Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
+                        GameUtils.game_over(left.getFirst(), left.getSecond(), null);
+                    }
+                } catch (Throwable t) {
+                    System.out.println(String.format("%s : %s", t.getClass(), t.getLocalizedMessage()));
                     Pair<Integer, Integer> left = GameUtils.getComputerPlayerLeft();
-                    GameUtils.game_over(left.getFirst(), left.getSecond());
+                    GameUtils.game_over(left.getFirst(), left.getSecond(), t);
                 }
             }
         }
@@ -307,6 +313,8 @@ public class GameUtils {
             // if anyone has only one piece left on the board, he will lost.
             if (computerLeft <= 0 || playerLeft <= 0) {
                 return getDifferentGameResult(computerLeft,playerLeft);
+            } else if (computerLeft == 1 && playerLeft == 1) {
+                return getDifferentGameResult(computerLeft, playerLeft);
             }
         }
         return null;
@@ -390,9 +398,10 @@ public class GameUtils {
         return new Pair<>(computerLeft, playerLeft);
     }
 
-    public static void game_over(int computerLeft, int playerLeft) {
+    public static void game_over(int computerLeft, int playerLeft, Throwable t) {
         if (mainController.getBtn_start().isSelected()) {
-            PromptableException.ExceptFactor gameResult = GameUtils.determineGameResult(GameUtils.currentCursor.get(),
+            int moveCounter = t!=null? Integer.MAX_VALUE:GameUtils.currentCursor.get();
+            PromptableException.ExceptFactor gameResult = GameUtils.determineGameResult(moveCounter,
                     computerLeft, playerLeft);
             if (gameResult != null) {
                 GameUtils.showAlertBox(gameResult);
