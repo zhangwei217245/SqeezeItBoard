@@ -92,7 +92,7 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
             if (bestMoves.size() >= 1) {
                 result.addAll(bestMoves);
                 System.out.println("Most aggressive attacking move with largest defensive score found!");
-            } else if (boardConfiguration.getNumberOfPieces(computerColor) >= 3) {
+            } else if (attackingMoves.size() >= 1) {
                 result.addAll(attackingMoves);
                 System.out.println("Most aggressive attacking move found!");
             } else {
@@ -109,8 +109,10 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
                         item.setSecond(item.getSecond() - danger);
                     }
                     return item;
-                }).sorted((a, b) -> (AIUtils.getGlobalEstimate(boardConfiguration, computerColor) > 0) ?
-                        (Integer.compare(b.getSecond(), a.getSecond())): (Integer.compare(b.getThird(), a.getThird())))
+                }).sorted((a, b) -> (boardConfiguration.getNumberOfPieces(computerColor.getOpponentColor()) <= 4) ?
+                        (Integer.compare(b.getSecond(), a.getSecond())) // when opponent has more than 4 marbles, be more careful
+                        :(Integer.compare(b.getThird(), a.getThird())) //when opponent has less than or equal to 4 marbles, become more aggressive
+                )
                 .limit(SEARCH_WIDTH / 2).collect(Collectors.toList());
         System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());
         System.out.println("==================================================");

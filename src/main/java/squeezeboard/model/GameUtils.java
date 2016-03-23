@@ -103,6 +103,13 @@ public class GameUtils {
         if (game_started.get()) {
             Pair<CellData, CellData> optimalMove = null;
             if (GameUtils.computerRole.equals(GameUtils.currentColor)) {
+                int leftPieces = getCurrentBoardConfiguration().getNumberOfPieces(computerRole);
+                if (getCurrentBoardConfiguration().getNumberOfPieces(computerRole) > 4) {
+                    SEARCH_WIDTH = 20 - leftPieces;
+                } else {
+                    //TODO: TEST IF THE SEARCH_WIDTH SHOULD VARY FROM TIME TO TIME.
+                    SEARCH_WIDTH = 20 - leftPieces;
+                }
                 optimalMove = moveFinder.findOptimalMove(GameUtils.computerRole, getCurrentBoardConfiguration());
                 if (optimalMove != null) {
                     GameUtils.computerMoveByEvent(optimalMove);

@@ -93,7 +93,7 @@ public class AIUtils {
     public static int getGlobalEstimate(BoardConfiguration boardConfiguration, PlayerColor playerColor) {
         int playEstimate = boardConfiguration.getNumberOfPieces(playerColor);
         int opponentEstimate = boardConfiguration.getNumberOfPieces(playerColor.getOpponentColor());
-        return playEstimate - opponentEstimate;
+        return playEstimate - 2 * opponentEstimate;
     }
 
     public static int alphaBeta(int depth, int lowerBound, int upperBound,
