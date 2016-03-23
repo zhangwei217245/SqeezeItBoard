@@ -189,7 +189,7 @@ public enum SqueezePatternDirection {
 
     public abstract List<Pair<String,Integer>> getGroupStrList(CellData[][] board);
 
-    private static List<Tuple<CellData, CellData, Integer>> findAllSupportivePieces(int depth, int c, int r, PlayerColor playerColor, CellData[][] board, boolean recursive){
+    public static List<Tuple<CellData, CellData, Integer>> findAllSupportivePieces(int depth, int c, int r, PlayerColor playerColor, CellData[][] board, boolean recursive){
         List<Tuple<CellData, CellData, Integer>> allSupportivePieces = new ArrayList<>();
         //checking horizontally for supportive pieces.
         List<Tuple<CellData, CellData, Integer>> subSupportiveMoves = new ArrayList<>();

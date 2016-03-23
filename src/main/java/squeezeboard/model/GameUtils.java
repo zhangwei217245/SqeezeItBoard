@@ -22,6 +22,7 @@ import squeezeboard.SqueezeBoardController;
 import squeezeboard.controller.CellEventListner;
 import squeezeboard.controller.ai.minimax.OptimalMoveFinder;
 import squeezeboard.controller.pattern.SqueezePattern;
+import squeezeboard.controller.pattern.SqueezePatternDirection;
 import squeezeboard.controller.pattern.SqueezePatternFinder;
 import squeezeboard.controller.pattern.SqueezePatternType;
 import squeezeboard.model.Animation.AnimatedGif;
@@ -322,7 +323,7 @@ public class GameUtils {
         Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
                 .max((f, s) -> Integer.compare(f.validRemovalCount(), s.validRemovalCount()));
         if (patternToRemove.isPresent()) {
-            return patternToRemove.get().validRemovalCount();//.tryEliminate(cell, boardConfiguration.getBoard());
+            return patternToRemove.get().tryEliminate(cell, boardConfiguration.getBoard());
         }
         return 0;
     }
@@ -330,15 +331,26 @@ public class GameUtils {
     public static int findDangerForPlayer(CellData cell, BoardConfiguration boardConfiguration, PlayerColor color) {
         Map<SqueezePatternType, List<SqueezePattern>> pattern =
                 SqueezePatternFinder.findPattern(boardConfiguration, cell, color.getOpponentColor());
-        List<SqueezePattern> normalGaps = pattern.get(SqueezePatternType.GAP);
+        List<SqueezePattern> patterns = pattern.get(SqueezePatternType.GAP);
+        patterns.addAll(pattern.get(SqueezePatternType.INCOMPLETE_GAP));
 
-        List<SqueezePattern> incompleteGaps = pattern.get(SqueezePatternType.INCOMPLETE_GAP);
-//        Optional<SqueezePattern> patternToRemove = squeezePatterns.stream()
-//                .max((f, s) -> Integer.compare(f.validRemovalCount(), s.validRemovalCount()));
-//        if (patternToRemove.isPresent()) {
-//            return patternToRemove.get().validRemovalCount();//.tryEliminate(cell, boardConfiguration.getBoard());
-//        }
-        return 0;
+        Optional<Pair<SqueezePattern, Integer>> maxDanger = patterns.stream().map(pt -> {
+            int c = cell.getColCord();
+            int r = cell.getRowCord();
+            List<Tuple<CellData, CellData, Integer>> allSupportivePieces =
+                    SqueezePatternDirection.findAllSupportivePieces(0, c, r, color.getOpponentColor(), boardConfiguration.getBoard()
+                            , false);
+            boolean inDanger = allSupportivePieces.stream().filter(item -> {
+                int horz_dist = Math.abs(SqueezePatternDirection.HORIZONTAL.getIndexInAGroup(item.getFirst())
+                        - pt.getSqueezePatternDirection().getIndexInAGroup(item.getSecond()));
+                int vert_dist = Math.abs(SqueezePatternDirection.VERTICAL.getIndexInAGroup(item.getFirst())
+                        - pt.getSqueezePatternDirection().getIndexInAGroup(item.getSecond()));
+                return (horz_dist > 0 || vert_dist > 0);
+            }).findAny().isPresent();
+            return new Pair<>(pt, inDanger ? pt.validRemovalCount() : 0);
+        }).max((a, b) -> Integer.compare(a.getSecond(), b.getSecond()));
+
+        return (maxDanger.isPresent()? maxDanger.get().getSecond() : 0);
     }
 
     public static void computerMoveByEvent(Pair<CellData, CellData> move) {

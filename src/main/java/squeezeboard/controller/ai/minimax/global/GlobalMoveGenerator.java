@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Search through all possible moves globally, and try to simulate the removal, to see which one can
@@ -67,11 +68,19 @@ public class GlobalMoveGenerator implements SqueezeAI {
             Optional<Integer> maxScore = bestMoves.stream().map(move -> move.getThird())
                     .max((o1, o2) -> Integer.compare(o1, o2));
             int bestEstimate = maxScore.isPresent() ? maxScore.get() : Integer.MIN_VALUE;
-            bestMoves.stream().filter(move -> move.getThird() >= bestEstimate)
+            bestMoves.stream().map(item -> {
+                int danger = GameUtils.findDangerForPlayer(item.getFirst().getSecond(), currentBoardConfiguration, computerColor);
+                if (danger > 0) {
+                    item.setThird(item.getThird() - danger);
+                }
+                return item;
+            }).filter(move -> move.getThird() >= bestEstimate)
                     .sorted((a, b) -> Integer.compare(b.getSecond(), a.getSecond()))
                     .limit(GameUtils.SEARCH_WIDTH / 2).forEach(each -> result.add(each));
         } else {
-            Pair<CellData, CellData> move = allPossibleMoves.get(RANDOM.nextInt(allPossibleMoves.size()));
+            Pair<CellData, CellData> move = allPossibleMoves.stream().filter(item -> {
+                return GameUtils.findDangerForPlayer(item.getSecond(), currentBoardConfiguration, computerColor) <= 0;
+            }).collect(Collectors.toList()).get(RANDOM.nextInt(allPossibleMoves.size()));
             result.add(new Tuple<>(new Tuple<>(move.getFirst(), move.getSecond(), 0), 0,0));
         }
         System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());

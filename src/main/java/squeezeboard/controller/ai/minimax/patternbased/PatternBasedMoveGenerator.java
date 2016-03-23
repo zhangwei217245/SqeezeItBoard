@@ -102,7 +102,14 @@ public class PatternBasedMoveGenerator implements SqueezeAI {
         }
 
         List<Tuple<Tuple<CellData, CellData, Integer>, Integer, Integer>> finalResult =
-                result.stream().sorted((a, b) -> (AIUtils.getGlobalEstimate(boardConfiguration, computerColor) > 0) ?
+                result.stream().map(item -> {
+                    int danger = GameUtils.findDangerForPlayer(item.getFirst().getSecond(), boardConfiguration, computerColor);
+                    if (danger > 0) {
+                        item.setThird(item.getThird() - danger);
+                        item.setSecond(item.getSecond() - danger);
+                    }
+                    return item;
+                }).sorted((a, b) -> (AIUtils.getGlobalEstimate(boardConfiguration, computerColor) > 0) ?
                         (Integer.compare(b.getSecond(), a.getSecond())): (Integer.compare(b.getThird(), a.getThird())))
                 .limit(SEARCH_WIDTH / 2).collect(Collectors.toList());
         System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());

@@ -55,7 +55,13 @@ public class PatternBasedDefender implements SqueezeAI {
 
             //get best defensive move among all that are with the same defensive score.
             System.out.println("Most defensive move found!");
-            movesWithRank.stream().filter(pair -> pair.getFirst().getThird() >= 3)
+            movesWithRank.stream().map(item -> {
+                int danger = GameUtils.findDangerForPlayer(item.getFirst().getSecond(), boardConfiguration, computerColor);
+                if (danger > 0) {
+                    item.setThird(item.getThird() - danger);
+                }
+                return item;
+            }).filter(pair -> pair.getFirst().getThird() >= 3) //distance should larger than 3.
                     .filter(pair -> bestEstimate == pair.getThird())
                     .sorted((a, b) -> Integer.compare(b.getFirst().getThird(), a.getFirst().getThird()))
                     .limit(SEARCH_WIDTH/2).forEach(move -> result.add(move));
