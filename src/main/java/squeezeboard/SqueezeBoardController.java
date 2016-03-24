@@ -13,11 +13,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import squeezeboard.model.BoardConfiguration;
 import squeezeboard.model.GameUtils;
 import squeezeboard.model.PlayerColor;
@@ -30,9 +36,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static squeezeboard.model.GameUtils.computerAction;
-import static squeezeboard.model.GameUtils.computerRole;
-import static squeezeboard.model.GameUtils.currentCursor;
+import static squeezeboard.model.GameUtils.*;
 
 /**
  *
@@ -240,6 +244,7 @@ public class SqueezeBoardController implements Initializable {
         stage.setTitle("Tutorial Viewer for SqueezeIt!");
         stage.setResizable(false);
         stage.show();
+
     }
 
     @FXML
@@ -249,8 +254,8 @@ public class SqueezeBoardController implements Initializable {
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
+//        stage.initModality(Modality.WINDOW_MODAL);
+//        stage.initStyle(StageStyle.UTILITY);
         stage.setTitle("Preferences for SqueezeIt!");
         stage.setResizable(false);
         stage.show();

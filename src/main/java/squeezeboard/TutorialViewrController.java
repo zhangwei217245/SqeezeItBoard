@@ -90,7 +90,7 @@ public class TutorialViewrController {
 //        scroller.setFitToHeight(true);
 //        scroller.setFitToWidth(true);
 
-        scroller.setPannable(false);
+        scroller.setPannable(true);
 
 
         zoom = new SimpleDoubleProperty(1);
@@ -111,6 +111,11 @@ public class TutorialViewrController {
         createPaginationPageFactory();
 
         loadFile(SqueezeBoard.class.getResourceAsStream(file_manual));
+    }
+
+    @FXML
+    private void handleZoom(ActionEvent e) {
+        System.out.println(e.getTarget());
     }
 
     private void createAndConfigureImageLoadService() {
