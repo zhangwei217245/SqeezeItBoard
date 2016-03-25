@@ -18,7 +18,7 @@ public enum SqueezePatternType {
 
         @Override
         public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            return (double)squeezePattern.validRemovalCount();
+            return (double)squeezePattern.validRemovalCount()/(double)squeezePattern.size();
         }
 
     },
@@ -31,12 +31,7 @@ public enum SqueezePatternType {
 
         @Override
         public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            //just follow the probability
-            int capacity = squeezePattern.capacity();
-            int validRemoval = squeezePattern.validRemovalCount();
-
-            double generalProbability = ((double)(validRemoval))/(double)capacity;
-            return  generalProbability;
+            return (double)squeezePattern.validRemovalCount()/(double)squeezePattern.size();
         }
 
     },
@@ -49,9 +44,7 @@ public enum SqueezePatternType {
 
         @Override
         public double removalRate(SqueezePattern squeezePattern, BoardConfiguration boardConfiguration) {
-            //just follow the probability
-            int validRemoval = squeezePattern.validRemovalCount();
-            return 0.5d * (double)validRemoval;
+            return (double)squeezePattern.validRemovalCount()/(double)squeezePattern.size();
         }
 
     };
