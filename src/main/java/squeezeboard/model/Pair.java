@@ -32,9 +32,9 @@ public class Pair<T, S> {
 
     @Override
     public String toString() {
-        return "Pair{" +
+        return "Pair{\n\t" +
                 "first=" + first +
-                ", second=" + second +
-                '}';
+                ", \n\tsecond=" + second +
+                "\n}\n";
     }
 }

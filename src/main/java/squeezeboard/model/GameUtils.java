@@ -112,6 +112,7 @@ public class GameUtils {
                 }
                 try {
                     optimalMove = moveFinder.findOptimalMove(GameUtils.computerRole, getCurrentBoardConfiguration());
+                    System.out.println(optimalMove.toString());
                     if (optimalMove != null) {
                         GameUtils.computerMoveByEvent(optimalMove);
                     } else {

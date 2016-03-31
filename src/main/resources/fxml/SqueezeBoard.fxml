@@ -69,6 +69,7 @@
                      <children>
                         <ToggleButton fx:id="btn_start" mnemonicParsing="false" onAction="#handleStart" prefWidth="80.0" text="Start" />
                         <Button fx:id="btn_reset" mnemonicParsing="false" onAction="#handleReset" prefWidth="80.0" text="Reset" />
+                         <Button fx:id="btn_undo" disable="true" mnemonicParsing="false" onAction="#handleUndo" prefWidth="80.0" text="Undo" />
                      </children>
                      <padding>
                         <Insets left="80.0" />

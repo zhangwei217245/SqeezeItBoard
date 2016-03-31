@@ -72,6 +72,9 @@ public class SqueezeBoardController implements Initializable {
     private MenuItem menu_undo;
 
     @FXML
+    private Button btn_undo;
+
+    @FXML
     private MenuItem menu_pref;
 
     private final ToggleGroup radioGroup = new ToggleGroup();
@@ -157,6 +160,7 @@ public class SqueezeBoardController implements Initializable {
         GameUtils.game_started.compareAndSet(false, true);
         grid_view.setDisable(false);
         menu_undo.setDisable(false);
+        btn_undo.setDisable(false);
         grid_view.setVisible(true);
         menu_pref.setDisable(true);
         System.out.println("start Game");
@@ -171,6 +175,7 @@ public class SqueezeBoardController implements Initializable {
         btn_start.setSelected(false);
         grid_view.setDisable(true);
         menu_undo.setDisable(true);
+        btn_undo.setDisable(true);
         menu_pref.setDisable(false);
         GameUtils.game_started.compareAndSet(true, false);
         radioGroup.getToggles().stream().forEach(radio -> {
@@ -225,8 +230,8 @@ public class SqueezeBoardController implements Initializable {
     private void handleAbout(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Author\n  Wei Zhang (x-spirit.zhang@ttu.edu)\n"
                 + "  Ahmad Aseeri(aseeri.ahmad@ttu.edu)\n TTU 2016 All rights reserved.\n");
-        alert.setTitle("About SqueezeIt v1.2");
-        alert.setHeaderText("About SqueezeIt v1.2");
+        alert.setTitle("About SqueezeIt v1.6");
+        alert.setHeaderText("About SqueezeIt v1.6");
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(response -> System.out.println(response.getButtonData()));
