@@ -42,7 +42,7 @@ public class CellData {
 
     @Override
     public String toString() {
-        return "CellData{" + "rowCord=" + rowCord + ", colCord=" + colCord + ", cellChar=" + cellChar + '}';
+        return "CellData{" + "rowCord=" + (7-rowCord) + ", colCord=" + (7-colCord) + ", cellChar=" + cellChar + '}';
     }
     
     
