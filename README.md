@@ -1,6 +1,6 @@
 # SqueezeIt
 
-[![Build Status](https://travis-ci.org/zhangwei217245/SqueezeItBoard.svg?branch=master)](https://travis-ci.org/zhangwei217245/SqueezeItBoard)
+[![Build Status](https://travis-ci.org/zhangwei217245/SqeezeItBoard.svg?branch=master)](https://travis-ci.org/zhangwei217245/SqeezeItBoard)
 
 ### An board game in which you try to eliminate opponent's pieces by building up specific patterns as follows:
 
