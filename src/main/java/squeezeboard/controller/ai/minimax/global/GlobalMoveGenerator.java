@@ -84,7 +84,7 @@ public class GlobalMoveGenerator implements SqueezeAI {
             result.add(new Tuple<>(new Tuple<>(move.getFirst(), move.getSecond(), 0), 0,0));
         }
         System.out.println(this.getClass().getSimpleName()+" got result = " + result.size());
-        System.out.println("==================================================");
+        System.out.println("===================================================");
         return result;
     }
 
